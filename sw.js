@@ -1,94 +1,70 @@
-// ─── HUNTER'S JOURNAL — SERVICE WORKER ───────────────────────────────────────
-const CACHE_NAME = 'hunters-journal-v1';
-const CACHE_URLS = [
-  './',
-  './index.html',
-  'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap',
-  'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js'
+// Hunter's Journal — Service Worker v2 (GitHub Pages compatible)
+const CACHE = 'hunters-journal-v2';
+
+const PRECACHE = [
+  '/index.html',
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png'
 ];
 
-// Install — cache core assets
-self.addEventListener('install', (event) => {
-  console.log('[SW] Installing...');
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(CACHE_URLS).catch((err) => {
-        // Non-critical: external fonts/scripts may fail in some environments
-        console.warn('[SW] Some assets failed to cache:', err);
-      });
-    }).then(() => self.skipWaiting())
+// Install
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE)
+      .then(cache => cache.addAll(PRECACHE).catch(() => {}))
+      .then(() => self.skipWaiting())
   );
 });
 
-// Activate — clean up old caches
-self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating...');
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => {
-            console.log('[SW] Deleting old cache:', key);
-            return caches.delete(key);
-          })
-      )
-    ).then(() => self.clients.claim())
+// Activate — delete old caches
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(
+        keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+      ))
+      .then(() => self.clients.claim())
   );
 });
 
-// Fetch — cache-first for local, network-first for external
-self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
+// Fetch — cache-first for app shell, network-first for API
+self.addEventListener('fetch', e => {
+  const url = new URL(e.request.url);
 
-  // Skip non-GET and chrome-extension requests
-  if (event.request.method !== 'GET') return;
+  // Skip non-GET
+  if (e.request.method !== 'GET') return;
+  // Skip Anthropic API (always network)
+  if (url.hostname === 'api.anthropic.com') return;
+  // Skip chrome-extension
   if (url.protocol === 'chrome-extension:') return;
 
-  // Anthropic API calls — always network, never cache
-  if (url.hostname === 'api.anthropic.com') return;
-
-  // Google Fonts & CDN — cache-first
-  if (
-    url.hostname === 'fonts.googleapis.com' ||
-    url.hostname === 'fonts.gstatic.com' ||
-    url.hostname === 'cdnjs.cloudflare.com'
-  ) {
-    event.respondWith(
-      caches.match(event.request).then((cached) => {
+  // CDN & Fonts — cache then network
+  if (url.hostname.includes('googleapis.com') ||
+      url.hostname.includes('gstatic.com') ||
+      url.hostname.includes('cdnjs.cloudflare.com')) {
+    e.respondWith(
+      caches.match(e.request).then(cached => {
         if (cached) return cached;
-        return fetch(event.request).then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          return response;
+        return fetch(e.request).then(res => {
+          caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+          return res;
         }).catch(() => cached);
       })
     );
     return;
   }
 
-  // App shell — cache-first, fallback to network
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).then((response) => {
-        // Only cache valid responses from our own origin
-        if (
-          response &&
-          response.status === 200 &&
-          response.type !== 'opaque' &&
-          url.origin === self.location.origin
-        ) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+  // App shell — cache first, fallback to network
+  e.respondWith(
+    caches.match(e.request).then(cached => {
+      const fetchPromise = fetch(e.request).then(res => {
+        if (res && res.status === 200) {
+          caches.open(CACHE).then(c => c.put(e.request, res.clone()));
         }
-        return response;
-      }).catch(() => {
-        // Offline fallback — return cached index.html for navigation requests
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-      });
+        return res;
+      }).catch(() => cached || caches.match('/index.html'));
+      return cached || fetchPromise;
     })
   );
 });

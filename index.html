@@ -1744,9 +1744,14 @@ document.getElementById('themeBtn').addEventListener('click', toggleTheme);
 // ─── SERVICE WORKER ───────────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
       .then(reg => console.log('[SW] Registered:', reg.scope))
-      .catch(err => console.warn('[SW] Registration failed:', err));
+      .catch(() => {
+        // Fallback: try relative path (Netlify / subdirectory deploys)
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('[SW] Registered (relative):', reg.scope))
+          .catch(err => console.warn('[SW] Registration failed:', err));
+      });
   });
 }
 

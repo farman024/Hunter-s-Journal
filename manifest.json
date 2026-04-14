@@ -1,10 +1,9 @@
 {
   "name": "Hunter's Trading Journal",
   "short_name": "Hunter's Journal",
-  "id": "./",
   "description": "Solo Leveling Trading Journal — track your hunt from E-Rank to S-Rank",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "/index.html",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#04040f",
@@ -12,36 +11,28 @@
   "categories": ["finance", "productivity"],
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icon-512.png",
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icon-maskable-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Log Trade",
-      "short_name": "Trade",
-      "description": "Quickly log a new trade",
-      "url": "./index.html#log",
-      "icons": [
-        {
-          "src": "icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
     }
   ]
 }
