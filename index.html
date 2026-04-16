@@ -13,9 +13,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Hunter's Journal">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -829,6 +829,7 @@ canvas { width: 100% !important; }
         <div class="export-bar" style="margin:0;">
           <button class="btn btn-outline btn-sm" onclick="exportText()">Export Text</button>
           <button class="btn btn-outline btn-sm" onclick="exportJSON()">Export JSON</button>
+          <button class="btn btn-outline btn-sm" onclick="exportPDF()">Export PDF</button>
         </div>
       </div>
       <div class="section-body" style="padding:0;overflow-x:auto;">
@@ -1795,7 +1796,174 @@ function exportJSON() {
   showToast('Exported as JSON');
 }
 
-// ─── TABS ─────────────────────────────────────────────────────────────────────
+function exportPDF() {
+  const acc = getActiveAccount();
+  if (!acc) return;
+
+  const totalPnl  = acc.trades.reduce((s,t) => s + t.net, 0);
+  const wins      = acc.trades.filter(t => t.net > 0).length;
+  const losses    = acc.trades.filter(t => t.net < 0).length;
+  const winRate   = acc.trades.length ? Math.round((wins/acc.trades.length)*100) : 0;
+  const curBal    = acc.startBalance + totalPnl;
+  const pct       = Math.max(0, Math.min(100, (totalPnl / acc.target) * 100));
+  const sessions  = [...acc.sessions].sort((a,b) => a.date.localeCompare(b.date));
+
+  const getRank = (p) => {
+    if (p >= 90) return 'S'; if (p >= 70) return 'A'; if (p >= 50) return 'B';
+    if (p >= 30) return 'C'; if (p >= 15) return 'D'; return 'E';
+  };
+  const rank = getRank(pct);
+  const rankColors = { E:'#888', D:'#4fc3f7', C:'#66bb6a', B:'#ffa726', A:'#ef5350', S:'#ffd700' };
+  const rc = rankColors[rank];
+
+  let sessionsHTML = '';
+  sessions.forEach(s => {
+    const trades = acc.trades.filter(t => t.sessionDate === s.date)
+                             .sort((a,b) => a.timestamp - b.timestamp);
+    const dayPnl  = trades.reduce((sum,t) => sum + t.net, 0);
+    const dayWins = trades.filter(t => t.net > 0).length;
+    const sessionRules = acc.rules && acc.rules[s.date] ? acc.rules[s.date] : {};
+
+    let tradesHTML = '';
+    if (trades.length === 0) {
+      tradesHTML = `<tr><td colspan="8" style="text-align:center;color:#888;font-style:italic;">No trades logged</td></tr>`;
+    } else {
+      trades.forEach((t, i) => {
+        const netColor = t.net >= 0 ? '#00c853' : '#ff4444';
+        tradesHTML += `
+          <tr>
+            <td>${i+1}</td>
+            <td><strong>${t.symbol}</strong></td>
+            <td>${t.dir}</td>
+            <td style="color:${t.outcome==='TP'?'#00c853':'#ff4444'};font-weight:700;">${t.outcome}</td>
+            <td>${t.pips ? t.pips+'p' : '—'}</td>
+            <td>${t.gross>=0?'+':''}$${t.gross.toFixed(2)}</td>
+            <td>-$${t.fee.toFixed(2)}</td>
+            <td style="color:${netColor};font-weight:700;">${t.net>=0?'+':''}$${t.net.toFixed(2)}</td>
+          </tr>`;
+      });
+    }
+
+    let rulesHTML = '';
+    const hasRules = Object.keys(sessionRules).length > 0;
+    if (hasRules) {
+      rulesHTML = `<div class="rules-block"><strong>Rules Compliance:</strong><div class="rules-grid">`;
+      RULES.forEach((rule, i) => {
+        const st = sessionRules[i] || 'unchecked';
+        const mark   = st==='followed' ? '✓' : st==='broken' ? '✗' : '○';
+        const color  = st==='followed' ? '#00c853' : st==='broken' ? '#ff4444' : '#888';
+        rulesHTML += `<span style="color:${color};">${mark} ${rule}</span>`;
+      });
+      rulesHTML += `</div></div>`;
+    }
+
+    sessionsHTML += `
+      <div class="session-block">
+        <div class="session-header">
+          <span class="session-date">${formatDateLong(s.date)}</span>
+          <span class="session-pnl" style="color:${dayPnl>=0?'#00c853':'#ff4444'};">
+            ${dayPnl>=0?'+':''}$${dayPnl.toFixed(2)} &nbsp;·&nbsp; ${dayWins}W / ${trades.length-dayWins}L
+          </span>
+        </div>
+        <div class="session-meta">
+          ${s.intent ? `<div><span class="meta-label">Plan:</span> ${s.intent}</div>` : ''}
+          ${s.emotion ? `<div><span class="meta-label">Emotion:</span> ${s.emotion.toUpperCase()}</div>` : ''}
+        </div>
+        <table class="trade-tbl">
+          <thead><tr><th>#</th><th>Symbol</th><th>Dir</th><th>Outcome</th><th>Pips</th><th>Gross</th><th>Fee</th><th>Net</th></tr></thead>
+          <tbody>${tradesHTML}</tbody>
+        </table>
+        ${s.postNote ? `<div class="reflect-block"><span class="meta-label">Reflection:</span> ${s.postNote}</div>` : ''}
+        ${s.breaches ? `<div class="breach-block"><span class="meta-label" style="color:#ff4444;">Breaches:</span> ${s.breaches}</div>` : ''}
+        ${rulesHTML}
+      </div>`;
+  });
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Hunter's Journal — ${acc.name}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Rajdhani',sans-serif; background:#04040f; color:#e8e8ff; padding:32px; font-size:13px; }
+  .cover { text-align:center; padding:40px 0 32px; border-bottom:1px solid #1a1a4a; margin-bottom:32px; }
+  .cover h1 { font-family:'Cinzel',serif; font-size:28px; color:#6c63ff; letter-spacing:4px; text-shadow:0 0 20px rgba(108,99,255,0.6); }
+  .cover h2 { font-family:'Cinzel',serif; font-size:16px; color:#ffd700; letter-spacing:2px; margin-top:6px; }
+  .cover .rank-badge { display:inline-block; font-family:'Cinzel',serif; font-size:36px; font-weight:900; color:${rc}; border:2px solid ${rc}; padding:8px 20px; border-radius:8px; margin:16px 0; }
+  .summary { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:32px; }
+  .stat { background:#0a0a1e; border:1px solid #1a1a4a; border-radius:8px; padding:12px 16px; }
+  .stat .label { font-size:10px; color:#5555aa; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px; }
+  .stat .value { font-family:'Share Tech Mono',monospace; font-size:18px; font-weight:700; }
+  .stat .value.green { color:#00c853; } .stat .value.red { color:#ff4444; } .stat .value.gold { color:#ffd700; } .stat .value.blue { color:#4fc3f7; }
+  .progress-bar { background:#0a0a1e; border:1px solid #1a1a4a; border-radius:8px; padding:14px 16px; margin-bottom:32px; }
+  .progress-label { display:flex; justify-content:space-between; font-size:11px; color:#9999cc; margin-bottom:8px; font-family:'Share Tech Mono',monospace; }
+  .progress-track { height:8px; background:#0d0d25; border-radius:4px; }
+  .progress-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,#6c63ff,#a78bfa); width:${pct}%; }
+  .session-block { background:#0a0a1e; border:1px solid #1a1a4a; border-radius:10px; margin-bottom:20px; overflow:hidden; page-break-inside:avoid; }
+  .session-header { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#10102a; border-bottom:1px solid #1a1a4a; }
+  .session-date { font-family:'Share Tech Mono',monospace; font-size:12px; color:#4fc3f7; }
+  .session-pnl { font-family:'Share Tech Mono',monospace; font-size:13px; font-weight:700; }
+  .session-meta { padding:8px 14px; font-size:12px; color:#9999cc; border-bottom:1px solid rgba(26,26,74,0.5); }
+  .session-meta div { margin-bottom:2px; }
+  .meta-label { color:#5555aa; font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; }
+  .trade-tbl { width:100%; border-collapse:collapse; font-size:12px; }
+  .trade-tbl th { font-size:10px; letter-spacing:1px; text-transform:uppercase; color:#5555aa; padding:7px 10px; text-align:left; border-bottom:1px solid #1a1a4a; background:#0d0d25; }
+  .trade-tbl td { padding:8px 10px; border-bottom:1px solid rgba(26,26,74,0.4); color:#9999cc; }
+  .trade-tbl tr:last-child td { border-bottom:none; }
+  .reflect-block { padding:8px 14px; font-size:12px; color:#9999cc; border-top:1px solid rgba(26,26,74,0.5); }
+  .breach-block { padding:4px 14px 8px; font-size:12px; }
+  .rules-block { padding:8px 14px 12px; border-top:1px solid rgba(26,26,74,0.5); font-size:11px; }
+  .rules-block strong { display:block; color:#5555aa; font-size:10px; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
+  .rules-grid { display:grid; grid-template-columns:1fr 1fr; gap:3px 16px; }
+  .footer { text-align:center; margin-top:32px; padding-top:16px; border-top:1px solid #1a1a4a; font-size:11px; color:#5555aa; font-family:'Share Tech Mono',monospace; }
+  @media print {
+    body { background:#04040f !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .session-block { page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+  <div class="cover">
+    <h1>HUNTER'S TRADING JOURNAL</h1>
+    <h2>${acc.name}</h2>
+    <div class="rank-badge">${rank}</div>
+    <div style="font-size:12px;color:#5555aa;font-family:'Share Tech Mono',monospace;">
+      Exported: ${new Date().toLocaleString('en-GB')}
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="stat"><div class="label">Starting Balance</div><div class="value blue">$${acc.startBalance.toFixed(2)}</div></div>
+    <div class="stat"><div class="label">Current Balance</div><div class="value ${curBal>=acc.startBalance?'green':'red'}">$${curBal.toFixed(2)}</div></div>
+    <div class="stat"><div class="label">Profit Target</div><div class="value gold">$${acc.target.toFixed(2)}</div></div>
+    <div class="stat"><div class="label">Total P&L</div><div class="value ${totalPnl>=0?'green':'red'}">${totalPnl>=0?'+':''}$${totalPnl.toFixed(2)}</div></div>
+    <div class="stat"><div class="label">Win Rate</div><div class="value gold">${winRate}%</div></div>
+    <div class="stat"><div class="label">Trades</div><div class="value blue">${acc.trades.length} &nbsp;<span style="font-size:13px;color:#00c853;">${wins}W</span> / <span style="font-size:13px;color:#ff4444;">${losses}L</span></div></div>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-label">
+      <span>Profit Progress: $${Math.max(0,totalPnl).toFixed(2)} / $${acc.target.toFixed(2)}</span>
+      <span>${Math.round(pct)}% to ${rank === 'S' ? 'S-RANK' : 'next rank'}</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill"></div></div>
+  </div>
+
+  ${sessionsHTML}
+
+  <div class="footer">HUNTER'S JOURNAL · ${acc.name} · GENERATED ${new Date().toLocaleDateString('en-GB').toUpperCase()}</div>
+</body>
+</html>`;
+
+  const w = window.open('', '_blank');
+  if (!w) { showToast('Allow popups to export PDF', 'error'); return; }
+  w.document.write(html);
+  w.document.close();
+  w.onload = () => { w.focus(); w.print(); };
+  showToast('PDF ready — save as PDF in print dialog');
+}
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach((b,i) => {
     const tabs = ['trades','journal','analytics'];
@@ -1847,14 +2015,10 @@ document.getElementById('themeBtn').addEventListener('click', toggleTheme);
 // ─── SERVICE WORKER ───────────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+    // Use relative path — works for root domain AND subdirectory repos
+    navigator.serviceWorker.register('./sw.js')
       .then(reg => console.log('[SW] Registered:', reg.scope))
-      .catch(() => {
-        // Fallback: try relative path (Netlify / subdirectory deploys)
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('[SW] Registered (relative):', reg.scope))
-          .catch(err => console.warn('[SW] Registration failed:', err));
-      });
+      .catch(err => console.warn('[SW] Registration failed:', err));
   });
 }
 

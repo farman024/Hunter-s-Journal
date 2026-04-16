@@ -1,14 +1,13 @@
-// Hunter's Journal — Service Worker v2 (GitHub Pages compatible)
-const CACHE = 'hunters-journal-v2';
+// Hunter's Journal — Service Worker v3 (relative paths, works everywhere)
+const CACHE = 'hunters-journal-v3';
 
 const PRECACHE = [
-  '/index.html',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
-// Install
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
@@ -17,7 +16,6 @@ self.addEventListener('install', e => {
   );
 });
 
-// Activate — delete old caches
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
@@ -28,18 +26,13 @@ self.addEventListener('activate', e => {
   );
 });
 
-// Fetch — cache-first for app shell, network-first for API
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-
-  // Skip non-GET
   if (e.request.method !== 'GET') return;
-  // Skip Anthropic API (always network)
   if (url.hostname === 'api.anthropic.com') return;
-  // Skip chrome-extension
   if (url.protocol === 'chrome-extension:') return;
 
-  // CDN & Fonts — cache then network
+  // CDN / Fonts — cache then network
   if (url.hostname.includes('googleapis.com') ||
       url.hostname.includes('gstatic.com') ||
       url.hostname.includes('cdnjs.cloudflare.com')) {
@@ -55,16 +48,16 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // App shell — cache first, fallback to network
+  // App shell — cache first
   e.respondWith(
     caches.match(e.request).then(cached => {
-      const fetchPromise = fetch(e.request).then(res => {
+      const net = fetch(e.request).then(res => {
         if (res && res.status === 200) {
           caches.open(CACHE).then(c => c.put(e.request, res.clone()));
         }
         return res;
-      }).catch(() => cached || caches.match('/index.html'));
-      return cached || fetchPromise;
+      }).catch(() => cached || caches.match('./index.html'));
+      return cached || net;
     })
   );
 });
