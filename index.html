@@ -1663,20 +1663,75 @@ function saveRules() { save(); showToast('Rules saved'); }
 function exportText() {
   const acc = getActiveAccount();
   if (!acc) return;
-  let out = `HUNTER'S TRADING JOURNAL — ${acc.name}\n`;
-  out += `Starting Balance: $${acc.startBalance} | Target: $${acc.target}\n\n`;
-  acc.sessions.forEach(s => {
-    const trades = acc.trades.filter(t => t.sessionDate === s.date);
-    const dayPnl = trades.reduce((sum,t) => sum + t.net, 0);
-    out += `━━━ ${formatDateLong(s.date)} ━━━\n`;
-    if (s.intent) out += `Plan: ${s.intent}\n`;
-    trades.forEach((t, i) => {
-      out += `Trade ${i+1} ${t.symbol} ${t.dir} ${t.outcome}: Net $${t.net >= 0 ? '+' : ''}${t.net.toFixed(2)} | Bal: $${(t.runningBalance||acc.startBalance).toFixed(2)}\n`;
-    });
-    out += `Day P&L: ${dayPnl >= 0 ? '+' : ''}$${dayPnl.toFixed(2)}\n`;
-    if (s.postNote) out += `Note: ${s.postNote}\n`;
-    out += '\n';
+
+  const totalPnl = acc.trades.reduce((s,t) => s + t.net, 0);
+  const wins     = acc.trades.filter(t => t.net > 0).length;
+  const losses   = acc.trades.filter(t => t.net < 0).length;
+  const winRate  = acc.trades.length ? Math.round((wins / acc.trades.length) * 100) : 0;
+  const curBal   = acc.startBalance + totalPnl;
+
+  let out = `${'═'.repeat(54)}\n`;
+  out += `  HUNTER'S TRADING JOURNAL\n`;
+  out += `  ${acc.name}\n`;
+  out += `${'═'.repeat(54)}\n\n`;
+  out += `  Starting Balance : $${acc.startBalance.toFixed(2)}\n`;
+  out += `  Current Balance  : $${curBal.toFixed(2)}\n`;
+  out += `  Profit Target    : $${acc.target.toFixed(2)}\n`;
+  out += `  Total P&L        : ${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(2)}\n`;
+  out += `  Total Trades     : ${acc.trades.length}  |  Wins: ${wins}  |  Losses: ${losses}\n`;
+  out += `  Win Rate         : ${winRate}%\n`;
+  out += `\n${'─'.repeat(54)}\n\n`;
+
+  // Ascending order — oldest session first
+  const sessions = [...acc.sessions].sort((a,b) => a.date.localeCompare(b.date));
+
+  sessions.forEach(s => {
+    const trades  = acc.trades.filter(t => t.sessionDate === s.date)
+                              .sort((a,b) => a.timestamp - b.timestamp);
+    const dayPnl  = trades.reduce((sum,t) => sum + t.net, 0);
+    const dayWins = trades.filter(t => t.net > 0).length;
+    const sessionRules = acc.rules && acc.rules[s.date] ? acc.rules[s.date] : {};
+
+    out += `┌─ ${formatDateLong(s.date)}\n`;
+    if (s.intent) out += `│  Plan     : ${s.intent}\n`;
+    if (s.emotion) out += `│  Emotion  : ${s.emotion.toUpperCase()}\n`;
+    out += `│\n`;
+
+    if (trades.length === 0) {
+      out += `│  No trades logged.\n`;
+    } else {
+      trades.forEach((t, i) => {
+        out += `│  Trade ${i+1}  : ${t.symbol} ${t.dir.toUpperCase()} → ${t.outcome}\n`;
+        out += `│           Pips: ${t.pips ? t.pips + 'p' : '—'}  |  Gross: ${t.gross >= 0 ? '+' : ''}$${t.gross.toFixed(2)}  |  Fee: -$${t.fee.toFixed(2)}  |  Net: ${t.net >= 0 ? '+' : ''}$${t.net.toFixed(2)}\n`;
+        out += `│           Balance: $${(t.runningBalance || acc.startBalance).toFixed(2)}\n`;
+        if (t.notes) out += `│           Notes: ${t.notes}\n`;
+      });
+    }
+
+    out += `│\n`;
+    out += `│  Day P&L  : ${dayPnl >= 0 ? '+' : ''}$${dayPnl.toFixed(2)}  (${dayWins}W / ${trades.length - dayWins}L)\n`;
+
+    if (s.postNote) out += `│  Reflect  : ${s.postNote}\n`;
+    if (s.breaches) out += `│  Breaches : ${s.breaches}\n`;
+
+    // Rules compliance for this session
+    const ruleKeys = Object.keys(sessionRules);
+    if (ruleKeys.length > 0) {
+      out += `│\n│  Rules Compliance:\n`;
+      RULES.forEach((rule, i) => {
+        const st = sessionRules[i] || 'unchecked';
+        const mark = st === 'followed' ? '[✓]' : st === 'broken' ? '[✗]' : '[ ]';
+        out += `│    ${mark} ${rule}\n`;
+      });
+    }
+
+    out += `└${'─'.repeat(53)}\n\n`;
   });
+
+  out += `${'═'.repeat(54)}\n`;
+  out += `  Exported: ${new Date().toLocaleString('en-GB')}\n`;
+  out += `${'═'.repeat(54)}\n`;
+
   const blob = new Blob([out], { type: 'text/plain' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = `journal-${acc.name.replace(/\s+/g,'-')}.txt`; a.click();
@@ -1686,7 +1741,55 @@ function exportText() {
 function exportJSON() {
   const acc = getActiveAccount();
   if (!acc) return;
-  const blob = new Blob([JSON.stringify(acc, null, 2)], { type: 'application/json' });
+
+  // Build a clean, readable JSON with rules expanded
+  const sessions = [...acc.sessions].sort((a,b) => a.date.localeCompare(b.date));
+  const exportData = {
+    account: {
+      name: acc.name,
+      startingBalance: acc.startBalance,
+      currentBalance: +(acc.startBalance + acc.trades.reduce((s,t) => s+t.net, 0)).toFixed(2),
+      profitTarget: acc.target,
+      maxDailyLoss: acc.maxLoss || 0,
+      totalPnl: +(acc.trades.reduce((s,t) => s+t.net, 0)).toFixed(2),
+      totalTrades: acc.trades.length,
+      wins: acc.trades.filter(t => t.net > 0).length,
+      losses: acc.trades.filter(t => t.net < 0).length,
+      winRate: acc.trades.length ? Math.round((acc.trades.filter(t=>t.net>0).length / acc.trades.length)*100) + '%' : '0%'
+    },
+    sessions: sessions.map(s => {
+      const trades = acc.trades.filter(t => t.sessionDate === s.date)
+                               .sort((a,b) => a.timestamp - b.timestamp);
+      const sessionRules = acc.rules && acc.rules[s.date] ? acc.rules[s.date] : {};
+      const rulesExpanded = RULES.map((rule, i) => ({
+        rule,
+        status: sessionRules[i] || 'unchecked'
+      }));
+      return {
+        date: s.date,
+        pressionIntent: s.intent || '',
+        emotion: s.emotion || '',
+        postReflection: s.postNote || '',
+        ruleBreaches: s.breaches || '',
+        dayPnl: +(trades.reduce((sum,t) => sum+t.net, 0)).toFixed(2),
+        trades: trades.map(t => ({
+          symbol: t.symbol,
+          direction: t.dir,
+          outcome: t.outcome,
+          pips: t.pips || 0,
+          gross: t.gross,
+          fee: t.fee,
+          net: t.net,
+          runningBalance: t.runningBalance || acc.startBalance,
+          notes: t.notes || ''
+        })),
+        rulesCompliance: rulesExpanded
+      };
+    }),
+    exportedAt: new Date().toISOString()
+  };
+
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = `journal-${acc.name.replace(/\s+/g,'-')}.json`; a.click();
   showToast('Exported as JSON');
