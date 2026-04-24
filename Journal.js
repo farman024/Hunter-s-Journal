@@ -27,25 +27,26 @@ async function syncTradeToCloud(tradeData) {
         if (!response.ok) throw new Error('Vault connection failed');
         
         console.log("📝 Trade secured in the Shadow Vault");
-        showToast("TRADE SYNCED TO CLOUD");
+        if (window.showToast) showToast("TRADE SYNCED TO CLOUD");
     } catch (error) {
         console.error("Cloud Error:", error);
-        showToast("CLOUD ERROR: SAVED LOCALLY");
+        if (window.showToast) showToast("CLOUD ERROR: SAVED LOCALLY");
     }
 }
 
 // ─── JOURNAL LOGGING LOGIC ─────────────────────────────────────
-// This function replaces or extends your existing 'addTrade' logic
+// This overrides the internal addTrade logic to include the Cloud Sync
 window.submitHunterTrade = async function() {
-    // Get values from your index.html IDs
+    // 1. Get values from your HTML inputs
     const pair = document.getElementById('pairInput')?.value;
     const action = document.getElementById('actionSelect')?.value;
     const outcome = document.getElementById('outcomeSelect')?.value;
     const pnl = document.getElementById('pnlInput')?.value;
     const notes = document.getElementById('tradeNotes')?.value;
 
-    if (!pair) {
-        showToast("SELECT A TARGET PAIR");
+    // Validation
+    if (!pair || pair === "") {
+        if (window.showToast) showToast("SELECT A TARGET PAIR");
         return;
     }
 
@@ -57,15 +58,19 @@ window.submitHunterTrade = async function() {
         notes: notes
     };
 
-    // 1. Save to Cloud Vault
+    // 2. Immediate Cloud Push
     await syncTradeToCloud(tradeData);
 
-    // 2. Clear notes draft since it's now saved
-    localStorage.removeItem('journal_notes_draft');
-    
-    // 3. Close modal and refresh (Standard Journal UI logic)
-    if (typeof closeTradeModal === 'function') closeTradeModal();
-    if (typeof load === 'function') load(); 
+    // 3. Trigger the UI internal save (the 'addTrade' logic in your HTML)
+    // We call the original function if it exists, or refresh the UI
+    if (typeof addTrade === 'function') {
+        addTrade(); 
+    } else {
+        // Fallback: Clear notes and close modal manually
+        localStorage.removeItem('journal_notes_draft');
+        if (window.closeTradeModal) closeTradeModal();
+        if (window.load) load();
+    }
 };
 
 // ─── LOCAL PERSISTENCE (Anti-Vanish) ───────────────────────────
@@ -78,7 +83,7 @@ function initDraftProtection() {
     const savedDraft = localStorage.getItem('journal_notes_draft');
     if (savedDraft) notesArea.value = savedDraft;
 
-    // Save on every input
+    // Save on every input (keystroke)
     notesArea.addEventListener('input', (e) => {
         localStorage.setItem('journal_notes_draft', e.target.value);
     });
@@ -88,4 +93,10 @@ function initDraftProtection() {
 document.addEventListener('DOMContentLoaded', () => {
     initDraftProtection();
     console.log("Hunter's Journal: Cloud Link Armed.");
+    
+    // Optional: Re-bind the Submit button in the modal to our new function
+    const submitBtn = document.querySelector('.modal-footer .btn-primary');
+    if (submitBtn) {
+        submitBtn.setAttribute('onclick', 'submitHunterTrade()');
+    }
 });
