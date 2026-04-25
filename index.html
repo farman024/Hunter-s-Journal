@@ -2126,19 +2126,5 @@ window.addEventListener('appinstalled', () => {
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
 load();
 </script>
-
-<script src="journal.js"></script>
-
-<script>
-  // ─── SERVICE WORKER ───────────────────────────────────────────────────────────
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      // Use relative path — works for root domain AND subdirectory repos
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('[SW] Registered:', reg.scope))
-        .catch(err => console.warn('[SW] Registration failed:', err));
-    });
-  }
-</script>
 </body>
 </html>
