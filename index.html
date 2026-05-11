@@ -1378,12 +1378,39 @@ function renderAccounts() {
   const bar = document.getElementById('accountsBar');
   bar.innerHTML = '';
   state.accounts.forEach(acc => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;align-items:center;gap:0;';
+
     const btn = document.createElement('button');
     btn.className = 'account-tab' + (acc.id === state.activeAccount ? ' active' : '');
+    btn.style.borderRadius = '6px 0 0 6px';
     btn.textContent = acc.name;
     btn.onclick = () => switchAccount(acc.id);
-    bar.appendChild(btn);
+
+    const del = document.createElement('button');
+    del.style.cssText = `
+      font-size:0.7rem; padding:0 8px; height:36px;
+      border-radius:0 6px 6px 0;
+      border:1px solid var(--border); border-left:none;
+      background:var(--card); color:var(--text3);
+      cursor:pointer; transition:all 0.2s;
+      display:flex; align-items:center; justify-content:center;
+    `;
+    del.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+    del.title = 'Delete account';
+    del.onmouseover = () => { del.style.background = 'var(--red)'; del.style.color = '#fff'; del.style.borderColor = 'var(--red)'; };
+    del.onmouseout  = () => { del.style.background = 'var(--card)'; del.style.color = 'var(--text3)'; del.style.borderColor = 'var(--border)'; };
+    del.onclick = (e) => { e.stopPropagation(); askDeleteAccount(acc.id, acc.name); };
+
+    if (acc.id === state.activeAccount) {
+      del.style.borderColor = 'var(--accent)';
+    }
+
+    wrap.appendChild(btn);
+    wrap.appendChild(del);
+    bar.appendChild(wrap);
   });
+
   const addBtn = document.createElement('button');
   addBtn.className = 'add-account-btn';
   addBtn.textContent = '+ Add Account';
@@ -1545,6 +1572,17 @@ function recalcBalances(acc) {
   });
 }
 
+function askDeleteAccount(id, name) {
+  pendingDelete = id;
+  pendingDeleteType = 'account';
+  const acc = state.accounts.find(a => a.id === id);
+  const tradeCount = acc ? acc.trades.length : 0;
+  const sessCount  = acc ? acc.sessions.length : 0;
+  document.getElementById('deleteMsg').textContent =
+    `Delete "${name}"? This will permanently remove ${sessCount} session${sessCount !== 1 ? 's' : ''} and ${tradeCount} trade${tradeCount !== 1 ? 's' : ''}. This cannot be undone.`;
+  openModal('deleteModal');
+}
+
 function askDeleteTrade(id) {
   pendingDelete = id;
   pendingDeleteType = 'trade';
@@ -1570,14 +1608,16 @@ function confirmDelete() {
     recalcBalances(acc);
     showToast('Trade deleted');
   } else if (pendingDeleteType === 'session') {
-    // Delete all trades belonging to this session
     acc.trades = acc.trades.filter(t => t.sessionDate !== pendingDelete);
-    // Delete the session itself
     acc.sessions = acc.sessions.filter(s => s.date !== pendingDelete);
-    // Clean up rules for that date
     if (acc.rules && acc.rules[pendingDelete]) delete acc.rules[pendingDelete];
     recalcBalances(acc);
     showToast('Session deleted');
+  } else if (pendingDeleteType === 'account') {
+    state.accounts = state.accounts.filter(a => a.id !== pendingDelete);
+    state.activeAccount = state.accounts.length > 0 ? state.accounts[0].id : null;
+    if (equityChartInstance) { equityChartInstance.destroy(); equityChartInstance = null; }
+    showToast('Account deleted');
   }
   save();
   closeModal('deleteModal');
