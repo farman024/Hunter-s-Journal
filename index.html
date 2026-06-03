@@ -1127,10 +1127,12 @@ canvas { width: 100% !important; }
     </div>
     <div class="modal-body">
       <div class="system-message">[ SYSTEM ] Hunter, enter trade parameters</div>
+
+      <!-- Row 1: Symbol + Session -->
       <div class="form-row">
         <div class="form-group">
           <label>Symbol</label>
-          <select id="tSymbol">
+          <select id="tSymbol" onchange="autoCalc()">
             <optgroup label="Forex — Majors">
               <option value="EURUSD">EURUSD</option>
               <option value="GBPUSD">GBPUSD</option>
@@ -1162,7 +1164,7 @@ canvas { width: 100% !important; }
               <option value="CADCHF">CADCHF</option>
             </optgroup>
             <optgroup label="Metals">
-              <option value="XAUUSD">XAUUSD (Gold)</option>
+              <option value="XAUUSD" selected>XAUUSD (Gold)</option>
               <option value="XAGUSD">XAGUSD (Silver)</option>
               <option value="XPTUSD">XPTUSD (Platinum)</option>
               <option value="XPDUSD">XPDUSD (Palladium)</option>
@@ -1215,17 +1217,19 @@ canvas { width: 100% !important; }
           </select>
         </div>
       </div>
+
+      <!-- Row 2: Direction + Outcome -->
       <div class="form-row">
         <div class="form-group">
           <label>Direction</label>
-          <select id="tDir">
+          <select id="tDir" onchange="autoCalc()">
             <option value="Long">Long (Buy)</option>
             <option value="Short">Short (Sell)</option>
           </select>
         </div>
         <div class="form-group">
           <label>Outcome</label>
-          <select id="tOutcome">
+          <select id="tOutcome" onchange="autoCalc()">
             <option value="TP">TP (Win)</option>
             <option value="SL">SL (Loss)</option>
             <option value="BE">BE (Breakeven)</option>
@@ -1233,26 +1237,54 @@ canvas { width: 100% !important; }
           </select>
         </div>
       </div>
+
+      <!-- Row 3: Entry + Lot Size -->
       <div class="form-row">
         <div class="form-group">
-          <label>Pips</label>
-          <input type="number" id="tPips" placeholder="e.g. 34" step="0.1">
+          <label>Entry Price</label>
+          <input type="number" id="tEntry" placeholder="e.g. 2345.50" step="any" oninput="autoCalc()">
         </div>
         <div class="form-group">
-          <label>Gross P&L ($)</label>
-          <input type="number" id="tGross" placeholder="e.g. 17.25 or -28.25" step="0.01">
+          <label>Lot Size</label>
+          <input type="number" id="tLots" placeholder="e.g. 0.01" step="0.01" min="0.01" oninput="autoCalc()">
         </div>
       </div>
+
+      <!-- Row 4: SL + TP -->
       <div class="form-row">
         <div class="form-group">
-          <label>Fee ($)</label>
-          <input type="number" id="tFee" placeholder="e.g. 0.25" step="0.01">
+          <label>SL Price</label>
+          <input type="number" id="tSL" placeholder="e.g. 2340.00" step="any" oninput="autoCalc()">
         </div>
         <div class="form-group">
-          <label>Notes (optional)</label>
-          <input type="text" id="tNotes" placeholder="e.g. OB retest missed">
+          <label>TP Price</label>
+          <input type="number" id="tTP" placeholder="e.g. 2355.00" step="any" oninput="autoCalc()">
         </div>
       </div>
+
+      <!-- Auto-calc preview -->
+      <div id="autoCalcPreview" style="display:none;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-family:'Share Tech Mono',monospace;font-size:0.78rem;">
+        <div style="color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-size:0.65rem;margin-bottom:8px;">AUTO CALCULATION</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+          <div><div style="color:var(--text3);font-size:0.6rem;">PIPS</div><div id="previewPips" style="color:var(--accent2);font-weight:700;">—</div></div>
+          <div><div style="color:var(--text3);font-size:0.6rem;">GROSS</div><div id="previewGross" style="font-weight:700;">—</div></div>
+          <div><div style="color:var(--text3);font-size:0.6rem;">FEE</div><div id="previewFee" style="color:var(--red);font-weight:700;">—</div></div>
+          <div><div style="color:var(--text3);font-size:0.6rem;">NET</div><div id="previewNet" style="font-weight:700;">—</div></div>
+        </div>
+      </div>
+
+      <!-- Hidden calculated fields -->
+      <input type="hidden" id="tPips">
+      <input type="hidden" id="tGross">
+      <input type="hidden" id="tFee">
+
+      <!-- Row 5: Notes -->
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <input type="text" id="tNotes" placeholder="e.g. OB retest, missed entry, emotional trade...">
+      </div>
+
+      <!-- Strategy -->
       <div class="form-group">
         <label>Strategy</label>
         <select id="tStrategy">
@@ -1292,6 +1324,7 @@ canvas { width: 100% !important; }
           </optgroup>
         </select>
       </div>
+
       <input type="hidden" id="editTradeId">
       <div class="form-actions">
         <button class="btn btn-outline" onclick="closeModal('tradeModal')">Cancel</button>
@@ -1695,25 +1728,35 @@ function openTradeModal(tradeId = null) {
   if (tradeId) {
     const t = acc.trades.find(t => t.id === tradeId);
     if (t) {
-      document.getElementById('tSymbol').value = t.symbol;
-      document.getElementById('tDir').value = t.dir;
+      document.getElementById('tSymbol').value  = t.symbol;
+      document.getElementById('tDir').value     = t.dir;
       document.getElementById('tOutcome').value = t.outcome;
-      document.getElementById('tPips').value = t.pips || '';
-      document.getElementById('tGross').value = t.gross;
-      document.getElementById('tFee').value = t.fee;
-      document.getElementById('tNotes').value = t.notes || '';
+      document.getElementById('tEntry').value   = t.entry || '';
+      document.getElementById('tLots').value    = t.lots || '';
+      document.getElementById('tSL').value      = t.sl || '';
+      document.getElementById('tTP').value      = t.tp || '';
+      document.getElementById('tPips').value    = t.pips || '';
+      document.getElementById('tGross').value   = t.gross;
+      document.getElementById('tFee').value     = t.fee;
+      document.getElementById('tNotes').value   = t.notes || '';
       document.getElementById('tStrategy').value = t.strategy || '';
       sel.value = t.sessionDate;
+      autoCalc();
     }
   } else {
-    document.getElementById('tSymbol').value = 'XAUUSD';
-    document.getElementById('tDir').value = 'Long';
-    document.getElementById('tOutcome').value = 'TP';
-    document.getElementById('tPips').value = '';
-    document.getElementById('tGross').value = '';
-    document.getElementById('tFee').value = '';
-    document.getElementById('tNotes').value = '';
+    document.getElementById('tSymbol').value   = 'XAUUSD';
+    document.getElementById('tDir').value      = 'Long';
+    document.getElementById('tOutcome').value  = 'TP';
+    document.getElementById('tEntry').value    = '';
+    document.getElementById('tLots').value     = '';
+    document.getElementById('tSL').value       = '';
+    document.getElementById('tTP').value       = '';
+    document.getElementById('tPips').value     = '';
+    document.getElementById('tGross').value    = '';
+    document.getElementById('tFee').value      = '';
+    document.getElementById('tNotes').value    = '';
     document.getElementById('tStrategy').value = '';
+    document.getElementById('autoCalcPreview').style.display = 'none';
     sel.value = acc.sessions[0].date;
   }
   openModal('tradeModal');
@@ -1721,36 +1764,39 @@ function openTradeModal(tradeId = null) {
 
 function saveTrade() {
   const acc = getActiveAccount();
-  const symbol = document.getElementById('tSymbol').value;
-  const dir = document.getElementById('tDir').value;
-  const outcome = document.getElementById('tOutcome').value;
-  const pips = parseFloat(document.getElementById('tPips').value) || 0;
-  const gross = parseFloat(document.getElementById('tGross').value);
-  const fee = parseFloat(document.getElementById('tFee').value) || 0;
-  const notes = document.getElementById('tNotes').value.trim();
-  const strategy = document.getElementById('tStrategy').value;
+  const symbol      = document.getElementById('tSymbol').value;
+  const dir         = document.getElementById('tDir').value;
+  const outcome     = document.getElementById('tOutcome').value;
+  const entry       = parseFloat(document.getElementById('tEntry').value) || 0;
+  const lots        = parseFloat(document.getElementById('tLots').value) || 0;
+  const sl          = parseFloat(document.getElementById('tSL').value) || 0;
+  const tp          = parseFloat(document.getElementById('tTP').value) || 0;
+  const pips        = parseFloat(document.getElementById('tPips').value) || 0;
+  const gross       = parseFloat(document.getElementById('tGross').value);
+  const fee         = parseFloat(document.getElementById('tFee').value) || 0;
+  const notes       = document.getElementById('tNotes').value.trim();
+  const strategy    = document.getElementById('tStrategy').value;
   const sessionDate = document.getElementById('tSession').value;
-  const editId = document.getElementById('editTradeId').value;
+  const editId      = document.getElementById('editTradeId').value;
 
-  if (!symbol || isNaN(gross)) { showToast('Symbol and Gross P&L required', 'error'); return; }
+  if (!symbol || isNaN(gross)) { showToast('Enter entry price, lot size and SL/TP to calculate', 'error'); return; }
 
   const net = +(gross - fee).toFixed(2);
 
   if (editId) {
     const idx = acc.trades.findIndex(t => t.id === parseInt(editId));
     if (idx !== -1) {
-      acc.trades[idx] = { ...acc.trades[idx], symbol, dir, outcome, pips, gross: +gross.toFixed(2), fee: +fee.toFixed(2), net, notes, strategy, sessionDate };
+      acc.trades[idx] = { ...acc.trades[idx], symbol, dir, outcome, entry, lots, sl, tp, pips, gross: +gross.toFixed(2), fee: +fee.toFixed(2), net, notes, strategy, sessionDate };
     }
     showToast('Trade updated');
   } else {
     const trade = {
       id: Date.now(),
-      symbol, dir, outcome, pips,
+      symbol, dir, outcome, entry, lots, sl, tp, pips,
       gross: +gross.toFixed(2),
-      fee: +fee.toFixed(2),
+      fee:   +fee.toFixed(2),
       net,
-      notes,
-      strategy,
+      notes, strategy,
       sessionDate,
       timestamp: Date.now()
     };
@@ -1762,6 +1808,142 @@ function saveTrade() {
   save();
   closeModal('tradeModal');
   renderAll();
+}
+
+// ─── AUTO CALCULATION ENGINE ──────────────────────────────────────────────────
+// Pip values per instrument per 1 standard lot (1.0)
+const PIP_VALUES = {
+  // Forex Majors & Minors — $10 per pip per lot (0.0001 pip size)
+  EURUSD:10, GBPUSD:10, AUDUSD:10, NZDUSD:10, USDCAD:10, USDCHF:10,
+  EURGBP:10, EURJPY:10, GBPJPY:10, AUDJPY:10, CADJPY:10, CHFJPY:10,
+  EURCHF:10, EURAUD:10, EURCAD:10, GBPAUD:10, GBPCAD:10, GBPCHF:10,
+  AUDCAD:10, AUDCHF:10, AUDNZD:10, NZDJPY:10, NZDCAD:10, NZDCHF:10,
+  CADCHF:10, USDJPY:10,
+  // JPY pairs — 0.01 pip size, still $10/pip/lot
+  // Metals
+  XAUUSD:10,   // $10/pip/lot — 1 pip = $0.10 per 0.01 lot ✓
+  XAGUSD:50,   // $50/pip/lot
+  XPTUSD:10, XPDUSD:10,
+  // Indices — point based
+  US30:10, NAS100:10, SPX500:10, US2000:10,
+  GER40:10, UK100:10, FRA40:10, JPN225:10,
+  AUS200:10, HK50:10, CHINAH:10, EUSTX50:10,
+  // Energy
+  USOIL:10, UKOIL:10, NATGAS:10, COPPER:10,
+  COFFEE:10, COCOA:10, WHEAT:10, CORN:10,
+};
+
+// Pip size (how many price units = 1 pip)
+const PIP_SIZE = {
+  XAUUSD:0.1, XAGUSD:0.01, XPTUSD:0.1, XPDUSD:0.1,
+  US30:1, NAS100:1, SPX500:0.1, GER40:1, UK100:1,
+  FRA40:1, JPN225:1, AUS200:1, HK50:1, CHINAH:1, EUSTX50:1,
+  USOIL:0.01, UKOIL:0.01, NATGAS:0.001, COPPER:0.001,
+  // JPY pairs
+  USDJPY:0.01, EURJPY:0.01, GBPJPY:0.01, AUDJPY:0.01,
+  CADJPY:0.01, CHFJPY:0.01, NZDJPY:0.01,
+  // Default for all others
+  DEFAULT:0.0001
+};
+
+// Fee structure — Funding Pips Standard 2-Step
+// FX + Metals: $5 per lot round trip
+// Indices + Energy: $0
+// Crypto: 0.04% of position value (lots × entry)
+const FEE_TYPE = {
+  FX:    (lots) => +(lots * 5).toFixed(2),
+  METAL: (lots) => +(lots * 5).toFixed(2),
+  INDEX: ()     => 0,
+  ENERGY:()     => 0,
+  CRYPTO:(lots, entry) => +(lots * entry * 0.0004).toFixed(2),
+};
+
+const CRYPTO_SYMBOLS  = ['BTCUSD','ETHUSD','SOLUSD','BNBUSD','XRPUSD','ADAUSD','DOGEUSD','AVAXUSD','LINKUSD','DOTUSD','LTCUSD','MATICUSD','TAOUSD'];
+const METAL_SYMBOLS   = ['XAUUSD','XAGUSD','XPTUSD','XPDUSD'];
+const INDEX_SYMBOLS   = ['US30','NAS100','SPX500','US2000','GER40','UK100','FRA40','JPN225','AUS200','HK50','CHINAH','EUSTX50'];
+const ENERGY_SYMBOLS  = ['USOIL','UKOIL','NATGAS','COPPER','COFFEE','COCOA','WHEAT','CORN'];
+
+function getSymbolCategory(symbol) {
+  if (CRYPTO_SYMBOLS.includes(symbol))  return 'CRYPTO';
+  if (METAL_SYMBOLS.includes(symbol))   return 'METAL';
+  if (INDEX_SYMBOLS.includes(symbol))   return 'INDEX';
+  if (ENERGY_SYMBOLS.includes(symbol))  return 'ENERGY';
+  return 'FX';
+}
+
+function autoCalc() {
+  const symbol  = document.getElementById('tSymbol').value;
+  const dir     = document.getElementById('tDir').value;
+  const outcome = document.getElementById('tOutcome').value;
+  const entry   = parseFloat(document.getElementById('tEntry').value);
+  const lots    = parseFloat(document.getElementById('tLots').value);
+  const slPrice = parseFloat(document.getElementById('tSL').value);
+  const tpPrice = parseFloat(document.getElementById('tTP').value);
+
+  const preview = document.getElementById('autoCalcPreview');
+
+  // Need entry + lots + at least one of SL/TP
+  if (!entry || !lots || (!slPrice && !tpPrice)) {
+    preview.style.display = 'none';
+    document.getElementById('tPips').value  = '';
+    document.getElementById('tGross').value = '';
+    document.getElementById('tFee').value   = '';
+    return;
+  }
+
+  // Determine exit price based on outcome
+  let exitPrice;
+  if (outcome === 'TP' && tpPrice)       exitPrice = tpPrice;
+  else if (outcome === 'SL' && slPrice)  exitPrice = slPrice;
+  else if (outcome === 'BE')             exitPrice = entry;
+  else if (tpPrice)                      exitPrice = tpPrice;
+  else                                   exitPrice = slPrice;
+
+  // Calculate pips
+  const pipSize    = PIP_SIZE[symbol] || PIP_SIZE.DEFAULT;
+  const rawDiff    = Math.abs(exitPrice - entry);
+  const pips       = +(rawDiff / pipSize).toFixed(1);
+
+  // Calculate gross P&L
+  const pipValue   = (PIP_VALUES[symbol] || 10) * lots;
+  let gross;
+  if (outcome === 'BE') {
+    gross = 0;
+  } else {
+    // Long: profit if exit > entry, loss if exit < entry
+    // Short: profit if exit < entry, loss if exit > entry
+    const direction = dir === 'Long' ? 1 : -1;
+    const priceMove = (exitPrice - entry) * direction;
+    const sign      = priceMove >= 0 ? 1 : -1;
+    gross           = +(sign * pips * (pipValue / lots) * lots).toFixed(2);
+  }
+
+  // Calculate fee
+  const cat = getSymbolCategory(symbol);
+  let fee;
+  if      (cat === 'CRYPTO') fee = FEE_TYPE.CRYPTO(lots, entry);
+  else if (cat === 'METAL')  fee = FEE_TYPE.METAL(lots);
+  else if (cat === 'INDEX')  fee = FEE_TYPE.INDEX();
+  else if (cat === 'ENERGY') fee = FEE_TYPE.ENERGY();
+  else                       fee = FEE_TYPE.FX(lots);
+
+  const net = +(gross - fee).toFixed(2);
+
+  // Set hidden fields
+  document.getElementById('tPips').value  = pips;
+  document.getElementById('tGross').value = gross;
+  document.getElementById('tFee').value   = fee;
+
+  // Show preview
+  preview.style.display = 'block';
+  document.getElementById('previewPips').textContent  = pips + 'p';
+  const gEl = document.getElementById('previewGross');
+  gEl.textContent  = (gross >= 0 ? '+' : '') + '$' + Math.abs(gross).toFixed(2);
+  gEl.style.color  = gross >= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('previewFee').textContent   = '-$' + fee.toFixed(2);
+  const nEl = document.getElementById('previewNet');
+  nEl.textContent  = (net >= 0 ? '+' : '') + '$' + Math.abs(net).toFixed(2);
+  nEl.style.color  = net >= 0 ? 'var(--green)' : 'var(--red)';
 }
 
 function recalcBalances(acc) {
