@@ -301,6 +301,129 @@ body::after {
 }
 @keyframes progressGlow { from { opacity: 0.4; } to { opacity: 1; } }
 
+/* ── Solo Leveling System Notification ───────────────────────────── */
+.sl-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(1,6,16,0.92);
+  backdrop-filter: blur(6px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.4s;
+}
+.sl-overlay.active { opacity: 1; pointer-events: all; }
+.sl-overlay::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,240,255,0.03) 40px, rgba(0,240,255,0.03) 41px),
+    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,240,255,0.03) 40px, rgba(0,240,255,0.03) 41px);
+  pointer-events: none;
+}
+
+/* The notification card */
+.sl-card {
+  position: relative;
+  background: rgba(2,12,27,0.95);
+  border: 1.5px solid #00d0ff;
+  box-shadow: 0 0 15px rgba(0,208,255,0.3), inset 0 0 30px rgba(0,208,255,0.03);
+  padding: 0;
+  width: 400px;
+  max-width: 90vw;
+  animation: slPopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: 0.1s;
+}
+/* Animate the border flash — horizontal line expands outward into full border */
+.sl-card::before {
+  content: ''; position: absolute; inset: -1.5px;
+  border: 1.5px solid transparent;
+  animation: slBorderDraw 0.5s ease-out 0.1s forwards;
+  pointer-events: none;
+}
+@keyframes slBorderDraw {
+  0% { clip-path: inset(50% 50% 50% 50%); border-color: #00f0ff; box-shadow: 0 0 20px rgba(0,240,255,0.6); }
+  40% { clip-path: inset(50% 0% 50% 0%); border-color: #00f0ff; box-shadow: 0 0 30px rgba(0,240,255,0.8); }
+  100% { clip-path: inset(0 0 0 0); border-color: #00d0ff; box-shadow: 0 0 15px rgba(0,208,255,0.3); }
+}
+
+@keyframes slPopIn {
+  0% { transform: scale(0.3) translateY(30px); opacity: 0; }
+  60% { transform: scale(1.05) translateY(-5px); opacity: 1; }
+  80% { transform: scale(0.97) translateY(2px); }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Header row */
+.sl-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid rgba(0,208,255,0.15);
+  animation: slFadeIn 0.4s ease-out 0.3s both;
+}
+.sl-icon-box {
+  width: 32px; height: 32px;
+  border: 1.5px solid #00f0ff;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(0,240,255,0.25), inset 0 0 8px rgba(0,240,255,0.1);
+  animation: slPulse 3s ease-in-out infinite;
+}
+.sl-icon-box span {
+  color: #00f0ff; font-size: 1rem; font-weight: 700;
+  font-family: 'Share Tech Mono', monospace;
+  text-shadow: 0 0 10px rgba(0,240,255,0.8);
+  line-height: 1;
+}
+.sl-notif-badge {
+  border: 1px solid rgba(0,208,255,0.4);
+  padding: 4px 14px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  color: #80f5ff;
+  text-shadow: 0 0 8px rgba(0,240,255,0.5);
+  text-transform: uppercase;
+  animation: slPulse 3s ease-in-out infinite 0.5s;
+}
+
+/* Body */
+.sl-body {
+  padding: 32px 22px 36px;
+  text-align: center;
+  animation: slFadeIn 0.5s ease-out 0.45s both;
+}
+.sl-body p {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.15rem;
+  color: #c0d8ff;
+  line-height: 1.6;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+.sl-body p em {
+  font-style: italic;
+  color: #80f5ff;
+  text-shadow: 0 0 12px rgba(0,240,255,0.7), 0 0 30px rgba(0,240,255,0.3);
+  font-weight: 700;
+}
+
+/* Footer glow line */
+.sl-footer-line {
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(0,208,255,0.3), transparent);
+  margin: 0 22px 14px;
+  animation: slFadeIn 0.5s ease-out 0.55s both;
+}
+
+/* Utility animations */
+@keyframes slFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* Holographic breathing effect */
+@keyframes slPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
 /* STATS GRID */
 .stats-grid {
   display: grid;
@@ -668,11 +791,20 @@ canvas { width: 100% !important; }
 .install-banner-text span { font-size: 0.78rem; color: var(--text3); }
 .install-banner-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
+@media(max-width:600px) {
   .header-inner { height: 52px; }
   .logo { font-size: 0.9rem; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .rank-banner { padding: 14px 16px; }
   .balance-main { font-size: 1.4rem; }
+  .header-controls .btn { font-size: 0.72rem; padding: 6px 10px; }
+  .trade-table { font-size: 0.72rem; }
+  .trade-table th, .trade-table td { padding: 6px 6px; }
+  .section-header { flex-direction: column; gap: 8px; align-items: flex-start; }
+  .export-bar { width: 100%; }
+  .modal { max-width: 100%; margin: 0 8px; }
+  .form-row { grid-template-columns: 1fr; }
+  .calendar-cell { aspect-ratio:auto; min-height:50px; }
 }
 
 .rank-journey {
@@ -698,6 +830,8 @@ canvas { width: 100% !important; }
 .rj-A { color: #ef5350; border-color: #ef5350; }
 .rj-S { color: var(--gold); border-color: var(--gold); }
 .rj-rank.current { background: rgba(108,99,255,0.2); }
+.rj-rank { cursor:pointer; transition:transform 0.15s, box-shadow 0.15s; }
+.rj-rank:hover { transform:scale(1.2); }
 
 .tab-nav { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
 .tab-btn {
@@ -776,6 +910,41 @@ canvas { width: 100% !important; }
 .card-progress-fill { height:100%;border-radius:3px;transition:width 1s cubic-bezier(0.4,0,0.2,1); }
 .card-footer { text-align:center;font-size:0.52rem;letter-spacing:2px;color:rgba(255,255,255,0.15);text-transform:uppercase;margin-top:14px; }
 .card-actions { display:flex;gap:8px;justify-content:center;margin-top:16px;position:relative;z-index:10; }
+.calendar-cell:hover { border-color:var(--accent2) !important; }
+.ov-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 14px; transition:all 0.2s; cursor:pointer; }
+.ov-card:hover { border-color:var(--accent); box-shadow:var(--glow); transform:translateY(-2px); }
+.ov-card.active { border-color:var(--accent); background:rgba(108,99,255,0.05); }
+.ov-name { font-family:'Cinzel',serif; font-size:0.78rem; font-weight:700; color:var(--text); letter-spacing:1px; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ov-rank { font-family:'Cinzel',serif; font-size:1.3rem; font-weight:900; }
+.ov-stat { display:flex; justify-content:space-between; font-size:0.72rem; padding:3px 0; border-bottom:1px solid rgba(26,26,74,0.2); }
+.ov-stat:last-child { border-bottom:none; }
+.ov-stat-label { color:var(--text3); }
+.ov-stat-value { font-family:'Share Tech Mono',monospace; font-weight:700; }
+
+/* FILTER BAR */
+.filter-bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--bg2); }
+.filter-input,.filter-select { padding:6px 10px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:'Rajdhani',sans-serif; font-size:0.78rem; min-width:0; }
+.filter-select { min-width:130px; }
+
+/* DEEP ANALYTICS */
+.deep-stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; }
+.deep-stat-card { background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:12px; text-align:center; }
+.deep-stat-label { font-size:0.68rem; color:var(--text3); letter-spacing:1px; margin-bottom:4px; }
+.deep-stat-value { font-family:'Share Tech Mono',monospace; font-size:1.1rem; font-weight:700; }
+.analytics-table-wrap { max-height:300px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; }
+.analytics-table { width:100%; border-collapse:collapse; font-size:0.78rem; }
+.analytics-table th { background:var(--card2); color:var(--text3); font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:1px; padding:8px 10px; text-align:left; border-bottom:1px solid var(--border); }
+.analytics-table td { padding:6px 10px; border-bottom:1px solid rgba(26,26,74,0.3); font-family:'Share Tech Mono',monospace; }
+
+/* CHECKLIST */
+.checklist-list li { cursor:pointer; }
+.checklist-check { width:18px;height:18px;border-radius:4px;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.65rem;transition:all 0.2s;cursor:pointer; }
+.checklist-check.done { background:var(--green); border-color:var(--green); color:var(--bg); }
+.checklist-text { flex:1; }
+.checklist-text.done { text-decoration:line-through; opacity:0.5; }
+.checklist-del { cursor:pointer;color:var(--red);font-size:0.8rem;opacity:0;transition:opacity 0.2s;background:none;border:none;padding:2px 6px; }
+.checklist-list li:hover .checklist-del { opacity:0.6; }
+.checklist-list li:hover .checklist-del:hover { opacity:1; }
 </style>
 </head>
 <body>
@@ -814,20 +983,25 @@ canvas { width: 100% !important; }
         <div class="rank-badge rank-E" id="rankBadge">E</div>
         <div class="rank-info">
           <h2 id="rankTitle">E-Rank Hunter</h2>
-          <div id="hunterNameDisplay" style="display:none;font-family:'Share Tech Mono',monospace;font-size:0.82rem;color:var(--accent3);letter-spacing:2px;text-transform:uppercase;margin:3px 0;"></div>
+          <div id="hunterNameDisplay" style="display:none;font-family:'Share Tech Mono',monospace;font-size:0.82rem;color:var(--accent3);letter-spacing:2px;text-transform:uppercase;margin:3px 0;cursor:pointer;" onclick="editHunterName()" title="Click to edit"></div>
+          <div id="hunterNameEdit" style="display:none;margin:3px 0;">
+            <input type="text" id="hunterNameInlineInput" maxlength="30" style="background:var(--bg3);border:1px solid var(--accent);color:var(--text);padding:4px 8px;border-radius:4px;font-family:'Share Tech Mono',monospace;font-size:0.82rem;width:200px;letter-spacing:2px;text-transform:uppercase;">
+            <button onclick="saveHunterNameInline()" style="background:var(--accent);border:none;color:#fff;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:0.7rem;margin-left:4px;letter-spacing:1px;">Save</button>
+            <button onclick="cancelHunterNameEdit()" style="background:transparent;border:1px solid var(--border);color:var(--text3);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:0.7rem;margin-left:4px;">Cancel</button>
+          </div>
           <p id="rankSubtitle">Begin your awakening. The gate awaits.</p>
           <div class="rank-journey">
-            <span class="rj-rank rj-E current" id="rj-E">E</span>
-            <span class="rj-arrow">›</span>
-            <span class="rj-rank rj-D" id="rj-D">D</span>
-            <span class="rj-arrow">›</span>
-            <span class="rj-rank rj-C" id="rj-C">C</span>
-            <span class="rj-arrow">›</span>
-            <span class="rj-rank rj-B" id="rj-B">B</span>
-            <span class="rj-arrow">›</span>
-            <span class="rj-rank rj-A" id="rj-A">A</span>
-            <span class="rj-arrow">›</span>
-            <span class="rj-rank rj-S" id="rj-S">S</span>
+            <span class="rj-rank rj-E current" id="rj-E" onclick="previewRankUp('E')">E</span>
+            <span class="rj-arrow"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            <span class="rj-rank rj-D" id="rj-D" onclick="previewRankUp('D')">D</span>
+            <span class="rj-arrow"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            <span class="rj-rank rj-C" id="rj-C" onclick="previewRankUp('C')">C</span>
+            <span class="rj-arrow"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            <span class="rj-rank rj-B" id="rj-B" onclick="previewRankUp('B')">B</span>
+            <span class="rj-arrow"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            <span class="rj-rank rj-A" id="rj-A" onclick="previewRankUp('A')">A</span>
+            <span class="rj-arrow"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            <span class="rj-rank rj-S" id="rj-S" onclick="previewRankUp('S')">S</span>
           </div>
         </div>
       </div>
@@ -848,30 +1022,45 @@ canvas { width: 100% !important; }
     </div>
   </div>
 
+  <!-- ACCOUNT OVERVIEW -->
+  <div class="section-card" id="accountOverview" style="margin-bottom:20px;display:none;">
+    <div class="section-header" onclick="toggleOverview()" style="cursor:pointer;user-select:none;">
+      <span class="section-title"><span class="icon" style="margin-right:6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>Hunter Overview</span>
+      <span id="overviewChevron" style="color:var(--text3);transition:transform 0.2s;display:inline-block;line-height:1;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </div>
+    <div class="section-body" id="overviewBody">
+      <div id="overviewGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;"></div>
+    </div>
+  </div>
+
   <!-- STATS GRID -->
   <div class="stats-grid" id="statsGrid">
     <div class="stat-card">
-      <div class="stat-label">Total Trades</div>
+      <div class="stat-label">Total Hunts</div>
       <div class="stat-value blue" id="statTrades">0</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Win Rate</div>
+      <div class="stat-label">Clear Rate</div>
       <div class="stat-value gold" id="statWinRate">0%</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Wins</div>
+      <div class="stat-label">Cleared</div>
       <div class="stat-value green" id="statWins">0</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Losses</div>
+      <div class="stat-label">Failed</div>
       <div class="stat-value red" id="statLosses">0</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Best Trade</div>
+      <div class="stat-label">Avg RR</div>
+      <div class="stat-value blue" id="statAvgRR">0.00</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Best Hunt</div>
       <div class="stat-value green" id="statBest">$0.00</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Worst Trade</div>
+      <div class="stat-label">Worst Hunt</div>
       <div class="stat-value red" id="statWorst">$0.00</div>
     </div>
   </div>
@@ -889,12 +1078,23 @@ canvas { width: 100% !important; }
 
     <div class="section-card">
       <div class="section-header">
-        <span class="section-title"><span class="icon" style="margin-right:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6-6"/><path d="m2 22 6-6"/><path d="M17.5 14.5 19 13l2 2-1.5 1.5"/></svg></span>Trade Log</span>
+        <span class="section-title"><span class="icon" style="margin-right:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6-6"/><path d="m2 22 6-6"/><path d="M17.5 14.5 19 13l2 2-1.5 1.5"/></svg></span>Hunt Log</span>
         <div class="export-bar" style="margin:0;">
-          <button class="btn btn-outline btn-sm" onclick="exportText()">Export Text</button>
-          <button class="btn btn-outline btn-sm" onclick="exportJSON()">Export JSON</button>
-          <button class="btn btn-outline btn-sm" onclick="exportPDF()">Export PDF</button>
+          <button class="btn btn-outline btn-sm" onclick="exportText()">Text</button>
+          <button class="btn btn-outline btn-sm" onclick="exportJSON()">JSON</button>
+          <button class="btn btn-outline btn-sm" onclick="exportPDF()">PDF</button>
+          <button class="btn btn-outline btn-sm" onclick="exportCSV()">CSV</button>
+          <label class="btn btn-outline btn-sm" style="cursor:pointer;" onclick="document.getElementById('csvImportInput').click()">Import CSV</label>
+          <input type="file" id="csvImportInput" accept=".csv" style="display:none;" onchange="importCSV(this)">
         </div>
+      </div>
+      <div class="filter-bar" id="filterBar">
+        <input type="text" id="filterSearch" placeholder="Search field notes..." class="filter-input" oninput="renderTradeTable()">
+        <select id="filterStrategy" class="filter-select" onchange="renderTradeTable()"><option value="">All Strategies</option></select>
+        <input type="date" id="filterDateFrom" class="filter-input" onchange="renderTradeTable()" style="width:140px;">
+        <span style="color:var(--text3);font-size:0.75rem;">to</span>
+        <input type="date" id="filterDateTo" class="filter-input" onchange="renderTradeTable()" style="width:140px;">
+        <button class="btn btn-outline btn-sm" onclick="clearFilters()" style="margin-left:auto;">Clear</button>
       </div>
       <div class="section-body" style="padding:0;overflow-x:auto;">
         <table class="trade-table" id="tradeTable">
@@ -904,11 +1104,13 @@ canvas { width: 100% !important; }
               <th>Symbol</th>
               <th>Dir</th>
               <th>Outcome</th>
+              <th>RR</th>
               <th>Pips</th>
               <th>Gross</th>
               <th>Fee</th>
               <th>Net</th>
               <th>Balance</th>
+              <th style="text-align:center;">SS</th>
               <th></th>
             </tr>
           </thead>
@@ -968,7 +1170,55 @@ canvas { width: 100% !important; }
         <button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="saveRules()">Save</button>
       </div>
     </div>
+
+  <!-- DEEP ANALYTICS -->
+  <div class="section-card" id="deepAnalytics" style="margin-bottom:20px;display:none;">
+    <div class="section-header"><span class="section-title"><span class="icon" style="margin-right:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-6"/></svg></span>Gate Analysis</span></div>
+    <div class="section-body">
+      <div class="deep-stats-grid" id="deepStatsGrid"></div>
+      <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:0.78rem;color:var(--text3);margin-bottom:8px;letter-spacing:1px;">XP by Gate</div>
+          <div class="analytics-table-wrap"><table class="analytics-table" id="analyticsSymbolTable"></table></div>
+        </div>
+        <div>
+          <div style="font-size:0.78rem;color:var(--text3);margin-bottom:8px;letter-spacing:1px;">XP by Day</div>
+          <div class="analytics-table-wrap"><table class="analytics-table" id="analyticsDOWTable"></table></div>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <div style="font-size:0.78rem;color:var(--text3);margin-bottom:8px;letter-spacing:1px;">Monthly Report</div>
+        <div class="analytics-table-wrap"><table class="analytics-table" id="analyticsMonthlyTable"></table></div>
+      </div>
+    </div>
   </div>
+
+  <!-- PRE/POST TRADE CHECKLIST -->
+  <div class="section-card" style="margin-bottom:20px;">
+    <div class="section-header"><span class="section-title"><span class="icon" style="margin-right:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Pre-Hunt / Post-Hunt Discipline</span></div>
+    <div class="section-body">
+      <div style="font-size:0.8rem;color:var(--text3);margin-bottom:12px;">A Hunter's discipline determines their rank. Mark what you followed today.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:0.78rem;color:var(--accent2);margin-bottom:8px;">▶ PRE-HUNT RITUAL</div>
+          <ul class="rules-list checklist-list" id="preChecklist"></ul>
+          <div style="display:flex;gap:6px;margin-top:8px;">
+            <input type="text" id="preChecklistInput" placeholder="Add discipline..." style="flex:1;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:0.78rem;">
+            <button class="btn btn-outline btn-sm" onclick="addChecklistItem('pre')">Add</button>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:0.78rem;color:var(--green);margin-bottom:8px;">▶ POST-HUNT REVIEW</div>
+          <ul class="rules-list checklist-list" id="postChecklist"></ul>
+          <div style="display:flex;gap:6px;margin-top:8px;">
+            <input type="text" id="postChecklistInput" placeholder="Add discipline..." style="flex:1;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:0.78rem;">
+            <button class="btn btn-outline btn-sm" onclick="addChecklistItem('post')">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
   <!-- INVENTORY TAB -->
   <div class="tab-pane" id="tab-inventory">
@@ -985,7 +1235,7 @@ canvas { width: 100% !important; }
       <div class="card-corner tl"></div><div class="card-corner tr"></div>
       <div class="card-corner bl"></div><div class="card-corner br"></div>
       <div class="card-inner">
-        <div class="card-sys-header"><span>◈</span> SYSTEM <span>◈</span> HUNTER STATUS WINDOW <span>◈</span></div>
+        <div class="card-sys-header"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent2);"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> SYSTEM <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent2);"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> HUNTER STATUS WINDOW <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent2);"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
         <div class="card-divider"></div>
         <div class="card-hero">
           <div class="card-avatar">
@@ -1030,7 +1280,7 @@ canvas { width: 100% !important; }
   <div class="modal" style="max-width:420px;">
     <div class="modal-header">
       <span class="modal-title"><span class="icon" style="margin-right:6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Hunter Profile</span>
-      <button class="modal-close" onclick="closeModal('profileModal')">×</button>
+      <button class="modal-close" onclick="closeModal('profileModal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
       <div class="system-message">[ SYSTEM ] Set your hunter identity</div>
@@ -1065,7 +1315,7 @@ canvas { width: 100% !important; }
   <div class="modal">
     <div class="modal-header">
       <span class="modal-title"><span class="icon" style="margin-right:6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M19 8V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span>Add Account</span>
-      <button class="modal-close" onclick="closeModal('accountModal')">×</button>
+      <button class="modal-close" onclick="closeModal('accountModal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
       <div class="form-group">
@@ -1099,7 +1349,7 @@ canvas { width: 100% !important; }
   <div class="modal">
     <div class="modal-header">
       <span class="modal-title"><span class="icon" style="margin-right:6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>New Session</span>
-      <button class="modal-close" onclick="closeModal('sessionModal')">×</button>
+      <button class="modal-close" onclick="closeModal('sessionModal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
       <div class="form-group">
@@ -1123,7 +1373,7 @@ canvas { width: 100% !important; }
   <div class="modal">
     <div class="modal-header">
       <span class="modal-title" id="tradeModalTitle"><span class="icon" style="margin-right:6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6-6"/><path d="m2 22 6-6"/><path d="M17.5 14.5 19 13l2 2-1.5 1.5"/></svg></span>Log Trade</span>
-      <button class="modal-close" onclick="closeModal('tradeModal')">×</button>
+      <button class="modal-close" onclick="closeModal('tradeModal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
       <div class="system-message">[ SYSTEM ] Hunter, enter trade parameters</div>
@@ -1265,7 +1515,8 @@ canvas { width: 100% !important; }
       <!-- Auto-calc preview -->
       <div id="autoCalcPreview" style="display:none;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-family:'Share Tech Mono',monospace;font-size:0.78rem;">
         <div style="color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-size:0.65rem;margin-bottom:8px;">AUTO CALCULATION</div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+          <div><div style="color:var(--text3);font-size:0.6rem;">RR</div><div id="previewRR" style="font-weight:700;">—</div></div>
           <div><div style="color:var(--text3);font-size:0.6rem;">PIPS</div><div id="previewPips" style="color:var(--accent2);font-weight:700;">—</div></div>
           <div><div style="color:var(--text3);font-size:0.6rem;">GROSS</div><div id="previewGross" style="font-weight:700;">—</div></div>
           <div><div style="color:var(--text3);font-size:0.6rem;">FEE</div><div id="previewFee" style="color:var(--red);font-weight:700;">—</div></div>
@@ -1277,11 +1528,29 @@ canvas { width: 100% !important; }
       <input type="hidden" id="tPips">
       <input type="hidden" id="tGross">
       <input type="hidden" id="tFee">
+      <input type="hidden" id="tRR">
+      <input type="hidden" id="tScreenshotData">
 
       <!-- Row 5: Notes -->
       <div class="form-group">
         <label>Notes (optional)</label>
         <input type="text" id="tNotes" placeholder="e.g. OB retest, missed entry, emotional trade...">
+      </div>
+
+      <!-- Screenshot -->
+      <div class="form-group">
+        <label>Screenshot (optional)</label>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <input type="file" id="tScreenshot" accept="image/*" style="display:none;" onchange="handleScreenshotUpload(this)">
+          <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('tScreenshot').click()">
+            <span class="icon" style="margin-right:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>Choose Image
+          </button>
+          <span id="screenshotName" style="font-size:0.75rem;color:var(--text3);"></span>
+          <button type="button" id="screenshotClearBtn" style="display:none;font-size:0.7rem;color:var(--red);background:none;border:none;cursor:pointer;letter-spacing:1px;text-transform:uppercase;" onclick="clearScreenshot()">Remove</button>
+        </div>
+        <div id="screenshotPreview" style="display:none;margin-top:8px;position:relative;width:100%;">
+          <img id="screenshotPreviewImg" style="max-height:120px;border-radius:6px;border:1px solid var(--border);cursor:pointer;object-fit:contain;background:var(--bg3);" onclick="openScreenshotViewer(this.src)">
+        </div>
       </div>
 
       <!-- Strategy -->
@@ -1339,7 +1608,7 @@ canvas { width: 100% !important; }
   <div class="modal">
     <div class="modal-header">
       <span class="modal-title"><span class="icon" style="margin-right:6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>Session Notes</span>
-      <button class="modal-close" onclick="closeModal('sessionNotesModal')">×</button>
+      <button class="modal-close" onclick="closeModal('sessionNotesModal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="editSessionDate">
@@ -1374,7 +1643,7 @@ canvas { width: 100% !important; }
   <div class="modal" style="max-width:360px;">
     <div class="modal-header">
       <span class="modal-title" style="color:var(--red);"><span class="icon" style="margin-right:6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>Confirm Delete</span>
-      <button class="modal-close" onclick="closeModal('deleteModal')">×</button>
+      <button class="modal-close" onclick="closeModal('deleteModal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
       <p style="color:var(--text2);font-size:0.9rem;margin-bottom:20px;" id="deleteMsg">Are you sure you want to delete this trade?</p>
@@ -1395,6 +1664,26 @@ canvas { width: 100% !important; }
   <div class="install-banner-actions">
     <button class="btn btn-primary btn-sm" id="installBtn">Install</button>
     <button class="btn btn-outline btn-sm" id="installDismiss">Later</button>
+  </div>
+</div>
+
+<div class="sl-overlay" id="slOverlay">
+  <div class="sl-card" id="slCard">
+    <div class="sl-header">
+      <div class="sl-icon-box"><span>!</span></div>
+      <div class="sl-notif-badge">Notification</div>
+    </div>
+    <div class="sl-body">
+      <p>Congratulations on becoming a <em>Player</em>.</p>
+    </div>
+    <div class="sl-footer-line"></div>
+  </div>
+</div>
+
+<!-- Screenshot Viewer -->
+<div class="modal-overlay" id="screenshotViewer" onclick="closeModal('screenshotViewer')">
+  <div style="max-width:90vw;max-height:90vh;display:flex;align-items:center;justify-content:center;">
+    <img id="screenshotViewerImg" style="max-width:100%;max-height:90vh;border-radius:8px;border:1px solid var(--border2);box-shadow:var(--glow2);">
   </div>
 </div>
 
@@ -1435,6 +1724,9 @@ const RANK_THRESHOLDS = [
 let equityChartInstance = null;
 let pendingDelete = null;
 let pendingDeleteType = null;
+let journalView = 'cards';
+let calMonth = new Date();
+calMonth.setDate(1);
 
 // ─── SUPABASE ─────────────────────────────────────────────────────────────────
 const SUPABASE_URL  = 'https://rlatlwyksxakqgwmarvf.supabase.co';
@@ -1563,15 +1855,70 @@ function renderAll() {
     const acc = getActiveAccount();
     if (acc) {
       renderRank(acc);
+      checkRankUp(acc);
       renderStats(acc);
       renderJournal(acc);
       renderChart(acc);
       renderStreak(acc);
       renderRules(acc);
+      renderDeepAnalytics(acc);
+      renderChecklist('pre');
+      renderChecklist('post');
+      renderAccountOverview();
     }
   } else {
     clearUI();
   }
+}
+
+// ─── ACCOUNT OVERVIEW ────────────────────────────────────────────────────────
+let _overviewOpen = true;
+
+function toggleOverview() {
+  _overviewOpen = !_overviewOpen;
+  document.getElementById('overviewBody').style.display = _overviewOpen ? 'block' : 'none';
+  document.getElementById('overviewChevron').style.transform = _overviewOpen ? 'rotate(0deg)' : 'rotate(-90deg)';
+}
+
+function renderAccountOverview() {
+  const el = document.getElementById('accountOverview');
+  const grid = document.getElementById('overviewGrid');
+  if (state.accounts.length < 2) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+
+  const activeId = state.activeAccount;
+  const withStats = state.accounts.map(a => {
+    const totalPNL = a.trades.reduce((s,t) => s + t.net, 0);
+    const wins = a.trades.filter(t => t.net > 0).length;
+    const total = a.trades.length;
+    return { ...a, totalPNL, winRate: total ? (wins / total) * 100 : 0, tradesCount: total };
+  });
+
+  const best = withStats.reduce((a,b) => a.totalPNL > b.totalPNL ? a : b);
+  const worst = withStats.reduce((a,b) => a.totalPNL < b.totalPNL ? a : b);
+
+  const RANK_LABELS = ['E','D','C','B','A','S'];
+  const getRank = (pct) => pct >= 100 ? 'S' : pct >= 80 ? 'A' : pct >= 60 ? 'B' : pct >= 40 ? 'C' : pct >= 20 ? 'D' : 'E';
+
+  grid.innerHTML = withStats.map(a => {
+    const pct = a.target ? Math.min(100, (a.totalPNL / a.target) * 100) : 0;
+    const rank = getRank(pct);
+    const isActive = a.id === activeId;
+    const isBest = a.id === best.id;
+    const isWorst = a.id === worst.id && worst.id !== best.id;
+    return `<div class="ov-card${isActive ? ' active' : ''}" onclick="switchAccount(${a.id})" title="Click to switch">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div class="ov-name">${a.name}</div>
+        <div class="ov-rank rank-${rank}">${rank}</div>
+      </div>
+      <div class="ov-stat"><span class="ov-stat-label">XP</span><span class="ov-stat-value" style="color:${a.totalPNL >= 0 ? 'var(--green)' : 'var(--red)'}">${a.totalPNL >= 0 ? '+' : ''}$${a.totalPNL.toFixed(2)}</span></div>
+      <div class="ov-stat"><span class="ov-stat-label">Balance</span><span class="ov-stat-value">$${(a.startBalance + a.totalPNL).toFixed(2)}</span></div>
+      <div class="ov-stat"><span class="ov-stat-label">Hunts</span><span class="ov-stat-value">${a.tradesCount}</span></div>
+      <div class="ov-stat"><span class="ov-stat-label">Clear Rate</span><span class="ov-stat-value">${a.winRate.toFixed(1)}%</span></div>
+      ${isBest ? '<div style="margin-top:6px;font-size:0.65rem;color:var(--green);text-align:center;display:flex;align-items:center;justify-content:center;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Strongest Hunter</div>' : ''}
+      ${isWorst ? '<div style="margin-top:6px;font-size:0.65rem;color:var(--red);text-align:center;display:flex;align-items:center;justify-content:center;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>Needs Training</div>' : ''}
+    </div>`;
+  }).join('');
 }
 
 function getActiveAccount() {
@@ -1636,7 +1983,39 @@ function renderAccounts() {
       del.style.borderColor = 'var(--accent)';
     }
 
+    const editBtn = document.createElement('button');
+    editBtn.style.cssText = `
+      font-size:0.7rem; padding:0 6px; height:36px;
+      border:1px solid var(--border); border-left:none;
+      background:var(--card); color:var(--text3);
+      cursor:pointer; transition:all 0.2s;
+      display:flex; align-items:center; justify-content:center;
+    `;
+    editBtn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+    editBtn.title = 'Rename account';
+    editBtn.onmouseover = () => { editBtn.style.background = 'var(--accent)'; editBtn.style.color = '#fff'; editBtn.style.borderColor = 'var(--accent)'; };
+    editBtn.onmouseout  = () => { editBtn.style.background = 'var(--card)'; editBtn.style.color = 'var(--text3)'; editBtn.style.borderColor = 'var(--border)'; };
+    editBtn.onclick = (e) => { e.stopPropagation(); editAccountName(acc.id); };
+
+    const editInput = document.createElement('input');
+    editInput.type = 'text';
+    editInput.maxLength = 30;
+    editInput.style.cssText = `
+      display:none; width:140px; height:36px; padding:0 10px;
+      background:var(--bg3); border:1px solid var(--accent); color:var(--text);
+      font-family:'Rajdhani',sans-serif; font-size:0.82rem; font-weight:600;
+      letter-spacing:1px; text-transform:uppercase;
+      border-radius:6px 0 0 6px; outline:none;
+    `;
+    editInput.dataset.accountId = acc.id;
+
+    if (acc.id === state.activeAccount) {
+      editBtn.style.borderColor = 'var(--accent)';
+    }
+
     wrap.appendChild(btn);
+    wrap.appendChild(editBtn);
+    wrap.appendChild(editInput);
     wrap.appendChild(del);
     bar.appendChild(wrap);
   });
@@ -1646,6 +2025,66 @@ function renderAccounts() {
   addBtn.textContent = '+ Add Account';
   addBtn.onclick = openAccountModal;
   bar.appendChild(addBtn);
+}
+
+function editAccountName(id) {
+  const acc = state.accounts.find(a => a.id === id);
+  if (!acc) return;
+  const wraps = document.getElementById('accountsBar').children;
+  for (let w of wraps) {
+    const input = w.querySelector('input[data-account-id]');
+    const btn = w.querySelector('.account-tab');
+    const editIcon = w.querySelector('button:nth-child(2)');
+    if (input && parseInt(input.dataset.accountId) === id) {
+      btn.style.display = 'none';
+      if (editIcon) editIcon.style.display = 'none';
+      input.value = acc.name;
+      input.style.display = 'block';
+      input.focus();
+      input.select();
+      input.onkeydown = (e) => {
+        if (e.key === 'Enter') saveAccountName(id);
+        if (e.key === 'Escape') cancelAccountNameEdit(id);
+      };
+      input.onblur = () => saveAccountName(id);
+    }
+  }
+}
+
+function saveAccountName(id) {
+  const wraps = document.getElementById('accountsBar').children;
+  for (let w of wraps) {
+    const input = w.querySelector('input[data-account-id]');
+    const btn = w.querySelector('.account-tab');
+    const editIcon = w.querySelector('button:nth-child(2)');
+    if (input && parseInt(input.dataset.accountId) === id) {
+      const name = input.value.trim();
+      if (!name) { showToast('Account name cannot be empty', 'error'); input.focus(); return; }
+      const acc = state.accounts.find(a => a.id === id);
+      if (acc) acc.name = name;
+      save();
+      input.style.display = 'none';
+      btn.style.display = '';
+      if (editIcon) editIcon.style.display = '';
+      btn.textContent = name;
+      renderAll();
+      showToast('Account renamed');
+    }
+  }
+}
+
+function cancelAccountNameEdit(id) {
+  const wraps = document.getElementById('accountsBar').children;
+  for (let w of wraps) {
+    const input = w.querySelector('input[data-account-id]');
+    const btn = w.querySelector('.account-tab');
+    const editIcon = w.querySelector('button:nth-child(2)');
+    if (input && parseInt(input.dataset.accountId) === id) {
+      input.style.display = 'none';
+      btn.style.display = '';
+      if (editIcon) editIcon.style.display = '';
+    }
+  }
 }
 
 function switchAccount(id) {
@@ -1677,7 +2116,8 @@ function saveAccount() {
     maxLoss,
     sessions: [],
     trades: [],
-    rules: {}
+    rules: {},
+    checklists: { pre: [], post: [] }
   };
   state.accounts.push(acc);
   state.activeAccount = acc.id;
@@ -1738,8 +2178,18 @@ function openTradeModal(tradeId = null) {
       document.getElementById('tPips').value    = t.pips || '';
       document.getElementById('tGross').value   = t.gross;
       document.getElementById('tFee').value     = t.fee;
+      document.getElementById('tRR').value      = t.rr || '';
       document.getElementById('tNotes').value   = t.notes || '';
       document.getElementById('tStrategy').value = t.strategy || '';
+      document.getElementById('tScreenshotData').value = t.screenshot || '';
+      if (t.screenshot) {
+        document.getElementById('screenshotName').textContent = 'Screenshot attached';
+        document.getElementById('screenshotClearBtn').style.display = 'inline';
+        document.getElementById('screenshotPreview').style.display = 'block';
+        document.getElementById('screenshotPreviewImg').src = t.screenshot;
+      } else {
+        clearScreenshot();
+      }
       sel.value = t.sessionDate;
       autoCalc();
     }
@@ -1754,12 +2204,47 @@ function openTradeModal(tradeId = null) {
     document.getElementById('tPips').value     = '';
     document.getElementById('tGross').value    = '';
     document.getElementById('tFee').value      = '';
+    document.getElementById('tRR').value       = '';
     document.getElementById('tNotes').value    = '';
     document.getElementById('tStrategy').value = '';
+    clearScreenshot();
     document.getElementById('autoCalcPreview').style.display = 'none';
     sel.value = acc.sessions[0].date;
   }
   openModal('tradeModal');
+}
+
+// ─── TRADE SCREENSHOTS ────────────────────────────────────────────────────────
+function handleScreenshotUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 3 * 1024 * 1024) { showToast('Max 3MB per screenshot', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const b64 = e.target.result;
+    document.getElementById('tScreenshotData').value = b64;
+    document.getElementById('screenshotName').textContent = file.name;
+    document.getElementById('screenshotClearBtn').style.display = 'inline';
+    const preview = document.getElementById('screenshotPreview');
+    const img = document.getElementById('screenshotPreviewImg');
+    img.src = b64;
+    preview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearScreenshot() {
+  document.getElementById('tScreenshotData').value = '';
+  document.getElementById('tScreenshot').value = '';
+  document.getElementById('screenshotName').textContent = '';
+  document.getElementById('screenshotClearBtn').style.display = 'none';
+  document.getElementById('screenshotPreview').style.display = 'none';
+  document.getElementById('screenshotPreviewImg').src = '';
+}
+
+function openScreenshotViewer(src) {
+  document.getElementById('screenshotViewerImg').src = src;
+  openModal('screenshotViewer');
 }
 
 function saveTrade() {
@@ -1774,6 +2259,8 @@ function saveTrade() {
   const pips        = parseFloat(document.getElementById('tPips').value) || 0;
   const gross       = parseFloat(document.getElementById('tGross').value);
   const fee         = parseFloat(document.getElementById('tFee').value) || 0;
+  const rr          = parseFloat(document.getElementById('tRR').value) || 0;
+  const screenshot  = document.getElementById('tScreenshotData').value || '';
   const notes       = document.getElementById('tNotes').value.trim();
   const strategy    = document.getElementById('tStrategy').value;
   const sessionDate = document.getElementById('tSession').value;
@@ -1786,7 +2273,7 @@ function saveTrade() {
   if (editId) {
     const idx = acc.trades.findIndex(t => t.id === parseInt(editId));
     if (idx !== -1) {
-      acc.trades[idx] = { ...acc.trades[idx], symbol, dir, outcome, entry, lots, sl, tp, pips, gross: +gross.toFixed(2), fee: +fee.toFixed(2), net, notes, strategy, sessionDate };
+      acc.trades[idx] = { ...acc.trades[idx], symbol, dir, outcome, entry, lots, sl, tp, pips, gross: +gross.toFixed(2), fee: +fee.toFixed(2), net, rr, notes, strategy, sessionDate, screenshot };
     }
     showToast('Trade updated');
   } else {
@@ -1795,7 +2282,7 @@ function saveTrade() {
       symbol, dir, outcome, entry, lots, sl, tp, pips,
       gross: +gross.toFixed(2),
       fee:   +fee.toFixed(2),
-      net,
+      net, rr, screenshot,
       notes, strategy,
       sessionDate,
       timestamp: Date.now()
@@ -1929,13 +2416,27 @@ function autoCalc() {
 
   const net = +(gross - fee).toFixed(2);
 
+  // Calculate R:R (risk/reward ratio)
+  const riskPips = slPrice ? Math.abs(entry - slPrice) / pipSize : 0;
+  let rr = 0;
+  if (riskPips > 0) {
+    const dirSign = dir === 'Long' ? 1 : -1;
+    const exitVsEntry = (exitPrice - entry) * dirSign;
+    const signedPips = exitVsEntry >= 0 ? pips : -pips;
+    rr = +(signedPips / riskPips).toFixed(2);
+  }
+
   // Set hidden fields
   document.getElementById('tPips').value  = pips;
   document.getElementById('tGross').value = gross;
   document.getElementById('tFee').value   = fee;
+  document.getElementById('tRR').value    = rr;
 
   // Show preview
   preview.style.display = 'block';
+  const rrEl = document.getElementById('previewRR');
+  rrEl.textContent  = rr.toFixed(2);
+  rrEl.style.color  = rr > 0 ? 'var(--green)' : (rr < 0 ? 'var(--red)' : 'var(--text2)');
   document.getElementById('previewPips').textContent  = pips + 'p';
   const gEl = document.getElementById('previewGross');
   gEl.textContent  = (gross >= 0 ? '+' : '') + '$' + Math.abs(gross).toFixed(2);
@@ -2007,36 +2508,6 @@ function confirmDelete() {
   renderAll();
 }
 
-function renderTradeTable(acc) {
-  const tbody = document.getElementById('tradeTableBody');
-  const empty = document.getElementById('tradeEmpty');
-  tbody.innerHTML = '';
-  if (!acc.trades.length) { empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-  const sorted = [...acc.trades].sort((a,b) => b.timestamp - a.timestamp);
-  sorted.forEach((t, i) => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td style="color:var(--text3);font-family:'Share Tech Mono',monospace;font-size:0.75rem;">#${sorted.length - i}</td>
-      <td><span class="symbol-badge">${t.symbol}</span></td>
-      <td><span class="${t.dir === 'Long' ? 'dir-long' : 'dir-short'}">${t.dir === 'Long' ? '▲ LONG' : '▼ SHORT'}</span></td>
-      <td><span class="${t.outcome === 'TP' ? 'outcome-tp' : t.outcome === 'SL' ? 'outcome-sl' : ''}">${t.outcome}</span></td>
-      <td style="font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:var(--text2);">${t.pips ? t.pips + 'p' : '—'}</td>
-      <td class="${t.gross >= 0 ? 'pnl-pos' : 'pnl-neg'}">${t.gross >= 0 ? '+' : ''}$${t.gross.toFixed(2)}</td>
-      <td style="color:var(--text3);font-family:'Share Tech Mono',monospace;font-size:0.78rem;">-$${t.fee.toFixed(2)}</td>
-      <td class="${t.net >= 0 ? 'pnl-pos' : 'pnl-neg'}" style="font-weight:700;">${t.net >= 0 ? '+' : ''}$${t.net.toFixed(2)}</td>
-      <td style="font-family:'Share Tech Mono',monospace;font-size:0.78rem;color:var(--text2);">$${(t.runningBalance||acc.startBalance).toFixed(2)}</td>
-      <td>
-        <div class="trade-actions">
-          <button class="btn btn-outline btn-sm" onclick="openTradeModal(${t.id})">Edit</button>
-          <button class="btn btn-danger" onclick="askDeleteTrade(${t.id})">Del</button>
-        </div>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
 // ─── RANK ─────────────────────────────────────────────────────────────────────
 function getRankData(acc) {
   const totalProfit = acc.trades.reduce((s,t) => s + t.net, 0);
@@ -2074,6 +2545,64 @@ function renderRank(acc) {
   });
 }
 
+// ─── RANK UP ANIMATION ────────────────────────────────────────────────────────
+const RANK_ORDER = ['E','D','C','B','A','S'];
+let prevRankMap = {};
+
+function checkRankUp(acc) {
+  if (!acc) return;
+  const { rank } = getRankData(acc);
+  const cur = rank.rank;
+  const prev = prevRankMap[acc.id];
+
+  if (prev && cur !== prev && RANK_ORDER.indexOf(cur) > RANK_ORDER.indexOf(prev)) {
+    const labels = ['Awakening','Ascension','Evolution','Transcendence','Summit','Arise'];
+    const msgs = [
+      'You have awakened. The gate awaits your first step, <em>Hunter</em>.',
+      'Your growth has been acknowledged. The shadows stir in your presence, <em>Player</em>.',
+      'Strength accumulates. The dungeon bows to your will, <em>Player</em>.',
+      'Elite tier unlocked. The Monarch\'s gaze is upon you, <em>Player</em>.',
+      'Near the summit. One final threshold remains before transcendence, <em>Player</em>.',
+      'All conditions satisfied. You have transcended human limits. Arise, <em>Shadow Monarch</em>.'
+    ];
+    triggerRankUp(labels[RANK_ORDER.indexOf(cur)], msgs[RANK_ORDER.indexOf(cur)]);
+  }
+  prevRankMap[acc.id] = cur;
+}
+
+function triggerRankUp(label, message) {
+  const os = document.getElementById('slOverlay');
+  const body = os.querySelector('.sl-body p');
+  const badge = os.querySelector('.sl-notif-badge');
+  body.innerHTML = message;
+  badge.textContent = label.toUpperCase();
+  os.classList.add('active');
+  setTimeout(dismissRankUp, 5000);
+}
+
+function dismissRankUp() {
+  document.getElementById('slOverlay').classList.remove('active');
+}
+
+function previewRankUp(rank) {
+  const labels = { E:'Awakening', D:'Awakening', C:'Ascension', B:'Evolution', A:'Transcendence', S:'Arise' };
+  const msgs = {
+    E: 'You have awakened. The gate awaits your first step, <em>Hunter</em>.',
+    D: 'You have awakened. The gate awaits your first step, <em>Hunter</em>.',
+    C: 'Your growth has been acknowledged. The shadows stir in your presence, <em>Player</em>.',
+    B: 'Strength accumulates. The dungeon bows to your will, <em>Player</em>.',
+    A: 'Elite tier unlocked. The Monarch\'s gaze is upon you, <em>Player</em>.',
+    S: 'All conditions satisfied. You have transcended human limits. Arise, <em>Shadow Monarch</em>.'
+  };
+  const os = document.getElementById('slOverlay');
+  const body = os.querySelector('.sl-body p');
+  const badge = os.querySelector('.sl-notif-badge');
+  body.innerHTML = msgs[rank] || msgs.E;
+  badge.textContent = (labels[rank] || 'AWAKENING').toUpperCase();
+  os.classList.add('active');
+  setTimeout(dismissRankUp, 5000);
+}
+
 // ─── STATS ────────────────────────────────────────────────────────────────────
 function renderStats(acc) {
   const trades = acc.trades;
@@ -2084,14 +2613,19 @@ function renderStats(acc) {
   const best = nets.length ? Math.max(...nets) : 0;
   const worst = nets.length ? Math.min(...nets) : 0;
 
+  const rrs = trades.filter(t => t.rr != null).map(t => t.rr);
+  const avgRR = rrs.length ? rrs.reduce((s,v) => s+v, 0) / rrs.length : 0;
+
   document.getElementById('statTrades').textContent = trades.length;
   document.getElementById('statWinRate').textContent = winRate + '%';
   document.getElementById('statWins').textContent = wins;
   document.getElementById('statLosses').textContent = losses;
+  document.getElementById('statAvgRR').textContent = (avgRR > 0 ? '' : '') + avgRR.toFixed(2);
+  document.getElementById('statAvgRR').className = 'stat-value ' + (avgRR > 0 ? 'green' : avgRR < 0 ? 'red' : 'blue');
   document.getElementById('statBest').textContent = '+$' + best.toFixed(2);
   document.getElementById('statWorst').textContent = '$' + worst.toFixed(2);
 
-  renderTradeTable(acc);
+  renderTradeTable();
 }
 
 // ─── JOURNAL ──────────────────────────────────────────────────────────────────
@@ -2103,47 +2637,99 @@ function renderJournal(acc) {
   }
   list.innerHTML = '';
 
-  // Session name label at top of journal tab
-  const nameBar = document.createElement('div');
-  nameBar.style.cssText = 'margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
-  nameBar.innerHTML = `
-    <span style="font-size:0.72rem;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;">Account</span>
-    <span style="font-family:'Cinzel',serif;font-size:0.95rem;font-weight:700;color:var(--accent3);">${acc.name}</span>
-    <span style="font-size:0.72rem;color:var(--text3);">·</span>
-    <span style="font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:var(--text2);">${acc.sessions.length} session${acc.sessions.length !== 1 ? 's' : ''}</span>
+  // View toggle + name bar
+  const topBar = document.createElement('div');
+  topBar.style.cssText = 'margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;';
+  topBar.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:0.72rem;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;">Account</span>
+      <span style="font-family:'Cinzel',serif;font-size:0.95rem;font-weight:700;color:var(--accent3);">${acc.name}</span>
+      <span style="font-size:0.72rem;color:var(--text3);">·</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:var(--text2);">${acc.sessions.length} session${acc.sessions.length !== 1 ? 's' : ''}</span>
+    </div>
+    <div style="display:flex;gap:6px;">
+      <button class="btn btn-outline btn-sm" id="journalViewCards" onclick="setJournalView('cards')" style="${journalView !== 'cards' ? 'opacity:0.5;' : ''}">Cards</button>
+      <button class="btn btn-outline btn-sm" id="journalViewTable" onclick="setJournalView('table')" style="${journalView !== 'table' ? 'opacity:0.5;' : ''}">Table</button>
+      <button class="btn btn-outline btn-sm" id="journalViewCal" onclick="setJournalView('calendar')" style="${journalView !== 'calendar' ? 'opacity:0.5;' : ''}">Calendar</button>
+    </div>
   `;
-  list.appendChild(nameBar);
+  list.appendChild(topBar);
+
+  if (journalView === 'table') { renderJournalTable(acc, list); return; }
+  if (journalView === 'calendar') { renderJournalCalendar(acc, list); return; }
+  renderJournalCards(acc, list);
+}
+
+function renderJournalCards(acc, list) {
 
   acc.sessions.forEach(s => {
     const trades = acc.trades.filter(t => t.sessionDate === s.date);
     const dayPnl = trades.reduce((sum, t) => sum + t.net, 0);
     const wins = trades.filter(t => t.net > 0).length;
+
     const div = document.createElement('div');
     div.className = 'journal-day';
-    div.innerHTML = `
-      <div class="journal-day-header" onclick="toggleDay(this)">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <span class="day-date"><span class="icon" style="margin-right:5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>${formatDateLong(s.date)}</span>
-          <span style="font-size:0.75rem;color:var(--text3);">${trades.length} trades · ${wins}W/${trades.length-wins}L</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <span class="day-pnl" style="color:${dayPnl>0?'var(--green)':dayPnl<0?'var(--red)':'var(--text2)'}">
-            ${dayPnl>=0?'+':''}$${dayPnl.toFixed(2)}
-          </span>
-          ${s.emotion ? `<span class="emotion-tag emotion-${s.emotion}">${s.emotion}</span>` : ''}
-          <span class="day-chevron">▼</span>
-        </div>
+
+    // Header (always visible)
+    const header = document.createElement('div');
+    header.className = 'journal-day-header';
+    header.onclick = () => div.classList.toggle('open');
+    header.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="day-date">${formatDateLong(s.date)}</span>
+        <span style="font-size:0.75rem;color:var(--text3);">${trades.length} trade${trades.length!==1?'s':''} · ${wins}W/${trades.length-wins}L</span>
       </div>
-      <div class="journal-day-body">
-        ${s.intent ? `<div style="margin-bottom:10px;"><span style="font-size:0.72rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;">Pre-Session Intent</span><p style="font-size:0.88rem;color:var(--text2);margin-top:4px;font-style:italic;">"${s.intent}"</p></div>` : ''}
-        ${s.postNote ? `<div style="margin-bottom:10px;"><span style="font-size:0.72rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;">Reflection</span><p style="font-size:0.88rem;color:var(--text2);margin-top:4px;">${s.postNote}</p></div>` : ''}
-        ${s.breaches ? `<div style="margin-bottom:10px;"><span style="font-size:0.72rem;color:var(--red);letter-spacing:1px;text-transform:uppercase;">Breaches</span><p style="font-size:0.88rem;color:var(--red);margin-top:4px;opacity:0.8;">${s.breaches}</p></div>` : ''}
-        <div style="margin-top:10px;display:flex;gap:8px;">
-          <button class="btn btn-outline btn-sm" onclick="openSessionNotes('${s.date}')"><span class="icon" style="margin-right:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>Edit Notes</button>
-          <button class="btn btn-danger" onclick="askDeleteSession('${s.date}')"><span class="icon" style="margin-right:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></span>Delete Session</button>
-        </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        ${s.emotion ? `<span class="emotion-tag emotion-${s.emotion}" style="font-size:0.65rem;padding:2px 8px;">${s.emotion}</span>` : ''}
+        <span class="day-pnl" style="color:${dayPnl>0?'var(--green)':dayPnl<0?'var(--red)':'var(--text2)'};">${dayPnl>=0?'+':''}$${dayPnl.toFixed(2)}</span>
+        <span class="day-chevron"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
       </div>
     `;
+    div.appendChild(header);
+
+    // Body (hidden until clicked)
+    const body = document.createElement('div');
+    body.className = 'journal-day-body';
+
+    // Intent + Reflection + Breaches
+    if (s.intent) body.innerHTML += `<div style="margin-bottom:10px;"><span style="font-size:0.72rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;">Pre-Session Intent</span><p style="font-size:0.88rem;color:var(--text2);margin-top:4px;font-style:italic;">"${s.intent}"</p></div>`;
+    if (s.postNote) body.innerHTML += `<div style="margin-bottom:10px;"><span style="font-size:0.72rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;">Reflection</span><p style="font-size:0.88rem;color:var(--text2);margin-top:4px;">${s.postNote}</p></div>`;
+    if (s.breaches) body.innerHTML += `<div style="margin-bottom:10px;"><span style="font-size:0.72rem;color:var(--red);letter-spacing:1px;text-transform:uppercase;">Breaches</span><p style="font-size:0.88rem;color:var(--red);margin-top:4px;opacity:0.8;">${s.breaches}</p></div>`;
+
+    // Trade list
+    if (trades.length) {
+      body.innerHTML += `<div style="margin-bottom:10px;"><span style="font-size:0.72rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;">Trades</span></div>`;
+      trades.forEach((t, i) => {
+        body.innerHTML += `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:0.82rem;border-bottom:1px solid rgba(26,26,74,0.12);">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="color:var(--text3);font-family:'Share Tech Mono',monospace;font-size:0.65rem;">#${i+1}</span>
+              <span class="symbol-badge" style="font-size:0.78rem;">${t.symbol}</span>
+              <span style="display:inline-flex;align-items:center;color:${t.dir==='Long'?'var(--green)':'var(--red)'};">${t.dir==='Long'
+                ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>'
+                : '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>'}</span>
+              <span style="font-size:0.7rem;color:${t.outcome==='TP'?'var(--green)':t.outcome==='SL'?'var(--red)':'var(--text2)'};">${t.outcome}</span>
+              ${t.strategy ? `<span style="font-size:0.62rem;color:var(--accent3);">${t.strategy}</span>` : ''}
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              ${t.pips ? `<span style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--text3);">${t.pips}p</span>` : ''}
+              <span style="font-family:'Share Tech Mono',monospace;font-size:0.85rem;font-weight:700;color:${t.net>=0?'var(--green)':'var(--red)'};">${t.net>=0?'+':''}$${t.net.toFixed(2)}</span>
+            </div>
+          </div>
+        `;
+        if (t.notes) body.innerHTML += `<div style="font-size:0.75rem;color:var(--text3);font-style:italic;padding:2px 0 6px 16px;">${t.notes}</div>`;
+      });
+    }
+
+    // Actions
+    body.innerHTML += `
+      <div style="margin-top:12px;display:flex;gap:8px;">
+        <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openSessionNotes('${s.date}')"><span class="icon" style="margin-right:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>Edit Notes</button>
+        <button class="btn btn-danger" onclick="event.stopPropagation();askDeleteSession('${s.date}')"><span class="icon" style="margin-right:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></span>Delete</button>
+      </div>
+    `;
+
+    div.appendChild(body);
     list.appendChild(div);
   });
 }
@@ -2175,6 +2761,152 @@ function saveSessionNotes() {
   closeModal('sessionNotesModal');
   showToast('Session notes saved');
   renderJournal(acc);
+}
+
+function setJournalView(view) {
+  journalView = view;
+  const acc = getActiveAccount();
+  if (acc) renderJournal(acc);
+}
+
+function renderJournalTable(acc, container) {
+  const sorted = [...acc.sessions].sort((a,b) => b.date.localeCompare(a.date));
+  const table = document.createElement('div');
+  table.style.cssText = 'overflow-x:auto;';
+  table.innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+      <thead>
+        <tr>
+          <th style="font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);font-weight:600;">Date</th>
+          <th style="font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:8px 10px;text-align:center;border-bottom:1px solid var(--border);font-weight:600;">Trades</th>
+          <th style="font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:8px 10px;text-align:center;border-bottom:1px solid var(--border);font-weight:600;">W</th>
+          <th style="font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:8px 10px;text-align:center;border-bottom:1px solid var(--border);font-weight:600;">L</th>
+          <th style="font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);font-weight:600;">P&amp;L</th>
+          <th style="font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:8px 10px;text-align:center;border-bottom:1px solid var(--border);font-weight:600;">Emotion</th>
+          <th style="font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:8px 10px;text-align:center;border-bottom:1px solid var(--border);font-weight:600;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        ${sorted.map(s => {
+          const trades = acc.trades.filter(t => t.sessionDate === s.date);
+          const dayPnl = trades.reduce((sum, t) => sum + t.net, 0);
+          const wins = trades.filter(t => t.net > 0).length;
+          const pnlColor = dayPnl > 0 ? 'var(--green)' : dayPnl < 0 ? 'var(--red)' : 'var(--text2)';
+          return `<tr>
+            <td style="padding:10px;border-bottom:1px solid rgba(26,26,74,0.5);font-family:'Share Tech Mono',monospace;color:var(--accent2);white-space:nowrap;">${formatDateShort(s.date)}</td>
+            <td style="padding:10px;border-bottom:1px solid rgba(26,26,74,0.5);text-align:center;color:var(--text2);">${trades.length}</td>
+            <td style="padding:10px;border-bottom:1px solid rgba(26,26,74,0.5);text-align:center;color:var(--green);font-weight:700;">${wins}</td>
+            <td style="padding:10px;border-bottom:1px solid rgba(26,26,74,0.5);text-align:center;color:var(--red);font-weight:700;">${trades.length - wins}</td>
+            <td style="padding:10px;border-bottom:1px solid rgba(26,26,74,0.5);text-align:right;font-family:'Share Tech Mono',monospace;font-weight:700;color:${pnlColor};">${dayPnl >= 0 ? '+' : ''}$${dayPnl.toFixed(2)}</td>
+            <td style="padding:10px;border-bottom:1px solid rgba(26,26,74,0.5);text-align:center;">${s.emotion ? `<span class="emotion-tag emotion-${s.emotion}" style="font-size:0.65rem;">${s.emotion}</span>` : '<span style="color:var(--text3);font-size:0.7rem;">—</span>'}</td>
+            <td style="padding:10px;border-bottom:1px solid rgba(26,26,74,0.5);text-align:center;">
+              <button class="btn btn-outline btn-sm" style="font-size:0.65rem;padding:3px 8px;" onclick="openSessionNotes('${s.date}')">Edit</button>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+  container.appendChild(table);
+}
+
+function renderJournalCalendar(acc, container) {
+  const year = calMonth.getFullYear();
+  const month = calMonth.getMonth();
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+
+  // Build a map of date -> session
+  const sessionMap = {};
+  acc.sessions.forEach(s => { sessionMap[s.date] = s; });
+
+  // Month P&L
+  const monthStr = `${year}-${String(month+1).padStart(2,'0')}`;
+  const monthSessions = acc.sessions.filter(s => s.date.startsWith(monthStr));
+  const monthPnl = monthSessions.reduce((sum, s) => {
+    const trades = acc.trades.filter(t => t.sessionDate === s.date);
+    return sum + trades.reduce((s2, t) => s2 + t.net, 0);
+  }, 0);
+
+  const nav = document.createElement('div');
+  nav.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;';
+  nav.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="btn btn-outline btn-sm" onclick="calNav(-1)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <span style="font-family:'Cinzel',serif;font-size:0.95rem;font-weight:700;color:var(--accent3);letter-spacing:1px;">${monthNames[month]} ${year}</span>
+      <button class="btn btn-outline btn-sm" onclick="calNav(1)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.85rem;color:${monthPnl >= 0 ? 'var(--green)' : 'var(--red)'};font-weight:700;">
+      Month: ${monthPnl >= 0 ? '+' : ''}$${monthPnl.toFixed(2)}
+    </div>
+  `;
+  container.appendChild(nav);
+
+  // Calendar grid
+  const grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);gap:4px;';
+
+  // Day headers
+  const dayHeaders = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  dayHeaders.forEach(d => {
+    const h = document.createElement('div');
+    h.style.cssText = 'font-size:0.65rem;letter-spacing:1px;text-transform:uppercase;color:var(--text3);text-align:center;padding:6px 0;font-weight:600;';
+    h.textContent = d;
+    grid.appendChild(h);
+  });
+
+  // Empty cells before first day
+  for (let i = 0; i < firstDay; i++) {
+    const e = document.createElement('div');
+    grid.appendChild(e);
+  }
+
+  // Day cells
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const session = sessionMap[dateStr] || null;
+    const trades = session ? acc.trades.filter(t => t.sessionDate === dateStr) : [];
+    const dayPnl = trades.reduce((sum, t) => sum + t.net, 0);
+    const isToday = dateStr === new Date().toISOString().split('T')[0];
+
+    const cell = document.createElement('div');
+    cell.className = 'calendar-cell';
+    cell.style.cssText = `
+      aspect-ratio:1; border-radius:8px; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:2px; padding:4px;
+      background:${session ? (dayPnl > 0 ? 'rgba(0,230,118,0.08)' : dayPnl < 0 ? 'rgba(255,68,68,0.08)' : 'var(--card2)') : 'transparent'};
+      border:1px solid ${isToday ? 'var(--accent)' : (session ? 'var(--border)' : 'transparent')};
+      cursor:${session ? 'pointer' : 'default'};
+      transition:all 0.15s;
+      position:relative;
+    `;
+    cell.onmouseover = () => { if (session) cell.style.borderColor = 'var(--accent2)'; };
+    cell.onmouseout = () => { cell.style.borderColor = isToday ? 'var(--accent)' : (session ? 'var(--border)' : 'transparent'); };
+    if (session) cell.onclick = () => openSessionNotes(dateStr);
+
+    const dayNum = document.createElement('span');
+    dayNum.style.cssText = `font-family:'Share Tech Mono',monospace;font-size:0.75rem;color:${session ? 'var(--text)' : 'var(--text3)'};font-weight:${isToday ? '700' : '400'};`;
+    dayNum.textContent = d;
+
+    const pnlLabel = document.createElement('span');
+    if (session) {
+      pnlLabel.style.cssText = `font-family:'Share Tech Mono',monospace;font-size:0.6rem;font-weight:700;color:${dayPnl > 0 ? 'var(--green)' : dayPnl < 0 ? 'var(--red)' : 'var(--text3)'};`;
+      pnlLabel.textContent = `${dayPnl >= 0 ? '+' : ''}$${Math.abs(dayPnl).toFixed(0) > 999 ? (Math.abs(dayPnl)/1000).toFixed(1)+'k' : Math.abs(dayPnl).toFixed(0)}`;
+    }
+
+    cell.appendChild(dayNum);
+    if (session) cell.appendChild(pnlLabel);
+    grid.appendChild(cell);
+  }
+
+  container.appendChild(grid);
+}
+
+function calNav(dir) {
+  calMonth.setMonth(calMonth.getMonth() + dir);
+  const acc = getActiveAccount();
+  if (acc) renderJournal(acc);
 }
 
 // ─── CHART ────────────────────────────────────────────────────────────────────
@@ -2256,7 +2988,7 @@ function renderRules(acc) {
     const li = document.createElement('li');
     li.innerHTML = `
       <div class="rule-check ${state_r === 'followed' ? 'checked' : state_r === 'broken' ? 'broken' : ''}" id="rule-${i}" onclick="cycleRule(${i})">
-        ${state_r === 'followed' ? '✓' : state_r === 'broken' ? '✗' : ''}
+        ${state_r === 'followed' ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : state_r === 'broken' ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' : ''}
       </div>
       <span>${rule}</span>
     `;
@@ -2275,6 +3007,289 @@ function cycleRule(i) {
 }
 
 function saveRules() { save(); showToast('Rules saved'); }
+
+// ─── DEEP ANALYTICS ──────────────────────────────────────────────────────────
+function renderDeepAnalytics(acc) {
+  const el = document.getElementById('deepAnalytics');
+  if (!acc.trades.length) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+
+  const trades = acc.trades;
+  const sorted = [...trades].sort((a,b) => a.timestamp - b.timestamp);
+
+  // Drawdown
+  let peak = acc.startBalance;
+  let maxDD = 0;
+  let balance = acc.startBalance;
+  sorted.forEach(t => {
+    balance += t.net;
+    if (balance > peak) peak = balance;
+    const dd = (peak - balance) / peak * 100;
+    if (dd > maxDD) maxDD = dd;
+  });
+
+  // Consecutive wins / losses
+  let consWins = 0, consLosses = 0, maxConsWins = 0, maxConsLosses = 0;
+  sorted.forEach(t => {
+    if (t.net > 0) { consWins++; consLosses = 0; if (consWins > maxConsWins) maxConsWins = consWins; }
+    else if (t.net < 0) { consLosses++; consWins = 0; if (consLosses > maxConsLosses) maxConsLosses = consLosses; }
+    else { consWins = 0; consLosses = 0; }
+  });
+
+  // Profit factor
+  const grossWins = trades.filter(t => t.net > 0).reduce((s,t) => s + t.net, 0);
+  const grossLosses = Math.abs(trades.filter(t => t.net < 0).reduce((s,t) => s + t.net, 0));
+  const profitFactor = grossLosses > 0 ? (grossWins / grossLosses) : grossWins > 0 ? Infinity : 0;
+  const totalPNL = trades.reduce((s,t) => s + t.net, 0);
+
+  // Deep stats grid
+  document.getElementById('deepStatsGrid').innerHTML = `
+    <div class="deep-stat-card"><div class="deep-stat-label">Mana Drain</div><div class="deep-stat-value" style="color:var(--red);">${maxDD.toFixed(2)}%</div></div>
+    <div class="deep-stat-card"><div class="deep-stat-label">Hunt Streak</div><div class="deep-stat-value" style="color:var(--green);">${maxConsWins}</div></div>
+    <div class="deep-stat-card"><div class="deep-stat-label">Fallen Hunts</div><div class="deep-stat-value" style="color:var(--red);">${maxConsLosses}</div></div>
+    <div class="deep-stat-card"><div class="deep-stat-label">Shadow Ratio</div><div class="deep-stat-value" style="color:${profitFactor >= 1.5 ? 'var(--green)' : profitFactor > 0 ? 'var(--gold)' : 'var(--text2)'}">${profitFactor === Infinity ? '∞' : profitFactor.toFixed(2)}</div></div>
+    <div class="deep-stat-card"><div class="deep-stat-label">Total XP</div><div class="deep-stat-value" style="color:${totalPNL >= 0 ? 'var(--green)' : 'var(--red)'}">${totalPNL >= 0 ? '+' : ''}$${totalPNL.toFixed(2)}</div></div>
+    <div class="deep-stat-card"><div class="deep-stat-label">Avg XP / Hunt</div><div class="deep-stat-value" style="color:var(--text);">$${(totalPNL / sorted.length).toFixed(2)}</div></div>
+  `;
+
+  // P&L by Symbol
+  const bySymbol = {};
+  trades.forEach(t => {
+    if (!bySymbol[t.symbol]) bySymbol[t.symbol] = { trades: 0, wins: 0, gross: 0 };
+    bySymbol[t.symbol].trades++;
+    if (t.net > 0) bySymbol[t.symbol].wins++;
+    bySymbol[t.symbol].gross += t.net;
+  });
+  const symbolTable = document.getElementById('analyticsSymbolTable');
+  symbolTable.innerHTML = `<thead><tr><th>Gate</th><th>Hunts</th><th>Clear Rate</th><th>XP</th></tr></thead><tbody>${Object.entries(bySymbol).sort((a,b) => b[1].gross - a[1].gross).map(([sym, d]) =>
+    `<tr><td style="color:var(--accent2);font-weight:600;">${sym}</td><td>${d.trades}</td><td>${(d.wins / d.trades * 100).toFixed(0)}%</td><td style="color:${d.gross >= 0 ? 'var(--green)' : 'var(--red)'}">${d.gross >= 0 ? '+' : ''}$${d.gross.toFixed(2)}</td></tr>`
+  ).join('')}</tbody>`;
+
+  // P&L by Day of Week
+  const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const byDOW = {};
+  trades.forEach(t => {
+    const d = new Date(t.sessionDate || t.timestamp).getDay();
+    if (!byDOW[d]) byDOW[d] = { trades: 0, wins: 0, gross: 0 };
+    byDOW[d].trades++;
+    if (t.net > 0) byDOW[d].wins++;
+    byDOW[d].gross += t.net;
+  });
+  const dowTable = document.getElementById('analyticsDOWTable');
+  dowTable.innerHTML = `<thead><tr><th>Day</th><th>Hunts</th><th>Clear Rate</th><th>XP</th></tr></thead><tbody>${[0,1,2,3,4,5,6].filter(d => byDOW[d]).map(d =>
+    `<tr><td>${DAYS[d]}</td><td>${byDOW[d].trades}</td><td>${(byDOW[d].wins / byDOW[d].trades * 100).toFixed(0)}%</td><td style="color:${byDOW[d].gross >= 0 ? 'var(--green)' : 'var(--red)'}">${byDOW[d].gross >= 0 ? '+' : ''}$${byDOW[d].gross.toFixed(2)}</td></tr>`
+  ).join('')}</tbody>`;
+
+  // Monthly P&L
+  const byMonth = {};
+  trades.forEach(t => {
+    const d = new Date(t.sessionDate || t.timestamp);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    if (!byMonth[key]) byMonth[key] = { trades: 0, wins: 0, gross: 0 };
+    byMonth[key].trades++;
+    if (t.net > 0) byMonth[key].wins++;
+    byMonth[key].gross += t.net;
+  });
+  const monthTable = document.getElementById('analyticsMonthlyTable');
+  monthTable.innerHTML = `<thead><tr><th>Month</th><th>Hunts</th><th>Clear Rate</th><th>XP</th></tr></thead><tbody>${Object.entries(byMonth).sort().map(([m, d]) =>
+    `<tr><td>${m}</td><td>${d.trades}</td><td>${(d.wins / d.trades * 100).toFixed(0)}%</td><td style="color:${d.gross >= 0 ? 'var(--green)' : 'var(--red)'}">${d.gross >= 0 ? '+' : ''}$${d.gross.toFixed(2)}</td></tr>`
+  ).join('')}</tbody>`;
+}
+
+// ─── FILTERS ─────────────────────────────────────────────────────────────────
+function getFilters() {
+  return {
+    search: (document.getElementById('filterSearch').value || '').toLowerCase(),
+    strategy: document.getElementById('filterStrategy').value,
+    dateFrom: document.getElementById('filterDateFrom').value,
+    dateTo: document.getElementById('filterDateTo').value
+  };
+}
+
+function clearFilters() {
+  document.getElementById('filterSearch').value = '';
+  document.getElementById('filterStrategy').value = '';
+  document.getElementById('filterDateFrom').value = '';
+  document.getElementById('filterDateTo').value = '';
+  renderTradeTable();
+}
+
+function populateStrategyFilter() {
+  const acc = getActiveAccount();
+  if (!acc) return;
+  const sel = document.getElementById('filterStrategy');
+  const current = sel.value;
+  const strategies = [...new Set(acc.trades.map(t => t.strategy).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">All Strategies</option>' + strategies.map(s => `<option value="${s}">${s}</option>`).join('');
+  sel.value = current;
+}
+
+// ─── TRADE TABLE ─────────────────────────────────────────────────────────────
+// Override the existing renderTradeTable to support filters
+function renderTradeTable() {
+  const acc = getActiveAccount();
+  const tbody = document.getElementById('tradeTableBody');
+  const empty = document.getElementById('tradeEmpty');
+  if (!acc || !tbody) return;
+
+  populateStrategyFilter();
+
+  const filters = getFilters();
+  let filtered = [...acc.trades];
+
+  if (filters.search) {
+    filtered = filtered.filter(t => (t.notes || '').toLowerCase().includes(filters.search));
+  }
+  if (filters.strategy) {
+    filtered = filtered.filter(t => t.strategy === filters.strategy);
+  }
+  if (filters.dateFrom) {
+    const from = new Date(filters.dateFrom);
+    filtered = filtered.filter(t => new Date(t.sessionDate || t.timestamp) >= from);
+  }
+  if (filters.dateTo) {
+    const to = new Date(filters.dateTo);
+    to.setHours(23,59,59,999);
+    filtered = filtered.filter(t => new Date(t.sessionDate || t.timestamp) <= to);
+  }
+
+  if (!filtered.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  const sorted = [...filtered].sort((a,b) => b.timestamp - a.timestamp);
+  sorted.forEach((t, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:var(--text3);font-family:'Share Tech Mono',monospace;font-size:0.75rem;">#${sorted.length - i}</td>
+      <td><span class="symbol-badge">${t.symbol}</span></td>
+      <td><span class="${t.dir === 'Long' ? 'dir-long' : 'dir-short'}" style="display:inline-flex;align-items:center;gap:3px;">${t.dir === 'Long' ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg> LONG' : '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg> SHORT'}</span></td>
+      <td><span class="${t.outcome === 'TP' ? 'outcome-tp' : t.outcome === 'SL' ? 'outcome-sl' : ''}">${t.outcome}</span></td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:0.8rem;font-weight:700;color:${t.rr > 0 ? 'var(--green)' : t.rr < 0 ? 'var(--red)' : 'var(--text2)'};">${t.rr != null ? (t.rr > 0 ? '' : '') + t.rr.toFixed(2) : '—'}</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:var(--text2);">${t.pips ? t.pips + 'p' : '—'}</td>
+      <td class="${t.gross >= 0 ? 'pnl-pos' : 'pnl-neg'}">${t.gross >= 0 ? '+' : ''}$${t.gross.toFixed(2)}</td>
+      <td style="color:var(--text3);font-family:'Share Tech Mono',monospace;font-size:0.78rem;">-$${t.fee.toFixed(2)}</td>
+      <td class="${t.net >= 0 ? 'pnl-pos' : 'pnl-neg'}" style="font-weight:700;">${t.net >= 0 ? '+' : ''}$${t.net.toFixed(2)}</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:0.78rem;color:var(--text2);">$${(t.runningBalance||acc.startBalance).toFixed(2)}</td>
+      <td style="text-align:center;">
+        ${t.screenshot ? `<span style="cursor:pointer;color:var(--accent2);display:inline-flex;" onclick="openScreenshotViewer('${t.screenshot.replace(/'/g, "\\'")}')" title="View screenshot"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>` : ''}
+      </td>
+      <td>
+        <div class="trade-actions">
+          <button class="btn btn-outline btn-sm" onclick="openTradeModal(${t.id})">Edit</button>
+          <button class="btn btn-danger" onclick="askDeleteTrade(${t.id})">Del</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ─── CSV EXPORT ──────────────────────────────────────────────────────────────
+function exportCSV() {
+  const acc = getActiveAccount();
+  if (!acc || !acc.trades.length) { showToast('No trades to export', 'error'); return; }
+  const header = 'Symbol,Direction,Outcome,Entry,Lots,SL,TP,Pips,Gross,Fee,Net,RR,Strategy,Notes,SessionDate';
+  const rows = acc.trades.map(t =>
+    [t.symbol, t.dir, t.outcome, t.entry || '', t.lots || '', t.sl || '', t.tp || '', t.pips || '', t.gross, t.fee, t.net, t.rr || '', (t.strategy || '').replace(/,/g,';'), (t.notes || '').replace(/,/g,';'), t.sessionDate].join(',')
+  );
+  const csv = header + '\n' + rows.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${acc.name.replace(/[^a-z0-9]/gi,'_')}_trades.csv`;
+  a.click(); URL.revokeObjectURL(a.href);
+  showToast('CSV exported');
+}
+
+function importCSV(input) {
+  const acc = getActiveAccount();
+  if (!acc) { showToast('Select an account first', 'error'); return; }
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const lines = e.target.result.split('\n').filter(l => l.trim());
+    if (lines.length < 2) { showToast('CSV must have header + data rows', 'error'); return; }
+    const header = lines[0].toLowerCase().split(',').map(h => h.trim());
+    const idx = h => header.indexOf(h);
+    const si = idx('symbol'), di = idx('direction'), oi = idx('outcome'), ei = idx('entry'), li = idx('lots'),
+            sli = idx('sl'), tpi = idx('tp'), pi = idx('pips'), gi = idx('gross'), fi = idx('fee'),
+            ni = idx('net'), ri = idx('rr'), sti = idx('strategy'), nti = idx('notes'), sdi = idx('sessiondate');
+    if (si === -1 || di === -1) { showToast('CSV must include Symbol and Direction columns', 'error'); return; }
+    let imported = 0;
+    for (let r = 1; r < lines.length; r++) {
+      const cols = lines[r].split(',').map(c => c.trim());
+      const get = i => i !== -1 && cols[i] ? cols[i] : '';
+      const trade = {
+        id: Date.now() + r,
+        symbol: get(si).toUpperCase(),
+        dir: get(di),
+        outcome: get(oi) || 'TP',
+        entry: parseFloat(get(ei)) || 0,
+        lots: parseFloat(get(li)) || 0,
+        sl: parseFloat(get(sli)) || 0,
+        tp: parseFloat(get(tpi)) || 0,
+        pips: parseFloat(get(pi)) || 0,
+        gross: parseFloat(get(gi)) || 0,
+        fee: parseFloat(get(fi)) || 0,
+        net: parseFloat(get(ni)) || 0,
+        rr: parseFloat(get(ri)) || 0,
+        strategy: get(sti),
+        notes: get(nti).replace(/;/g, ','),
+        sessionDate: get(sdi),
+        timestamp: Date.now() + r
+      };
+      acc.trades.push(trade);
+      imported++;
+    }
+    save(); renderAll();
+    showToast(`Imported ${imported} trades`);
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ─── CHECKLIST ───────────────────────────────────────────────────────────────
+function addChecklistItem(type) {
+  const input = document.getElementById(`${type}ChecklistInput`);
+  const text = input.value.trim();
+  if (!text) return;
+  const acc = getActiveAccount();
+  if (!acc) return;
+  if (!acc.checklists) acc.checklists = { pre: [], post: [] };
+  acc.checklists[type].push({ id: Date.now(), text, done: false });
+  input.value = '';
+  save(); renderChecklist(type);
+}
+
+function deleteChecklistItem(type, id) {
+  const acc = getActiveAccount();
+  if (!acc) return;
+  if (!acc.checklists) acc.checklists = { pre: [], post: [] };
+  acc.checklists[type] = acc.checklists[type].filter(i => i.id !== id);
+  save(); renderChecklist(type);
+}
+
+function toggleChecklistItem(type, id) {
+  const acc = getActiveAccount();
+  if (!acc) return;
+  if (!acc.checklists) acc.checklists = { pre: [], post: [] };
+  const item = acc.checklists[type].find(i => i.id === id);
+  if (item) { item.done = !item.done; save(); renderChecklist(type); }
+}
+
+function renderChecklist(type) {
+  const acc = getActiveAccount();
+  const list = document.getElementById(`${type}Checklist`);
+  if (!list || !acc) return;
+  if (!acc.checklists) acc.checklists = { pre: [], post: [] };
+  const items = acc.checklists[type] || [];
+  list.innerHTML = items.length ? items.map(i => `
+    <li>
+      <div class="checklist-check ${i.done ? 'done' : ''}" onclick="toggleChecklistItem('${type}',${i.id})">${i.done ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ''}</div>
+      <span class="checklist-text ${i.done ? 'done' : ''}">${i.text}</span>
+      <button class="checklist-del" onclick="deleteChecklistItem('${type}',${i.id})"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </li>
+  `).join('') : '<li style="color:var(--text3);font-size:0.8rem;cursor:default;">No items yet. Add one above.</li>';
+}
 
 // ─── EXPORT ───────────────────────────────────────────────────────────────────
 function exportText() {
@@ -2319,7 +3334,7 @@ function exportText() {
     } else {
       trades.forEach((t, i) => {
         out += `│  Trade ${i+1}  : ${t.symbol} ${t.dir.toUpperCase()} → ${t.outcome}\n`;
-        out += `│           Pips: ${t.pips ? t.pips + 'p' : '—'}  |  Gross: ${t.gross >= 0 ? '+' : ''}$${t.gross.toFixed(2)}  |  Fee: -$${t.fee.toFixed(2)}  |  Net: ${t.net >= 0 ? '+' : ''}$${t.net.toFixed(2)}\n`;
+        out += `│           RR: ${t.rr != null ? t.rr.toFixed(2) : '—'}  |  Pips: ${t.pips ? t.pips + 'p' : '—'}  |  Gross: ${t.gross >= 0 ? '+' : ''}$${t.gross.toFixed(2)}  |  Fee: -$${t.fee.toFixed(2)}  |  Net: ${t.net >= 0 ? '+' : ''}$${t.net.toFixed(2)}\n`;
         out += `│           Balance: $${(t.runningBalance || acc.startBalance).toFixed(2)}\n`;
         if (t.notes) out += `│           Notes: ${t.notes}\n`;
       });
@@ -2397,6 +3412,7 @@ function exportJSON() {
           gross: t.gross,
           fee: t.fee,
           net: t.net,
+          rr: t.rr || 0,
           runningBalance: t.runningBalance || acc.startBalance,
           notes: t.notes || ''
         })),
@@ -2442,7 +3458,7 @@ function exportPDF() {
 
     let tradesHTML = '';
     if (trades.length === 0) {
-      tradesHTML = `<tr><td colspan="8" style="text-align:center;color:#888;font-style:italic;">No trades logged</td></tr>`;
+      tradesHTML = `<tr><td colspan="9" style="text-align:center;color:#888;font-style:italic;">No trades logged</td></tr>`;
     } else {
       trades.forEach((t, i) => {
         const netColor = t.net >= 0 ? '#00c853' : '#ff4444';
@@ -2452,6 +3468,7 @@ function exportPDF() {
             <td><strong>${t.symbol}</strong></td>
             <td>${t.dir}</td>
             <td style="color:${t.outcome==='TP'?'#00c853':'#ff4444'};font-weight:700;">${t.outcome}</td>
+            <td style="color:${t.rr > 0 ? '#00c853' : t.rr < 0 ? '#ff4444' : '#888'};font-weight:700;">${t.rr != null ? t.rr.toFixed(2) : '—'}</td>
             <td>${t.pips ? t.pips+'p' : '—'}</td>
             <td>${t.gross>=0?'+':''}$${t.gross.toFixed(2)}</td>
             <td>-$${t.fee.toFixed(2)}</td>
@@ -2486,7 +3503,7 @@ function exportPDF() {
           ${s.emotion ? `<div><span class="meta-label">Emotion:</span> ${s.emotion.toUpperCase()}</div>` : ''}
         </div>
         <table class="trade-tbl">
-          <thead><tr><th>#</th><th>Symbol</th><th>Dir</th><th>Outcome</th><th>Pips</th><th>Gross</th><th>Fee</th><th>Net</th></tr></thead>
+          <thead><tr><th>#</th><th>Symbol</th><th>Dir</th><th>Outcome</th><th>RR</th><th>Pips</th><th>Gross</th><th>Fee</th><th>Net</th></tr></thead>
           <tbody>${tradesHTML}</tbody>
         </table>
         ${s.postNote ? `<div class="reflect-block"><span class="meta-label">Reflection:</span> ${s.postNote}</div>` : ''}
@@ -2589,7 +3606,7 @@ function switchTab(tab) {
   document.getElementById('tab-' + tab).classList.add('active');
   if (tab === 'analytics') {
     const acc = getActiveAccount();
-    if (acc) { if (equityChartInstance) { equityChartInstance.destroy(); equityChartInstance = null; } renderChart(acc); renderStreak(acc); renderRules(acc); }
+    if (acc) { if (equityChartInstance) { equityChartInstance.destroy(); equityChartInstance = null; } renderChart(acc); renderStreak(acc); renderRules(acc); renderDeepAnalytics(acc); renderChecklist('pre'); renderChecklist('post'); }
   }
   if (tab === 'inventory') {
     const acc = getActiveAccount();
@@ -2620,6 +3637,7 @@ function formatDateLong(dateStr) {
 }
 
 function clearUI() {
+  document.getElementById('accountOverview').style.display = 'none';
   document.getElementById('tradeTableBody').innerHTML = '';
   document.getElementById('tradeEmpty').style.display = 'block';
   document.getElementById('journalList').innerHTML = '<div class="empty-state"><div class="empty-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.4;color:var(--accent);"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><p>Select or create an account to begin.</p></div>';
@@ -2761,6 +3779,35 @@ function updateProfileUI() {
     btn.style.borderColor = state.hunterName ? 'var(--accent3)' : 'var(--border)';
     btn.title = state.hunterName ? `${state.hunterName} — Edit Profile` : 'Set Hunter Profile';
   }
+}
+
+// ─── INLINE NAME EDIT ─────────────────────────────────────────────────────────
+function editHunterName() {
+  document.getElementById('hunterNameDisplay').style.display = 'none';
+  const editWrap = document.getElementById('hunterNameEdit');
+  const input = document.getElementById('hunterNameInlineInput');
+  input.value = state.hunterName || '';
+  editWrap.style.display = 'flex';
+  editWrap.style.alignItems = 'center';
+  input.focus();
+  input.select();
+}
+
+function saveHunterNameInline() {
+  const name = document.getElementById('hunterNameInlineInput').value.trim();
+  if (!name) { showToast('Enter your hunter name', 'error'); return; }
+  state.hunterName = name;
+  save();
+  updateProfileUI();
+  document.getElementById('hunterNameEdit').style.display = 'none';
+  document.getElementById('hunterNameDisplay').style.display = 'block';
+  showToast('Name updated');
+}
+
+function cancelHunterNameEdit() {
+  document.getElementById('hunterNameEdit').style.display = 'none';
+  const display = document.getElementById('hunterNameDisplay');
+  if (state.hunterName) { display.style.display = 'block'; }
 }
 
 // ─── HUNTER ID CARD ───────────────────────────────────────────────────────────
