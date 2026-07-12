@@ -805,6 +805,44 @@ canvas { width: 100% !important; }
   .modal { max-width: 100%; margin: 0 8px; }
   .form-row { grid-template-columns: 1fr; }
   .calendar-cell { aspect-ratio:auto; min-height:50px; }
+  .header-controls { gap: 6px; }
+  .header-controls .btn { padding: 5px 7px; }
+  .header-controls .btn + .btn { margin-left:0; }
+  .logo span { display:none; }
+  .mobile-hide { display:none !important; }
+  .filter-bar { padding:8px 10px; gap:6px; }
+  .filter-input,.filter-select { font-size:0.72rem; padding:5px 8px; width:100%; }
+  .filter-input[type=date] { width:auto; min-width:0; flex:1; }
+  #filterSearch { width:100%; }
+  .export-bar .btn { font-size:0.68rem; padding:4px 7px; }
+  .deep-stats-grid { grid-template-columns:repeat(2,1fr); gap:6px; }
+  .deep-stat-card { padding:10px 6px; }
+  .deep-stat-value { font-size:0.95rem; }
+  .analytics-table-wrap { max-height:200px; }
+  #deepAnalytics .section-body > div[style*="grid-template-columns"] { grid-template-columns:1fr !important; }
+  .checklist-list li { font-size:0.82rem; }
+  #accountOverview .section-body > div[style*="grid-template-columns"] { grid-template-columns:1fr 1fr !important; }
+  .ov-card { padding:10px; }
+  .ov-name { font-size:0.7rem; }
+  .tab-btn { padding:8px 10px; font-size:0.72rem; }
+  #journalViewCards,#journalViewTable,#journalViewCal { font-size:0.68rem; padding:4px 8px; }
+  .day-chevron { display:none; }
+  .rank-banner { flex-direction:column; align-items:flex-start; gap:10px; }
+  .rank-right { align-self:flex-start; }
+  .rank-journey { gap:2px; }
+  .rj-rank { font-size:0.62rem; padding:2px 5px; }
+  .rj-arrow svg { width:6px; height:6px; }
+  .trade-table th:nth-child(6),.trade-table td:nth-child(6) { display:none; }
+  .trade-table th:nth-child(8),.trade-table td:nth-child(8) { display:none; }
+  .trade-table th:nth-child(11),.trade-table td:nth-child(11) { display:none; }
+  .trade-actions { gap:4px; }
+  .trade-actions .btn { font-size:0.65rem; padding:4px 7px; }
+  .modal-lg { max-width:100% !important; }
+  .modal-body { padding:12px; }
+  .modal-header { padding:10px 12px; }
+  .modal-footer { padding:10px 12px; flex-wrap:wrap; gap:6px; }
+  .section-header { padding:10px 12px; }
+  .section-body { padding:10px 12px; }
 }
 
 .rank-journey {
@@ -957,7 +995,7 @@ canvas { width: 100% !important; }
       <div id="syncDot" title="Offline" style="width:8px;height:8px;border-radius:50%;background:#5555aa;flex-shrink:0;transition:background 0.4s;cursor:pointer;" onclick="forcSync()" ></div>
       <button class="theme-btn" id="themeBtn" title="Switch to light mode" aria-label="Switch to light mode"></button>
       <button class="btn btn-primary" onclick="openTradeModal()">+ Trade</button>
-      <button class="btn btn-outline btn-sm" onclick="openSessionModal()">+ Session</button>
+      <button class="btn btn-outline btn-sm mobile-hide" onclick="openSessionModal()">+ Session</button>
       <button onclick="openIDCard()" style="width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--card2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;" title="Hunter ID Card" onmouseover="this.style.borderColor='var(--accent)';this.style.boxShadow='var(--glow)'" onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text2);"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
       </button>
