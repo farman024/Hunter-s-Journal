@@ -2,7 +2,7 @@
 
 > *"Arise."* — From E-Rank to S-Rank. One trade at a time.
 
-A Solo Leveling-themed PWA trading journal built for disciplined prop firm traders. Log trades, track sessions, monitor your rank progression, and export your full trading history — all offline, all on-device.
+A Solo Leveling-themed PWA trading journal built for disciplined prop firm traders. Log trades, track sessions, monitor your rank progression, import/export data, and sync across devices — all offline-first.
 
 ---
 
@@ -15,10 +15,10 @@ A Solo Leveling-themed PWA trading journal built for disciplined prop firm trade
 ## Features
 
 ### Multi-Account Support
-Add unlimited trading accounts — Funding Pips, Cointracts, broker accounts. Each account is fully isolated with its own balance, trades, sessions, equity curve, and rank progression. Switch between accounts instantly.
+Add unlimited trading accounts — each fully isolated with its own balance, trades, sessions, equity curve, and rank progression. Switch between accounts instantly. **Account Overview** shows all accounts side-by-side with XP, balance, hunts, and clear rate — highlights your strongest hunter and who needs training.
 
 ### Rank System (E → S)
-Your profit target progress maps directly to a Solo Leveling hunter rank. Hit 15% of target and you awaken to D-Rank. Cross 90% and you become an S-Rank hunter. The rank badge pulses gold when you reach the summit.
+Profit target progress maps to Solo Leveling hunter rank. Hit 15% and awaken to D-Rank. Cross 90% and become S-Rank. Animated rank-up notification with system popup.
 
 | Rank | Progress |
 |------|----------|
@@ -32,27 +32,53 @@ Your profit target progress maps directly to a Solo Leveling hunter rank. Hit 15
 ### Trade Logging
 - 60+ symbols across Forex, Metals, Indices, Crypto, and Commodities
 - Direction, Outcome (TP / SL / BE / Manual), Pips, Gross P&L, Fee, Net P&L
-- Running balance auto-calculated after every trade
-- Edit and Delete any entry
+- Risk/Reward Ratio auto-calculated
+- Trade screenshots — upload from device, stored as base64, thumbnail in table, full-size lightbox viewer
+- Running balance auto-calculated
+- Edit/delete any entry
 
 ### Session Journal
-- Pre-session intent — write your plan before you trade
-- Post-session reflection — what went right, what went wrong
-- Emotion tag — Calm / Focused / Disciplined / FOMO / Revenge
-- Rule breach logging
+- Pre-session intent, post-session reflection
+- Emotion tagging (Calm / Focused / Disciplined / FOMO / Revenge)
+- Per-day journal cards (click-to-expand), table view (daily P&L), and calendar view (monthly grid with navigation)
 
-### Analytics
-- Equity curve chart — visualise your balance journey
-- Win/Loss streak tracker — dungeon-run style dots
-- Rules compliance checklist — 8 core trading rules, tracked daily
+### Hunt Log Filters & Search
+- Search field notes in real-time
+- Filter by strategy (auto-populated from your trades)
+- Date range filter (from/to)
+- Clear all filters with one click
+
+### Deep Analytics — Gate Analysis
+- **Mana Drain** (max drawdown %)
+- **Hunt Streak** / **Fallen Hunts** (max consecutive wins/losses)
+- **Shadow Ratio** (profit factor)
+- **XP by Gate** — P&L breakdown per symbol
+- **XP by Day** — best/worst trading day of the week
+- **Monthly Report** — P&L per month with clear rate
+
+### Pre-Hunt / Post-Hunt Discipline
+Custom checklist system. Add discipline items for pre-hunt ritual and post-hunt review. Check off items, track your discipline alongside your trades. Persisted per account.
+
+### Hunter ID Card
+Personalised hunter profile with avatar, hunter name, guild, rank badge, total XP, clear rate, and play style. Exportable as PNG.
+
+### Inventory System
+Collect and track items with rarity levels (Common → Legendary). Each item has stats (power, defense, speed, luck) and value.
+
+### Cross-Device Sync (Supabase)
+All data syncs to Supabase automatically. Save on one device, load on another. Sync indicator dot in the header shows status (syncing/synced/error/offline).
 
 ### Export
-- **Text** — clean logbook format, chronological, includes rules compliance
-- **JSON** — full structured data with account summary, all sessions and trades
-- **PDF** — print-ready dark-themed report with rank badge, progress bar, trade tables, and reflections
+- **Text** — clean logbook with box-drawing format, rules compliance
+- **JSON** — full structured data with account summary, trades, sessions
+- **PDF** — print-ready dark-themed report with rank badge, equity progress, trade table, reflections
+- **CSV** — clean comma-separated format for Excel/Google Sheets
+
+### Import
+- **CSV Import** — upload a CSV file with headers (symbol, direction, outcome, entry, lots, sl, tp, pips, gross, fee, net, rr, strategy, notes, sessionDate). Column auto-mapping.
 
 ### PWA — Install on Any Device
-- Android Chrome → install banner appears automatically
+- Android Chrome → install banner
 - iOS Safari → Share → Add to Home Screen
 - macOS/Windows Chrome → install icon in address bar
 - Full offline support via Service Worker
@@ -64,14 +90,14 @@ Your profit target progress maps directly to a Solo Leveling hunter rank. Hit 15
 | Layer | Choice |
 |-------|--------|
 | Frontend | Vanilla HTML, CSS, JavaScript |
-| Storage | localStorage (`hunterJournal_v2`) |
+| Storage | localStorage + Supabase sync |
 | Charts | Chart.js 4.4 (CDN) |
-| Icons | Lucide SVG (inline) |
+| Icons | Inline SVG (Lucide-style, terminal theme) |
 | Fonts | Cinzel · Share Tech Mono · Rajdhani |
 | PWA | Service Worker + Web App Manifest |
 | Deploy | GitHub Pages / Netlify |
 
-Zero dependencies. Zero build step. Single HTML file + 4 support files.
+Zero build step. Single HTML file + support files.
 
 ---
 
@@ -79,11 +105,12 @@ Zero dependencies. Zero build step. Single HTML file + 4 support files.
 
 ```
 hunters-journal/
-├── index.html       ← Full app (single file)
+├── index.html       ← Full app (single HTML + CSS + JS)
 ├── sw.js            ← Service Worker (offline cache)
 ├── manifest.json    ← PWA manifest
 ├── icon-192.png     ← App icon (Igris Spartan helmet)
-└── icon-512.png     ← App icon large
+├── icon-512.png     ← App icon large
+└── README.md        ← This file
 ```
 
 ---
@@ -91,30 +118,28 @@ hunters-journal/
 ## Deploy
 
 **GitHub Pages**
-1. Push all 5 files to the root of your repo
-2. Enable GitHub Pages from Settings → Pages → main branch / root
-3. Visit the live URL in Chrome → install prompt appears
+1. Push all files to your repo root
+2. Settings → Pages → main branch / root
+3. Done — install prompt appears on visit
 
 **Netlify**
-1. Create a folder with all 5 files
-2. Drag the folder into netlify.com/drop
-3. Done — live in seconds
+1. Drag the folder into netlify.com/drop
+2. Live in seconds
 
 ---
 
 ## Data & Privacy
 
-All data is stored locally on your device using `localStorage`. Nothing is sent to any server. No analytics. No tracking. Your trades stay yours.
+Primary storage is **localStorage** — nothing leaves your device unless you enable Supabase sync (optional, configured via keys in the source). No analytics, no tracking.
 
 ---
 
 ## Roadmap
 
-- [ ] Supabase cross-device sync
 - [ ] AI Trade Analyst (Claude API backend proxy)
 - [ ] ForgeTrader integration
-- [ ] Weekly/monthly performance summary view
 - [ ] Screenshot-to-trade OCR logging
+- [ ] Strategy performance comparison (which strategy earns most XP)
 
 ---
 
@@ -122,7 +147,7 @@ All data is stored locally on your device using `localStorage`. Nothing is sent 
 
 **Farman J · AI Generalist**
 
-[GitHub](https://github.com/farman024) · [Twitter](https://twitter.com/Farman__24__)
+GitHub: farman024
 
 ---
 
