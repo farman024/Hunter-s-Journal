@@ -19,6 +19,7 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root {
   --bg: #04040f;
@@ -1125,7 +1126,7 @@ canvas { width: 100% !important; }
           <label class="btn btn-outline btn-sm" style="cursor:pointer;" onclick="document.getElementById('csvImportInput').click()">Import CSV</label>
           <input type="file" id="csvImportInput" accept=".csv" style="display:none;" onchange="importCSV(this)">
           <label class="btn btn-outline btn-sm" style="cursor:pointer;" onclick="document.getElementById('mt5ImportInput').click()">Import MT5 CSV</label>
-          <input type="file" id="mt5ImportInput" accept=".csv" style="display:none;" onchange="importMT5CSV(this)">
+          <input type="file" id="mt5ImportInput" accept=".csv,.xlsx,.xls,.xml" style="display:none;" onchange="importMT5CSV(this)">
         </div>
       </div>
       <div class="filter-bar" id="filterBar">
@@ -3586,8 +3587,23 @@ function importMT5CSV(input) {
   if (!acc) { showToast('Select an account first', 'error'); return; }
   const file = input.files[0];
   if (!file) return;
+
+  const isXLSX = file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls');
+  
   const reader = new FileReader();
+  if (isXLSX) {
+    reader.readAsArrayBuffer(file);
+  } else {
+    reader.readAsText(file);
+  }
+  
   reader.onload = (e) => {
+    if (isXLSX) {
+      parseMT5XLSX(e.target.result, acc);
+      input.value = '';
+      return;
+    }
+    
     const text = e.target.result.trim();
     
     // Detect XML (MT5 Excel 2003/2007 format)
@@ -3737,9 +3753,185 @@ function importMT5CSV(input) {
 
     // Show preview modal
     showMT5ImportPreview(preview, acc);
-    input.value = '';
-  };
+input.value = '';
+  }
   reader.readAsText(file);
+}
+
+function parseMT5XLSX(arrayBuffer, acc) {
+  try {
+    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+    const sheetName = workbook.SheetNames[0];
+    if (!sheetName) throw new Error('No sheets found in workbook');
+    
+    const worksheet = workbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+    
+    if (jsonData.length < 2) throw new Error('No data rows found in spreadsheet');
+    
+    // Convert to array of arrays for consistent parsing
+    const rows = jsonData.map(row => Array.isArray(row) ? row : Object.values(row));
+    
+    return parseMT5XLSXRows(rows, acc);
+    
+  } catch (e) {
+    showToast('XLSX parse error: ' + e.message, 'error');
+  }
+}
+
+function parseMT5XLSXRows(rows, acc) {
+  // Find header row (scan first 5 rows for MT5 keywords)
+  let headerRow = null;
+  let dataStartIdx = 0;
+  const headerKeywords = ['ticket', 'open', 'type', 'size', 'item', 'symbol', 'price', 's/l', 't/p', 'sl', 'tp', 'time', 'profit', 'commission', 'swap', 'comment', 'volume', 'lots'];
+  
+  for (let i = 0; i < Math.min(5, rows.length); i++) {
+    const row = rows[i];
+    if (!row || row.length < 5) continue;
+    
+    const cellTexts = row.map(c => String(c).trim().toLowerCase());
+    const matches = cellTexts.filter(t => headerKeywords.some(k => t.includes(k))).length;
+    if (matches >= 3) {
+      headerRow = row;
+      dataStartIdx = i + 1;
+      break;
+    }
+  }
+  
+  if (!headerRow) {
+    headerRow = rows[0];
+    dataStartIdx = 1;
+  }
+  
+  // Map header to column indices
+  const headerMap = {};
+  headerRow.forEach((cell, idx) => {
+    const text = String(cell).trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (text) headerMap[text] = idx;
+  });
+  
+  const getIdx = (key) => headerMap[key] !== undefined ? headerMap[key] : -1;
+  
+  // MT5 column mapping (multiple possible header names)
+  const ti = getIdx('ticket') || getIdx('orderticket') || getIdx('deal') || getIdx('order');
+  const oti = getIdx('opentime') || getIdx('timeopen') || getIdx('open') || getIdx('datetime');
+  const tpi = getIdx('type') || getIdx('ordertype') || getIdx('cmd') || getIdx('direction');
+  const si = getIdx('size') || getIdx('volume') || getIdx('lots') || getIdx('lot');
+  const itemi = getIdx('item') || getIdx('symbol') || getIdx('security') || getIdx('pair');
+  const pi = getIdx('price') || getIdx('openprice') || getIdx('priceopen') || getIdx('entry');
+  const sli = getIdx('sl') || getIdx('stoploss') || getIdx('stop') || getIdx('stoplossprice');
+  const tppi = getIdx('tp') || getIdx('takeprofit') || getIdx('take') || getIdx('takeprofitprice');
+  const cti = getIdx('time') || getIdx('closetime') || getIdx('timeclose') || getIdx('close') || getIdx('exittime');
+  const sti = getIdx('state') || getIdx('status') || getIdx('reason');
+  const ci = getIdx('comment') || getIdx('comments') || getIdx('note');
+  const comi = getIdx('commission') || getIdx('comm');
+  const taxsi = getIdx('taxes') || getIdx('tax');
+  const swi = getIdx('swap');
+  const proi = getIdx('profit') || getIdx('grossprofit') || getIdx('pnl') || getIdx('netprofit');
+  
+  if (ti === -1 || itemi === -1 || tpi === -1 || pi === -1) {
+    showToast('Invalid MT5 spreadsheet format. Expected columns: Ticket, Open Time, Type, Size, Item/Symbol, Price, S/L, T/P, Close Time, Profit, Commission, Swap, Comment', 'error');
+    return;
+  }
+  
+  const preview = [];
+  let rowIdx = 0;
+  
+  for (let i = dataStartIdx; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row || row.length < 5) continue;
+    
+    const getCell = (cellIdx) => {
+      if (cellIdx === -1 || cellIdx >= row.length) return '';
+      const val = row[cellIdx];
+      return val !== null && val !== undefined ? String(val).trim() : '';
+    };
+    
+    const symbol = getCell(itemi).toUpperCase();
+    const type = getCell(tpi).toLowerCase();
+    const openPrice = parseFloat(getCell(pi)) || 0;
+    const sl = parseFloat(getCell(sli)) || 0;
+    const tp = parseFloat(getCell(tppi)) || 0;
+    const closePrice = parseFloat(getCell(cti)) || 0;
+    const commission = parseFloat(getCell(comi)) || 0;
+    const taxes = parseFloat(getCell(taxsi)) || 0;
+    const swap = parseFloat(getCell(swi)) || 0;
+    const profit = parseFloat(getCell(proi)) || 0;
+    const lots = parseFloat(getCell(si)) || 0;
+    const comment = getCell(ci);
+    const openTime = getCell(oti);
+    const closeTime = getCell(cti);
+    
+    if (!symbol || lots === 0) continue;
+    
+    const dir = type.includes('buy') ? 'Long' : type.includes('sell') ? 'Short' : 'Long';
+    
+    let pips = 0;
+    if (dir === 'Long' && closePrice && openPrice) pips = Math.round((closePrice - openPrice) * (symbol.includes('JPY') ? 100 : 10000));
+    else if (dir === 'Short' && closePrice && openPrice) pips = Math.round((openPrice - closePrice) * (symbol.includes('JPY') ? 100 : 10000));
+    
+    let outcome = 'Manual';
+    if (profit > 0) {
+      if (tp > 0 && dir === 'Long' && closePrice >= tp * 0.999) outcome = 'TP';
+      else if (tp > 0 && dir === 'Short' && closePrice <= tp * 1.001) outcome = 'TP';
+      else outcome = 'TP';
+    } else if (profit < 0) {
+      if (sl > 0 && dir === 'Long' && closePrice <= sl * 1.001) outcome = 'SL';
+      else if (sl > 0 && dir === 'Short' && closePrice >= sl * 0.999) outcome = 'SL';
+      else outcome = 'SL';
+    } else {
+      outcome = 'BE';
+    }
+    
+    let rr = 0;
+    if (sl > 0 && tp > 0 && openPrice > 0) {
+      const risk = Math.abs(openPrice - sl);
+      const reward = Math.abs(tp - openPrice);
+      if (risk > 0) rr = Math.round((reward / risk) * 100) / 100;
+    }
+    
+    const fee = commission + taxes + Math.abs(swap);
+    const gross = profit + fee;
+    const net = profit;
+    
+    let sessionDate = '';
+    if (closeTime) {
+      const d = new Date(closeTime.replace(/[.]/g, '-').replace(',', ' '));
+      if (!isNaN(d.getTime())) sessionDate = d.toISOString().split('T')[0];
+    } else if (openTime) {
+      const d = new Date(openTime.replace(/[.]/g, '-').replace(',', ' '));
+      if (!isNaN(d.getTime())) sessionDate = d.toISOString().split('T')[0];
+    }
+    
+    const trade = {
+      id: Date.now() + rowIdx++,
+      symbol,
+      dir,
+      outcome,
+      entry: openPrice,
+      lots,
+      sl,
+      tp,
+      pips,
+      gross,
+      fee,
+      net,
+      rr,
+      strategy: 'MT5 Import',
+      notes: comment || 'Imported from MT5',
+      sessionDate,
+      timestamp: Date.now() + rowIdx
+    };
+    
+    preview.push(trade);
+  }
+  
+  if (preview.length === 0) {
+    showToast('No valid trades found in MT5 spreadsheet', 'error');
+    return;
+  }
+  
+  showMT5ImportPreview(preview, acc);
 }
 
 function showMT5ImportPreview(trades, acc) {
