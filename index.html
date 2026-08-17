@@ -7,7 +7,7 @@
 
 <!-- PWA Meta -->
 <meta name="application-name" content="Hunter's Journal">
-<meta name="description" content="Solo Leveling Trading Journal — track your hunt from E-Rank to S-Rank">
+<meta name="description" content="Solo Leveling Trading Journal G�� track your hunt from E-Rank to S-Rank">
 <meta name="theme-color" content="#6c63ff">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,7 +19,6 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root {
   --bg: #04040f;
@@ -302,7 +301,7 @@ body::after {
 }
 @keyframes progressGlow { from { opacity: 0.4; } to { opacity: 1; } }
 
-/* ── Solo Leveling System Notification ───────────────────────────── */
+/* G��G�� Solo Leveling System Notification G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G�� */
 .sl-overlay {
   position: fixed; inset: 0; z-index: 9999;
   display: flex; align-items: center; justify-content: center;
@@ -332,7 +331,7 @@ body::after {
   animation: slPopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   animation-delay: 0.1s;
 }
-/* Animate the border flash — horizontal line expands outward into full border */
+/* Animate the border flash G�� horizontal line expands outward into full border */
 .sl-card::before {
   content: ''; position: absolute; inset: -1.5px;
   border: 1.5px solid transparent;
@@ -893,7 +892,7 @@ canvas { width: 100% !important; }
 .tab-pane { display: none; }
 .tab-pane.active { display: block; }
 
-/* ── INVENTORY ───────────────────────────────────── */
+/* G��G�� INVENTORY G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G�� */
 .inventory-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; margin-bottom:20px; }
 .inv-card { background:var(--card); border-radius:10px; overflow:hidden; position:relative; transition:transform 0.2s,box-shadow 0.2s; }
 .inv-card:hover { transform:translateY(-3px); }
@@ -913,7 +912,7 @@ canvas { width: 100% !important; }
 .rarity-legendary .inv-card-top { background:linear-gradient(135deg,rgba(255,215,0,0.04),transparent); }
 .rarity-epic .inv-card-top      { background:linear-gradient(135deg,rgba(167,139,250,0.04),transparent); }
 
-/* ── HUNTER ID CARD ───────────────────────────────── */
+/* G��G�� HUNTER ID CARD G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G�� */
 .id-card-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.92);backdrop-filter:blur(8px);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.3s; }
 .id-card-overlay.open { opacity:1;pointer-events:all; }
 #hunterIDCard { width:380px;max-width:100%;background:linear-gradient(160deg,#04040f 0%,#080820 60%,#0a0518 100%);border-radius:12px;position:relative;overflow:hidden;font-family:'Share Tech Mono',monospace;transform:translateY(20px);transition:transform 0.4s cubic-bezier(0.4,0,0.2,1); }
@@ -1241,7 +1240,7 @@ canvas { width: 100% !important; }
       <div style="font-size:0.8rem;color:var(--text3);margin-bottom:12px;">A Hunter's discipline determines their rank. Mark what you followed today.</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
         <div>
-          <div style="font-size:0.78rem;color:var(--accent2);margin-bottom:8px;">▶ PRE-HUNT RITUAL</div>
+          <div style="font-size:0.78rem;color:var(--accent2);margin-bottom:8px;">G�� PRE-HUNT RITUAL</div>
           <ul class="rules-list checklist-list" id="preChecklist"></ul>
           <div style="display:flex;gap:6px;margin-top:8px;">
             <input type="text" id="preChecklistInput" placeholder="Add discipline..." style="flex:1;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:0.78rem;">
@@ -1249,7 +1248,7 @@ canvas { width: 100% !important; }
           </div>
         </div>
         <div>
-          <div style="font-size:0.78rem;color:var(--green);margin-bottom:8px;">▶ POST-HUNT REVIEW</div>
+          <div style="font-size:0.78rem;color:var(--green);margin-bottom:8px;">G�� POST-HUNT REVIEW</div>
           <ul class="rules-list checklist-list" id="postChecklist"></ul>
           <div style="display:flex;gap:6px;margin-top:8px;">
             <input type="text" id="postChecklistInput" placeholder="Add discipline..." style="flex:1;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:0.78rem;">
@@ -1284,7 +1283,7 @@ canvas { width: 100% !important; }
             <img id="cardAvatarImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;">
           </div>
           <div style="flex:1;min-width:0;">
-            <div class="card-name" id="cardName">—</div>
+            <div class="card-name" id="cardName">G��</div>
             <div class="card-rank-label" id="cardRankLabel">E-RANK HUNTER</div>
             <div class="card-id" id="cardID">ID: #00001</div>
           </div>
@@ -1306,7 +1305,7 @@ canvas { width: 100% !important; }
           <div class="card-progress-label"><span>Rank Progress</span><span id="cardProgressPct">0%</span></div>
           <div class="card-progress-track"><div class="card-progress-fill" id="cardProgressFill" style="width:0%"></div></div>
         </div>
-        <div class="card-footer">HUNTER'S JOURNAL · FALCON'S HUNT · FARMAN J</div>
+        <div class="card-footer">HUNTER'S JOURNAL -+ FALCON'S HUNT -+ FARMAN J</div>
       </div>
     </div>
     <div class="card-actions">
@@ -1424,7 +1423,7 @@ canvas { width: 100% !important; }
         <div class="form-group">
           <label>Symbol</label>
           <select id="tSymbol" onchange="autoCalc()">
-            <optgroup label="Forex — Majors">
+            <optgroup label="Forex G�� Majors">
               <option value="EURUSD">EURUSD</option>
               <option value="GBPUSD">GBPUSD</option>
               <option value="USDJPY">USDJPY</option>
@@ -1433,7 +1432,7 @@ canvas { width: 100% !important; }
               <option value="USDCAD">USDCAD</option>
               <option value="NZDUSD">NZDUSD</option>
             </optgroup>
-            <optgroup label="Forex — Minors">
+            <optgroup label="Forex G�� Minors">
               <option value="EURGBP">EURGBP</option>
               <option value="EURJPY">EURJPY</option>
               <option value="GBPJPY">GBPJPY</option>
@@ -1557,11 +1556,11 @@ canvas { width: 100% !important; }
       <div id="autoCalcPreview" style="display:none;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-family:'Share Tech Mono',monospace;font-size:0.78rem;">
         <div style="color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-size:0.65rem;margin-bottom:8px;">AUTO CALCULATION</div>
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
-          <div><div style="color:var(--text3);font-size:0.6rem;">RR</div><div id="previewRR" style="font-weight:700;">—</div></div>
-          <div><div style="color:var(--text3);font-size:0.6rem;">PIPS</div><div id="previewPips" style="color:var(--accent2);font-weight:700;">—</div></div>
-          <div><div style="color:var(--text3);font-size:0.6rem;">GROSS</div><div id="previewGross" style="font-weight:700;">—</div></div>
-          <div><div style="color:var(--text3);font-size:0.6rem;">FEE</div><div id="previewFee" style="color:var(--red);font-weight:700;">—</div></div>
-          <div><div style="color:var(--text3);font-size:0.6rem;">NET</div><div id="previewNet" style="font-weight:700;">—</div></div>
+          <div><div style="color:var(--text3);font-size:0.6rem;">RR</div><div id="previewRR" style="font-weight:700;">G��</div></div>
+          <div><div style="color:var(--text3);font-size:0.6rem;">PIPS</div><div id="previewPips" style="color:var(--accent2);font-weight:700;">G��</div></div>
+          <div><div style="color:var(--text3);font-size:0.6rem;">GROSS</div><div id="previewGross" style="font-weight:700;">G��</div></div>
+          <div><div style="color:var(--text3);font-size:0.6rem;">FEE</div><div id="previewFee" style="color:var(--red);font-weight:700;">G��</div></div>
+          <div><div style="color:var(--text3);font-size:0.6rem;">NET</div><div id="previewNet" style="font-weight:700;">G��</div></div>
         </div>
       </div>
 
@@ -1598,7 +1597,7 @@ canvas { width: 100% !important; }
       <div class="form-group">
         <label>Strategy</label>
         <select id="tStrategy">
-          <option value="">— None —</option>
+          <option value="">G�� None G��</option>
           <optgroup label="SMC Concepts">
             <option value="Order Block">Order Block (OB)</option>
             <option value="Order Flow">Order Flow</option>
@@ -1733,7 +1732,7 @@ canvas { width: 100% !important; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-// ─── STATE ───────────────────────────────────────────────────────────────────
+// G��G��G�� STATE G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 let state = {
   accounts: [],
   activeAccount: null,
@@ -1769,13 +1768,13 @@ let journalView = 'cards';
 let calMonth = new Date();
 calMonth.setDate(1);
 
-// ─── PERFORMANCE TRACKING ──────────────────────────────────────────────────────
+// G��G��G�� PERFORMANCE TRACKING G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 let lastTradeCount = 0;
 let lastTradeHash = '';
 let deepAnalyticsCache = null;
 let renderScheduled = false;
 
-// ─── SUPABASE ─────────────────────────────────────────────────────────────────
+// G��G��G�� SUPABASE G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 const SUPABASE_URL  = 'https://rlatlwyksxakqgwmarvf.supabase.co';
 const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJsYXRsd3lrc3hha3Fnd21hcnZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMDQyNDcsImV4cCI6MjA5MDU4MDI0N30.CbjYYe1Y9TIt6WEiAVfIBjxgf49fv5a8DpFu9L7Hz8o';
 const DB_KEY        = 'hunter_journal_state';
@@ -1799,12 +1798,12 @@ function setSyncStatus(status) {
   let dot = document.getElementById('syncDot');
   if (!dot) return;
   const colors = { syncing: '#ffa726', ok: '#00e676', error: '#ff4444', offline: '#5555aa' };
-  const labels = { syncing: 'Syncing…', ok: 'Synced', error: 'Sync failed', offline: 'Offline' };
+  const labels = { syncing: 'SyncingGǪ', ok: 'Synced', error: 'Sync failed', offline: 'Offline' };
   dot.style.background = colors[status] || colors.offline;
   dot.title = labels[status] || 'Offline';
 }
 
-// ─── SAVE — localStorage immediately, Supabase async ─────────────────────────
+// G��G��G�� SAVE G�� localStorage immediately, Supabase async G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function save() {
   localStorage.setItem(LS_KEY, JSON.stringify(state));
   if (syncOnline && sb) syncToSupabase();
@@ -1878,7 +1877,7 @@ async function syncToSupabase() {
   }
 }
 
-// ─── LOAD — Supabase first, localStorage fallback ────────────────────────────
+// G��G��G�� LOAD G�� Supabase first, localStorage fallback G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 async function load() {
   // Apply theme from localStorage immediately so no flash
   const lsRaw = localStorage.getItem(LS_KEY);
@@ -1912,7 +1911,7 @@ async function load() {
         localStorage.setItem(LS_KEY, JSON.stringify(state));
         setSyncStatus('ok');
       } else {
-        // No remote data yet — push local data up
+        // No remote data yet G�� push local data up
         loadFromLocal();
         if (state.accounts && state.accounts.length > 0) {
           syncToSupabase();
@@ -1967,7 +1966,7 @@ function renderAll() {
   }
 }
 
-// ─── ACCOUNT OVERVIEW ────────────────────────────────────────────────────────
+// G��G��G�� ACCOUNT OVERVIEW G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 let _overviewOpen = true;
 
 function toggleOverview() {
@@ -2021,7 +2020,7 @@ function getActiveAccount() {
   return state.accounts.find(a => a.id === state.activeAccount) || null;
 }
 
-// ─── THEME ────────────────────────────────────────────────────────────────────
+// G��G��G�� THEME G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function toggleTheme() {
   state.theme = state.theme === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', state.theme);
@@ -2034,19 +2033,19 @@ function toggleTheme() {
 function updateThemeBtn() {
   const btn = document.getElementById('themeBtn');
   if (state.theme === 'dark') {
-    // Dark mode ON → show Sun (click to go light)
+    // Dark mode ON G�� show Sun (click to go light)
     btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
     btn.setAttribute('aria-label', 'Switch to light mode');
     btn.setAttribute('title', 'Switch to light mode');
   } else {
-    // Light mode ON → show Moon (click to go dark)
+    // Light mode ON G�� show Moon (click to go dark)
     btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
     btn.setAttribute('aria-label', 'Switch to dark mode');
     btn.setAttribute('title', 'Switch to dark mode');
   }
 }
 
-// ─── ACCOUNTS ─────────────────────────────────────────────────────────────────
+// G��G��G�� ACCOUNTS G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function renderAccounts() {
   const bar = document.getElementById('accountsBar');
   bar.innerHTML = '';
@@ -2224,7 +2223,7 @@ function saveAccount() {
   performRender();
 }
 
-// ─── SESSIONS ─────────────────────────────────────────────────────────────────
+// G��G��G�� SESSIONS G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function openSessionModal() {
   if (!state.activeAccount) { showToast('Select or create an account first', 'error'); return; }
   const today = new Date().toISOString().split('T')[0];
@@ -2246,7 +2245,7 @@ function saveSession() {
   showToast('Session started: ' + date);
 }
 
-// ─── TRADES ───────────────────────────────────────────────────────────────────
+// G��G��G�� TRADES G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function openTradeModal(tradeId = null) {
   const acc = getActiveAccount();
   if (!acc) { showToast('Select or create an account first', 'error'); return; }
@@ -2320,7 +2319,7 @@ function openTradeModal(tradeId = null) {
   openModal('tradeModal');
 }
 
-// ─── TRADE SCREENSHOTS ────────────────────────────────────────────────────────
+// G��G��G�� TRADE SCREENSHOTS G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function handleScreenshotUpload(input) {
   const file = input.files[0];
   if (!file) return;
@@ -2408,21 +2407,21 @@ function saveTrade() {
   closeModal('tradeModal');
 }
 
-// ─── AUTO CALCULATION ENGINE ──────────────────────────────────────────────────
+// G��G��G�� AUTO CALCULATION ENGINE G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 // Pip values per instrument per 1 standard lot (1.0)
 const PIP_VALUES = {
-  // Forex Majors & Minors — $10 per pip per lot (0.0001 pip size)
+  // Forex Majors & Minors G�� $10 per pip per lot (0.0001 pip size)
   EURUSD:10, GBPUSD:10, AUDUSD:10, NZDUSD:10, USDCAD:10, USDCHF:10,
   EURGBP:10, EURJPY:10, GBPJPY:10, AUDJPY:10, CADJPY:10, CHFJPY:10,
   EURCHF:10, EURAUD:10, EURCAD:10, GBPAUD:10, GBPCAD:10, GBPCHF:10,
   AUDCAD:10, AUDCHF:10, AUDNZD:10, NZDJPY:10, NZDCAD:10, NZDCHF:10,
   CADCHF:10, USDJPY:10,
-  // JPY pairs — 0.01 pip size, still $10/pip/lot
+  // JPY pairs G�� 0.01 pip size, still $10/pip/lot
   // Metals
-  XAUUSD:10,   // $10/pip/lot — 1 pip = $0.10 per 0.01 lot ✓
+  XAUUSD:10,   // $10/pip/lot G�� 1 pip = $0.10 per 0.01 lot G��
   XAGUSD:50,   // $50/pip/lot
   XPTUSD:10, XPDUSD:10,
-  // Indices — point based
+  // Indices G�� point based
   US30:10, NAS100:10, SPX500:10, US2000:10,
   GER40:10, UK100:10, FRA40:10, JPN225:10,
   AUS200:10, HK50:10, CHINAH:10, EUSTX50:10,
@@ -2444,10 +2443,10 @@ const PIP_SIZE = {
   DEFAULT:0.0001
 };
 
-// Fee structure — Funding Pips Standard 2-Step
+// Fee structure G�� Funding Pips Standard 2-Step
 // FX + Metals: $5 per lot round trip
 // Indices + Energy: $0
-// Crypto: 0.04% of position value (lots × entry)
+// Crypto: 0.04% of position value (lots +� entry)
 const FEE_TYPE = {
   FX:    (lots) => +(lots * 5).toFixed(2),
   METAL: (lots) => +(lots * 5).toFixed(2),
@@ -2620,7 +2619,7 @@ function confirmDelete() {
   performRender();
 }
 
-// ─── RANK ─────────────────────────────────────────────────────────────────────
+// G��G��G�� RANK G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function getRankData(acc) {
   const totalProfit = acc.trades.reduce((s,t) => s + t.net, 0);
   const pct = Math.max(0, Math.min(100, (totalProfit / acc.target) * 100));
@@ -2657,7 +2656,7 @@ function renderRank(acc) {
   });
 }
 
-// ─── RANK UP ANIMATION ────────────────────────────────────────────────────────
+// G��G��G�� RANK UP ANIMATION G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 const RANK_ORDER = ['E','D','C','B','A','S'];
 let prevRankMap = {};
 
@@ -2715,7 +2714,7 @@ function previewRankUp(rank) {
   setTimeout(dismissRankUp, 5000);
 }
 
-// ─── STATS ────────────────────────────────────────────────────────────────────
+// G��G��G�� STATS G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function renderStats(acc) {
   const trades = acc.trades;
   const wins = trades.filter(t => t.net > 0).length;
@@ -2740,7 +2739,7 @@ function renderStats(acc) {
   renderTradeTable();
 }
 
-// ─── JOURNAL ──────────────────────────────────────────────────────────────────
+// G��G��G�� JOURNAL G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function renderJournal(acc) {
   const list = document.getElementById('journalList');
   if (!acc.sessions.length) {
@@ -2756,7 +2755,7 @@ function renderJournal(acc) {
     <div style="display:flex;align-items:center;gap:10px;">
       <span style="font-size:0.72rem;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;">Account</span>
       <span style="font-family:'Cinzel',serif;font-size:0.95rem;font-weight:700;color:var(--accent3);">${acc.name}</span>
-      <span style="font-size:0.72rem;color:var(--text3);">·</span>
+      <span style="font-size:0.72rem;color:var(--text3);">-+</span>
       <span style="font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:var(--text2);">${acc.sessions.length} session${acc.sessions.length !== 1 ? 's' : ''}</span>
     </div>
     <div style="display:flex;gap:6px;">
@@ -2789,7 +2788,7 @@ function renderJournalCards(acc, list) {
     header.innerHTML = `
       <div style="display:flex;align-items:center;gap:12px;">
         <span class="day-date">${formatDateLong(s.date)}</span>
-        <span style="font-size:0.75rem;color:var(--text3);">${trades.length} trade${trades.length!==1?'s':''} · ${wins}W/${trades.length-wins}L</span>
+        <span style="font-size:0.75rem;color:var(--text3);">${trades.length} trade${trades.length!==1?'s':''} -+ ${wins}W/${trades.length-wins}L</span>
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
         ${s.emotion ? `<span class="emotion-tag emotion-${s.emotion}" style="font-size:0.65rem;padding:2px 8px;">${s.emotion}</span>` : ''}
@@ -2910,7 +2909,7 @@ function renderJournalTable(acc, container) {
             <td style="padding:10px;border-bottom:1px solid rgba(26,26,74,0.5);text-align:center;color:var(--green);font-weight:700;">${wins}</td>
             <td style="padding:10px;border-bottom:1px solid rgba(26,26,74,0.5);text-align:center;color:var(--red);font-weight:700;">${trades.length - wins}</td>
             <td style="padding:10px;border-bottom:1px solid rgba(26,26,74,0.5);text-align:right;font-family:'Share Tech Mono',monospace;font-weight:700;color:${pnlColor};">${dayPnl >= 0 ? '+' : ''}$${dayPnl.toFixed(2)}</td>
-            <td style="padding:10px;border-bottom:1px solid rgba(26,26,74,0.5);text-align:center;">${s.emotion ? `<span class="emotion-tag emotion-${s.emotion}" style="font-size:0.65rem;">${s.emotion}</span>` : '<span style="color:var(--text3);font-size:0.7rem;">—</span>'}</td>
+            <td style="padding:10px;border-bottom:1px solid rgba(26,26,74,0.5);text-align:center;">${s.emotion ? `<span class="emotion-tag emotion-${s.emotion}" style="font-size:0.65rem;">${s.emotion}</span>` : '<span style="color:var(--text3);font-size:0.7rem;">G��</span>'}</td>
             <td style="padding:10px;border-bottom:1px solid rgba(26,26,74,0.5);text-align:center;">
               <button class="btn btn-outline btn-sm" style="font-size:0.65rem;padding:3px 8px;" onclick="openSessionNotes('${s.date}')">Edit</button>
             </td>
@@ -3021,7 +3020,7 @@ function calNav(dir) {
   if (acc) renderJournal(acc);
 }
 
-// ─── CHART ────────────────────────────────────────────────────────────────────
+// G��G��G�� CHART G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function renderChart(acc) {
   const canvas = document.getElementById('equityChart');
   if (!canvas) return;
@@ -3072,7 +3071,7 @@ function renderChart(acc) {
   });
 }
 
-// ─── STREAK ───────────────────────────────────────────────────────────────────
+// G��G��G�� STREAK G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function renderStreak(acc) {
   const sorted = [...acc.trades].sort((a,b) => a.timestamp - b.timestamp);
   const dots = document.getElementById('streakDots');
@@ -3102,7 +3101,7 @@ function renderStreak(acc) {
   labelEl.textContent = `${streak}-trade ${type === 'win' ? 'winning' : 'losing'} streak`;
 }
 
-// ─── RULES ────────────────────────────────────────────────────────────────────
+// G��G��G�� RULES G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function renderRules(acc) {
   const list = document.getElementById('rulesList');
   const today = new Date().toISOString().split('T')[0];
@@ -3133,7 +3132,7 @@ function cycleRule(i) {
 
 function saveRules() { save(); showToast('Rules saved'); }
 
-// ─── DEEP ANALYTICS ──────────────────────────────────────────────────────────
+// G��G��G�� DEEP ANALYTICS G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function renderDeepAnalytics(acc) {
   const el = document.getElementById('deepAnalytics');
   if (!acc.trades.length) { el.style.display = 'none'; return; }
@@ -3178,7 +3177,7 @@ function renderDeepAnalytics(acc) {
     <div class="deep-stat-card"><div class="deep-stat-label">Mana Drain</div><div class="deep-stat-value" style="color:var(--red);">${maxDD.toFixed(2)}%</div></div>
     <div class="deep-stat-card"><div class="deep-stat-label">Hunt Streak</div><div class="deep-stat-value" style="color:var(--green);">${maxConsWins}</div></div>
     <div class="deep-stat-card"><div class="deep-stat-label">Fallen Hunts</div><div class="deep-stat-value" style="color:var(--red);">${maxConsLosses}</div></div>
-    <div class="deep-stat-card"><div class="deep-stat-label">Shadow Ratio</div><div class="deep-stat-value" style="color:${profitFactor >= 1.5 ? 'var(--green)' : profitFactor > 0 ? 'var(--gold)' : 'var(--text2)'}">${profitFactor === Infinity ? '∞' : profitFactor.toFixed(2)}</div></div>
+    <div class="deep-stat-card"><div class="deep-stat-label">Shadow Ratio</div><div class="deep-stat-value" style="color:${profitFactor >= 1.5 ? 'var(--green)' : profitFactor > 0 ? 'var(--gold)' : 'var(--text2)'}">${profitFactor === Infinity ? 'G�P' : profitFactor.toFixed(2)}</div></div>
     <div class="deep-stat-card"><div class="deep-stat-label">Total XP</div><div class="deep-stat-value" style="color:${totalPNL >= 0 ? 'var(--green)' : 'var(--red)'}">${totalPNL >= 0 ? '+' : ''}$${totalPNL.toFixed(2)}</div></div>
     <div class="deep-stat-card"><div class="deep-stat-label">Avg XP / Hunt</div><div class="deep-stat-value" style="color:var(--text);">$${(totalPNL / sorted.length).toFixed(2)}</div></div>
   `;
@@ -3230,7 +3229,7 @@ function renderDeepAnalytics(acc) {
   deepAnalyticsCache = { hash: tradeHash, timestamp: Date.now() };
 }
 
-// ─── FILTERS ─────────────────────────────────────────────────────────────────
+// G��G��G�� FILTERS G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function getFilters() {
   return {
     search: (document.getElementById('filterSearch').value || '').toLowerCase(),
@@ -3264,7 +3263,7 @@ function debouncedRenderTradeTable() {
   renderTradeDebounce = setTimeout(renderTradeTable, 150);
 }
 
-// ─── TRADE TABLE ─────────────────────────────────────────────────────────────
+// G��G��G�� TRADE TABLE G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 // Override the existing renderTradeTable to support filters
 function renderTradeTable() {
   const acc = getActiveAccount();
@@ -3309,8 +3308,8 @@ function renderTradeTable() {
     const dirClass = t.dir === 'Long' ? 'dir-long' : 'dir-short';
     const dirSVG = t.dir === 'Long' ? longSVG : shortSVG;
     const rrColor = t.rr > 0 ? 'var(--green)' : t.rr < 0 ? 'var(--red)' : 'var(--text2)';
-    const rrVal = t.rr != null ? (t.rr > 0 ? '' : '') + t.rr.toFixed(2) : '—';
-    const pipsVal = t.pips ? t.pips + 'p' : '—';
+    const rrVal = t.rr != null ? (t.rr > 0 ? '' : '') + t.rr.toFixed(2) : 'G��';
+    const pipsVal = t.pips ? t.pips + 'p' : 'G��';
     const grossClass = t.gross >= 0 ? 'pnl-pos' : 'pnl-neg';
     const grossVal = t.gross >= 0 ? '+' : '' + t.gross.toFixed(2);
     const feeVal = t.fee.toFixed(2);
@@ -3343,7 +3342,7 @@ function renderTradeTable() {
   tbody.appendChild(fragment);
 }
 
-// ─── CSV EXPORT ──────────────────────────────────────────────────────────────
+// G��G��G�� CSV EXPORT G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function exportCSV() {
   const acc = getActiveAccount();
   if (!acc || !acc.trades.length) { showToast('No trades to export', 'error'); return; }
@@ -3406,182 +3405,6 @@ function importCSV(input) {
   reader.readAsText(file);
 }
 
-function parseMT5XML(xmlText, acc) {
-  try {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-    
-    const parseError = xmlDoc.querySelector('parsererror');
-    if (parseError) throw new Error('Invalid XML format');
-    
-    let rows = xmlDoc.querySelectorAll('Row');
-    if (!rows.length) rows = xmlDoc.getElementsByTagName('Row');
-    if (!rows.length) throw new Error('No data rows found in XML');
-    
-    return parseMT5XMLRows(Array.from(rows), acc);
-    
-  } catch (e) {
-    showToast('XML parse error: ' + e.message, 'error');
-  }
-}
-
-function parseMT5XMLRows(rows, acc) {
-  let headerRow = null;
-  let dataStartIdx = 0;
-  
-  for (let i = 0; i < rows.length; i++) {
-    const cells = rows[i].querySelectorAll('Cell');
-    if (!cells.length) continue;
-    
-    const cellTexts = Array.from(cells).map(c => {
-      const data = c.querySelector('Data');
-      return data ? data.textContent.trim().toLowerCase() : '';
-    });
-    const headerKeywords = ['ticket', 'open', 'type', 'size', 'item', 'symbol', 'price', 's/l', 't/p', 'time', 'profit', 'commission', 'swap', 'comment'];
-    const matches = cellTexts.filter(t => headerKeywords.some(k => t.includes(k))).length;
-    if (matches >= 3) {
-      headerRow = cells;
-      dataStartIdx = i + 1;
-      break;
-    }
-  }
-  
-  if (!headerRow) {
-    headerRow = rows[0].querySelectorAll('Cell');
-    dataStartIdx = 1;
-  }
-  
-  const headerMap = {};
-  Array.from(headerRow).forEach((cell, idx) => {
-    const data = cell.querySelector('Data');
-    const text = data ? data.textContent.trim().toLowerCase().replace(/[^a-z0-9]/g, '') : '';
-    if (text) headerMap[text] = idx;
-  });
-  
-  const getIdx = (key) => headerMap[key] !== undefined ? headerMap[key] : -1;
-  
-  const ti = getIdx('ticket') || getIdx('orderticket') || getIdx('deal');
-  const oti = getIdx('opentime') || getIdx('timeopen') || getIdx('open');
-  const tpi = getIdx('type') || getIdx('ordertype') || getIdx('cmd');
-  const si = getIdx('size') || getIdx('volume') || getIdx('lots');
-  const itemi = getIdx('item') || getIdx('symbol') || getIdx('security');
-  const pi = getIdx('price') || getIdx('openprice') || getIdx('priceopen');
-  const sli = getIdx('sl') || getIdx('stoploss') || getIdx('sl');
-  const tppi = getIdx('tp') || getIdx('takeprofit') || getIdx('tp');
-  const cti = getIdx('time') || getIdx('closetime') || getIdx('timeclose') || getIdx('close');
-  const sti = getIdx('state') || getIdx('status') || getIdx('reason');
-  const ci = getIdx('comment');
-  const comi = getIdx('commission');
-  const taxsi = getIdx('taxes') || getIdx('tax');
-  const swi = getIdx('swap');
-  const proi = getIdx('profit') || getIdx('grossprofit');
-  
-  if (ti === -1 || itemi === -1 || tpi === -1 || pi === -1) {
-    showToast('Invalid MT5 XML format. Expected: Ticket, Open Time, Type, Size, Item/Symbol, Price, S/L, T/P, Close Time, Profit, Commission, Swap, Comment', 'error');
-    return;
-  }
-  
-  const preview = [];
-  let rowIdx = 0;
-  
-  for (let i = dataStartIdx; i < rows.length; i++) {
-    const cells = rows[i].querySelectorAll('Cell');
-    if (!cells.length) continue;
-    
-    const getCellText = (cellIdx) => {
-      if (cellIdx === -1 || cellIdx >= cells.length) return '';
-      const cell = cells[cellIdx];
-      const data = cell.querySelector('Data');
-      return data ? data.textContent.trim() : '';
-    };
-    
-    const symbol = getCellText(itemi).toUpperCase();
-    const type = getCellText(tpi).toLowerCase();
-    const openPrice = parseFloat(getCellText(pi)) || 0;
-    const sl = parseFloat(getCellText(sli)) || 0;
-    const tp = parseFloat(getCellText(tppi)) || 0;
-    const closePrice = parseFloat(getCellText(cti)) || 0;
-    const commission = parseFloat(getCellText(comi)) || 0;
-    const taxes = parseFloat(getCellText(taxsi)) || 0;
-    const swap = parseFloat(getCellText(swi)) || 0;
-    const profit = parseFloat(getCellText(proi)) || 0;
-    const lots = parseFloat(getCellText(si)) || 0;
-    const comment = getCellText(ci);
-    const openTime = getCellText(oti);
-    const closeTime = getCellText(cti);
-    
-    if (!symbol || lots === 0) continue;
-    
-    const dir = type.includes('buy') ? 'Long' : type.includes('sell') ? 'Short' : 'Long';
-    
-    let pips = 0;
-    if (dir === 'Long' && closePrice && openPrice) pips = Math.round((closePrice - openPrice) * (symbol.includes('JPY') ? 100 : 10000));
-    else if (dir === 'Short' && closePrice && openPrice) pips = Math.round((openPrice - closePrice) * (symbol.includes('JPY') ? 100 : 10000));
-    
-    let outcome = 'Manual';
-    if (profit > 0) {
-      if (tp > 0 && dir === 'Long' && closePrice >= tp * 0.999) outcome = 'TP';
-      else if (tp > 0 && dir === 'Short' && closePrice <= tp * 1.001) outcome = 'TP';
-      else outcome = 'TP';
-    } else if (profit < 0) {
-      if (sl > 0 && dir === 'Long' && closePrice <= sl * 1.001) outcome = 'SL';
-      else if (sl > 0 && dir === 'Short' && closePrice >= sl * 0.999) outcome = 'SL';
-      else outcome = 'SL';
-    } else {
-      outcome = 'BE';
-    }
-    
-    let rr = 0;
-    if (sl > 0 && tp > 0 && openPrice > 0) {
-      const risk = Math.abs(openPrice - sl);
-      const reward = Math.abs(tp - openPrice);
-      if (risk > 0) rr = Math.round((reward / risk) * 100) / 100;
-    }
-    
-    const fee = commission + taxes + Math.abs(swap);
-    const gross = profit + fee;
-    const net = profit;
-    
-    let sessionDate = '';
-    if (closeTime) {
-      const d = new Date(closeTime.replace(/[.]/g, '-').replace(',', ' '));
-      if (!isNaN(d.getTime())) sessionDate = d.toISOString().split('T')[0];
-    } else if (openTime) {
-      const d = new Date(openTime.replace(/[.]/g, '-').replace(',', ' '));
-      if (!isNaN(d.getTime())) sessionDate = d.toISOString().split('T')[0];
-    }
-    
-    const trade = {
-      id: Date.now() + rowIdx++,
-      symbol,
-      dir,
-      outcome,
-      entry: openPrice,
-      lots,
-      sl,
-      tp,
-      pips,
-      gross,
-      fee,
-      net,
-      rr,
-      strategy: 'MT5 Import',
-      notes: comment || 'Imported from MT5',
-      sessionDate,
-      timestamp: Date.now() + rowIdx
-    };
-    
-    preview.push(trade);
-  }
-  
-  if (preview.length === 0) {
-    showToast('No valid trades found in MT5 XML', 'error');
-    return;
-  }
-  
-  showMT5ImportPreview(preview, acc);
-}
-
 function importMT5HTML(input) {
   const acc = getActiveAccount();
   if (!acc) { showToast('Select an account first', 'error'); return; }
@@ -3597,365 +3420,7 @@ function importMT5HTML(input) {
     input.value = '';
   };
 }
-      const result = [];
-      let current = '';
-      let inQuotes = false;
-      for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        if (char === '"') {
-          if (inQuotes && line[i+1] === '"') { current += '"'; i++; }
-          else inQuotes = !inQuotes;
-        } else if (char === ',' && !inQuotes) {
-          result.push(current.trim());
-          current = '';
-        } else {
-          current += char;
-        }
-      }
-      result.push(current.trim());
-      return result;
-    };
-
-    const header = parseCSV(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
-    const idx = h => header.indexOf(h);
-
-    // MT5 standard columns: ticket, opentime, type, size, item, price, sl, tp, time, state, comment, commission, taxes, swap, profit
-    const ti = idx('ticket'), oti = idx('opentime'), tpi = idx('type'), si = idx('size'),
-          itemi = idx('item'), pi = idx('price'), sli = idx('sl'), tppi = idx('tp'),
-          cti = idx('time'), sti = idx('state'), ci = idx('comment'), comi = idx('commission'),
-          taxsi = idx('taxes'), swi = idx('swap'), proi = idx('profit');
-
-    if (ti === -1 || itemi === -1 || tpi === -1 || pi === -1) {
-      showToast('Invalid MT5 CSV format. Expected: Ticket, Open Time, Type, Size, Item, Price, S/L, T/P, Time, State, Comment, Commission, Taxes, Swap, Profit', 'error');
-      return;
-    }
-
-    let imported = 0;
-    const preview = [];
-
-    for (let r = 1; r < lines.length; r++) {
-      const cols = parseCSV(lines[r]);
-      if (cols.length < 5) continue;
-
-      const get = i => i !== -1 && cols[i] ? cols[i].replace(/^"|"$/g, '') : '';
-      const symbol = get(itemi).toUpperCase();
-      const type = get(tpi).toLowerCase();
-      const openPrice = parseFloat(get(pi)) || 0;
-      const sl = parseFloat(get(sli)) || 0;
-      const tp = parseFloat(get(tppi)) || 0;
-      const closePrice = parseFloat(get(cti)) || 0;
-      const commission = parseFloat(get(comi)) || 0;
-      const taxes = parseFloat(get(taxsi)) || 0;
-      const swap = parseFloat(get(swi)) || 0;
-      const profit = parseFloat(get(proi)) || 0;
-      const lots = parseFloat(get(si)) || 0;
-      const comment = get(ci);
-      const openTime = get(oti);
-      const closeTime = get(cti);
-
-      if (!symbol || lots === 0) continue;
-
-      // Determine direction
-      const dir = type.includes('buy') ? 'Long' : type.includes('sell') ? 'Short' : 'Long';
-
-      // Calculate pips (approximate)
-      let pips = 0;
-      if (dir === 'Long' && closePrice && openPrice) pips = Math.round((closePrice - openPrice) * (symbol.includes('JPY') ? 100 : 10000));
-      else if (dir === 'Short' && closePrice && openPrice) pips = Math.round((openPrice - closePrice) * (symbol.includes('JPY') ? 100 : 10000));
-
-      // Determine outcome from profit and SL/TP
-      let outcome = 'Manual';
-      if (profit > 0) {
-        if (tp > 0 && dir === 'Long' && closePrice >= tp * 0.999) outcome = 'TP';
-        else if (tp > 0 && dir === 'Short' && closePrice <= tp * 1.001) outcome = 'TP';
-        else outcome = 'TP';
-      } else if (profit < 0) {
-        if (sl > 0 && dir === 'Long' && closePrice <= sl * 1.001) outcome = 'SL';
-        else if (sl > 0 && dir === 'Short' && closePrice >= sl * 0.999) outcome = 'SL';
-        else outcome = 'SL';
-      } else {
-        outcome = 'BE';
-      }
-
-      // Calculate RR
-      let rr = 0;
-      if (sl > 0 && tp > 0 && openPrice > 0) {
-        const risk = Math.abs(openPrice - sl);
-        const reward = Math.abs(tp - openPrice);
-        if (risk > 0) rr = Math.round((reward / risk) * 100) / 100;
-      }
-
-      const fee = commission + taxes + Math.abs(swap);
-      const gross = profit + fee;
-      const net = profit;
-
-      // Parse date for sessionDate
-      let sessionDate = '';
-      if (closeTime) {
-        const d = new Date(closeTime.replace(/[.]/g, '-').replace(',', ' '));
-        if (!isNaN(d.getTime())) sessionDate = d.toISOString().split('T')[0];
-      } else if (openTime) {
-        const d = new Date(openTime.replace(/[.]/g, '-').replace(',', ' '));
-        if (!isNaN(d.getTime())) sessionDate = d.toISOString().split('T')[0];
-      }
-
-      const trade = {
-        id: Date.now() + r,
-        symbol,
-        dir,
-        outcome,
-        entry: openPrice,
-        lots,
-        sl,
-        tp,
-        pips,
-        gross,
-        fee,
-        net,
-        rr,
-        strategy: 'MT5 Import',
-        notes: comment || 'Imported from MT5',
-        sessionDate,
-        timestamp: Date.now() + r
-      };
-
-      preview.push(trade);
-    }
-
-    if (preview.length === 0) {
-      showToast('No valid trades found in MT5 CSV', 'error');
-      input.value = '';
-      return;
-    }
-
-    // Show preview modal
-    showMT5ImportPreview(preview, acc);
-input.value = '';
-  }
-  reader.readAsText(file);
-}
-
-function parseMT5XLSX(arrayBuffer, acc) {
-  try {
-    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-    const sheetName = workbook.SheetNames[0];
-    if (!sheetName) throw new Error('No sheets found in workbook');
-    
-    const worksheet = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
-    
-    if (jsonData.length < 2) throw new Error('No data rows found in spreadsheet');
-    
-    // Convert to array of arrays for consistent parsing
-    const rows = jsonData.map(row => Array.isArray(row) ? row : Object.values(row));
-    
-    return parseMT5XLSXRows(rows, acc);
-    
-  } catch (e) {
-    showToast('XLSX parse error: ' + e.message, 'error');
-  }
-}
-
-function parseMT5XLSXRows(rows, acc) {
-  // Find header row - scan for "Positions" section header
-  // MT5 Detailed report has: Row 5="Positions", Row 6=actual headers, Row 7+=data
-  let headerRow = null;
-  let dataStartIdx = 0;
-  const headerKeywords = ['ticket', 'open', 'type', 'size', 'item', 'symbol', 'price', 's/l', 't/p', 'sl', 'tp', 'time', 'profit', 'commission', 'swap', 'comment', 'volume', 'lots', 'position'];
   
-  // Scan up to 15 rows for the Positions header section
-  for (let i = 0; i < Math.min(15, rows.length); i++) {
-    const row = rows[i];
-    if (!row || row.length < 5) continue;
-    
-    const cellTexts = row.map(c => String(c).trim().toLowerCase());
-    
-    // Check if this is the "Positions" section marker
-    if (cellTexts.some(t => t === 'positions' || t.includes('position'))) {
-      // Next row should be the actual header
-      if (i + 1 < rows.length) {
-        headerRow = rows[i + 1];
-        dataStartIdx = i + 2;
-        break;
-      }
-    }
-    
-    // Also check for standard header keywords
-    const matches = cellTexts.filter(t => headerKeywords.some(k => t.includes(k))).length;
-    if (matches >= 4) {  // Stricter: need 4+ matches for actual trade header
-      headerRow = row;
-      dataStartIdx = i + 1;
-      break;
-    }
-  }
-  
-  if (!headerRow) {
-    // Fallback: scan all rows
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      if (!row || row.length < 5) continue;
-      const cellTexts = row.map(c => String(c).trim().toLowerCase());
-      const matches = cellTexts.filter(t => headerKeywords.some(k => t.includes(k))).length;
-      if (matches >= 4) {
-        headerRow = row;
-        dataStartIdx = i + 1;
-        break;
-      }
-    }
-  }
-  
-  if (!headerRow) {
-    showToast('Could not find trade data header in spreadsheet', 'error');
-    return;
-  }
-  
-  // Map header to column indices
-  const headerMap = {};
-  headerRow.forEach((cell, idx) => {
-    const text = String(cell).trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-    if (text) {
-      // Handle duplicate headers (e.g., "Time" appears twice)
-      if (!headerMap[text]) headerMap[text] = idx;
-      headerMap[text + '_' + idx] = idx;  // Also store with index for disambiguation
-    }
-  });
-  
-  const getIdx = (key) => headerMap[key] !== undefined ? headerMap[key] : -1;
-  
-  // MT5 column mapping (multiple possible header names)
-  // First try standard names, then MT5-specific names with index disambiguation
-  const ti = getIdx('ticket') || getIdx('orderticket') || getIdx('deal') || getIdx('order') || getIdx('position');
-  const oti = getIdx('opentime') || getIdx('timeopen') || getIdx('open') || getIdx('datetime') || getIdx('time_0') || getIdx('time');
-  const tpi = getIdx('type') || getIdx('ordertype') || getIdx('cmd') || getIdx('direction');
-  const si = getIdx('size') || getIdx('volume') || getIdx('lots') || getIdx('lot');
-  const itemi = getIdx('item') || getIdx('symbol') || getIdx('security') || getIdx('pair');
-  const pi = getIdx('price') || getIdx('openprice') || getIdx('priceopen') || getIdx('entry');
-  const sli = getIdx('sl') || getIdx('stoploss') || getIdx('stop') || getIdx('stoplossprice') || getIdx('s/l');
-  const tppi = getIdx('tp') || getIdx('takeprofit') || getIdx('take') || getIdx('takeprofitprice') || getIdx('t/p');
-  // Close time is the second "Time" column (index 8 in MT5 format)
-  const cti = getIdx('time_8') || getIdx('closetime') || getIdx('timeclose') || getIdx('close') || getIdx('exittime') || getIdx('time_1');
-  const sti = getIdx('state') || getIdx('status') || getIdx('reason');
-  const ci = getIdx('comment') || getIdx('comments') || getIdx('note');
-  const comi = getIdx('commission') || getIdx('comm');
-  const taxsi = getIdx('taxes') || getIdx('tax');
-  const swi = getIdx('swap');
-  const proi = getIdx('profit') || getIdx('grossprofit') || getIdx('pnl') || getIdx('netprofit');
-  
-  // Fallback: if position not found but we have time columns, infer positions
-  // MT5 format: Time(0), Position(1), Symbol(2), Type(3), Volume(4), Price(5), S/L(6), T/P(7), Time(8), Price(9), Commission(10), Swap(11), Profit(12)
-  if (ti === -1 && getIdx('position') !== -1) {
-    // Already handled above
-  }
-  
-  if (ti === -1 || itemi === -1 || tpi === -1 || pi === -1) {
-    showToast('Invalid MT5 spreadsheet format. Expected columns: Ticket/Position, Open Time, Type, Size/Volume, Item/Symbol, Price, S/L, T/P, Close Time, Profit, Commission, Swap, Comment', 'error');
-    return;
-  }
-  
-  const preview = [];
-  let rowIdx = 0;
-  
-  for (let i = dataStartIdx; i < rows.length; i++) {
-    const row = rows[i];
-    if (!row || row.length < 5) continue;
-    
-    const getCell = (cellIdx) => {
-      if (cellIdx === -1 || cellIdx >= row.length) return '';
-      const val = row[cellIdx];
-      return val !== null && val !== undefined ? String(val).trim() : '';
-    };
-    
-    const symbol = getCell(itemi).toUpperCase();
-    const type = getCell(tpi).toLowerCase();
-    const openPrice = parseFloat(getCell(pi)) || 0;
-    const sl = parseFloat(getCell(sli)) || 0;
-    const tp = parseFloat(getCell(tppi)) || 0;
-    const closePrice = parseFloat(getCell(cti)) || 0;
-    const commission = parseFloat(getCell(comi)) || 0;
-    const taxes = parseFloat(getCell(taxsi)) || 0;
-    const swap = parseFloat(getCell(swi)) || 0;
-    const profit = parseFloat(getCell(proi)) || 0;
-    
-    // Parse lots from volume - handle "0.05" or "0.05 / 0.05" format
-    const volumeStr = getCell(si);
-    const lots = parseFloat(volumeStr.split('/')[0].trim()) || 0;
-    
-    const comment = getCell(ci);
-    const openTime = getCell(oti);
-    const closeTime = getCell(cti);
-    
-    if (!symbol || lots === 0) continue;
-    
-    const dir = type.includes('buy') ? 'Long' : type.includes('sell') ? 'Short' : 'Long';
-    
-    let pips = 0;
-    if (dir === 'Long' && closePrice && openPrice) pips = Math.round((closePrice - openPrice) * (symbol.includes('JPY') ? 100 : 10000));
-    else if (dir === 'Short' && closePrice && openPrice) pips = Math.round((openPrice - closePrice) * (symbol.includes('JPY') ? 100 : 10000));
-    
-    let outcome = 'Manual';
-    if (profit > 0) {
-      if (tp > 0 && dir === 'Long' && closePrice >= tp * 0.999) outcome = 'TP';
-      else if (tp > 0 && dir === 'Short' && closePrice <= tp * 1.001) outcome = 'TP';
-      else outcome = 'TP';
-    } else if (profit < 0) {
-      if (sl > 0 && dir === 'Long' && closePrice <= sl * 1.001) outcome = 'SL';
-      else if (sl > 0 && dir === 'Short' && closePrice >= sl * 0.999) outcome = 'SL';
-      else outcome = 'SL';
-    } else {
-      outcome = 'BE';
-    }
-    
-    let rr = 0;
-    if (sl > 0 && tp > 0 && openPrice > 0) {
-      const risk = Math.abs(openPrice - sl);
-      const reward = Math.abs(tp - openPrice);
-      if (risk > 0) rr = Math.round((reward / risk) * 100) / 100;
-    }
-    
-    const fee = commission + taxes + Math.abs(swap);
-    const gross = profit + fee;
-    const net = profit;
-    
-    let sessionDate = '';
-    if (closeTime) {
-      const d = new Date(closeTime.replace(/[.]/g, '-').replace(',', ' '));
-      if (!isNaN(d.getTime())) sessionDate = d.toISOString().split('T')[0];
-    } else if (openTime) {
-      const d = new Date(openTime.replace(/[.]/g, '-').replace(',', ' '));
-      if (!isNaN(d.getTime())) sessionDate = d.toISOString().split('T')[0];
-    }
-    
-    const trade = {
-      id: Date.now() + rowIdx++,
-      symbol,
-      dir,
-      outcome,
-      entry: openPrice,
-      lots,
-      sl,
-      tp,
-      pips,
-      gross,
-      fee,
-      net,
-      rr,
-      strategy: 'MT5 Import',
-      notes: comment || 'Imported from MT5',
-      sessionDate,
-      timestamp: Date.now() + rowIdx
-    };
-    
-    preview.push(trade);
-  }
-  
-  if (preview.length === 0) {
-    showToast('No valid trades found in MT5 spreadsheet', 'error');
-    return;
-  }
-  
-  showMT5ImportPreview(preview, acc);
-}
-
 function parseMT5HTML(htmlText, acc) {
   try {
     const parser = new DOMParser();
@@ -3999,43 +3464,17 @@ function parseMT5HTML(htmlText, acc) {
       return;
     }
     
-    // Parse header row
-    const headerRow = rows[0].querySelectorAll('th, td');
-    const headerMap = {};
-    headerRow.forEach((th, idx) => {
-      const text = th.textContent.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-      if (text) headerMap[text] = idx;
-    });
-    
-    const getIdx = (key) => headerMap[key] !== undefined ? headerMap[key] : -1;
-    
-    // MT5 HTML column mapping
-    const ti = getIdx('position') || getIdx('ticket') || getIdx('order');
-    const oti = getIdx('time'); // First Time column
-    const tpi = getIdx('type');
-    const si = getIdx('volume') || getIdx('size') || getIdx('lots');
-    const itemi = getIdx('symbol') || getIdx('item') || getIdx('pair');
-    const pi = getIdx('price'); // First Price column (open price)
-    const sli = getIdx('s/l') || getIdx('sl') || getIdx('stoploss');
-    const tppi = getIdx('t/p') || getIdx('tp') || getIdx('takeprofit');
-    const cti = getIdx('time_8') || getIdx('time'); // Second Time column (close time) - we'll use index
-    const comi = getIdx('commission') || getIdx('comm');
-    const swi = getIdx('swap');
-    const proi = getIdx('profit') || getIdx('pnl') || getIdx('netprofit');
-    
-    // For HTML, we need to handle duplicate "Time" and "Price" columns by index
-    // Typical MT5 HTML: Time(0), Position(1), Symbol(2), Type(3), Volume(4), Price(5), S/L(6), T/P(7), Time(8), Price(9), Commission(10), Swap(11), Profit(12)
-    
     const preview = [];
     let rowIdx = 0;
     
+    // MT5 HTML format uses fixed column indices:
+    // Time(0), Position(1), Symbol(2), Type(3), Volume(4), Price(5), S/L(6), T/P(7), Time(8), Price(9), Commission(10), Swap(11), Profit(12)
     for (let i = 1; i < rows.length; i++) {
       const cells = rows[i].querySelectorAll('td');
       if (cells.length < 10) continue;
       
       const getCell = (idx) => idx >= 0 && idx < cells.length ? cells[idx].textContent.trim() : '';
       
-      // Use fixed indices for MT5 HTML format (more reliable than header matching)
       const symbol = getCell(2).toUpperCase();
       const type = getCell(3).toLowerCase();
       const volumeStr = getCell(4);
@@ -4126,12 +3565,12 @@ function parseMT5HTML(htmlText, acc) {
     showToast('HTML parse error: ' + e.message, 'error');
   }
 }
-
+  
 function showMT5ImportPreview(trades, acc) {
   const html = `
     <div style="max-height:60vh;overflow-y:auto;">
       <div style="margin-bottom:12px;padding:10px;background:rgba(108,99,255,0.1);border:1px solid var(--accent);border-radius:6px;font-size:0.85rem;">
-        <strong>${trades.length} trades parsed</strong> — Review before importing to <strong>${acc.name}</strong>
+        <strong>${trades.length} trades parsed</strong> G�� Review before importing to <strong>${acc.name}</strong>
       </div>
       <table class="trade-table" style="font-size:0.75rem;">
         <thead>
@@ -4194,7 +3633,7 @@ function confirmMT5Import() {
   delete window._mt5ImportAccount;
 }
 
-// ─── CHECKLIST ───────────────────────────────────────────────────────────────
+// G��G��G�� CHECKLIST G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function addChecklistItem(type) {
   const input = document.getElementById(`${type}ChecklistInput`);
   const text = input.value.trim();
@@ -4238,7 +3677,7 @@ function renderChecklist(type) {
   `).join('') : '<li style="color:var(--text3);font-size:0.8rem;cursor:default;">No items yet. Add one above.</li>';
 }
 
-// ─── EXPORT ───────────────────────────────────────────────────────────────────
+// G��G��G�� EXPORT G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function exportText() {
   const acc = getActiveAccount();
   if (!acc) return;
@@ -4249,19 +3688,19 @@ function exportText() {
   const winRate  = acc.trades.length ? Math.round((wins / acc.trades.length) * 100) : 0;
   const curBal   = acc.startBalance + totalPnl;
 
-  let out = `${'═'.repeat(54)}\n`;
+  let out = `${'G��'.repeat(54)}\n`;
   out += `  HUNTER'S TRADING JOURNAL\n`;
   out += `  ${acc.name}\n`;
-  out += `${'═'.repeat(54)}\n\n`;
+  out += `${'G��'.repeat(54)}\n\n`;
   out += `  Starting Balance : $${acc.startBalance.toFixed(2)}\n`;
   out += `  Current Balance  : $${curBal.toFixed(2)}\n`;
   out += `  Profit Target    : $${acc.target.toFixed(2)}\n`;
   out += `  Total P&L        : ${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(2)}\n`;
   out += `  Total Trades     : ${acc.trades.length}  |  Wins: ${wins}  |  Losses: ${losses}\n`;
   out += `  Win Rate         : ${winRate}%\n`;
-  out += `\n${'─'.repeat(54)}\n\n`;
+  out += `\n${'G��'.repeat(54)}\n\n`;
 
-  // Ascending order — oldest session first
+  // Ascending order G�� oldest session first
   const sessions = [...acc.sessions].sort((a,b) => a.date.localeCompare(b.date));
 
   sessions.forEach(s => {
@@ -4271,45 +3710,45 @@ function exportText() {
     const dayWins = trades.filter(t => t.net > 0).length;
     const sessionRules = acc.rules && acc.rules[s.date] ? acc.rules[s.date] : {};
 
-    out += `┌─ ${formatDateLong(s.date)}\n`;
-    if (s.intent) out += `│  Plan     : ${s.intent}\n`;
-    if (s.emotion) out += `│  Emotion  : ${s.emotion.toUpperCase()}\n`;
-    out += `│\n`;
+    out += `G��G�� ${formatDateLong(s.date)}\n`;
+    if (s.intent) out += `G��  Plan     : ${s.intent}\n`;
+    if (s.emotion) out += `G��  Emotion  : ${s.emotion.toUpperCase()}\n`;
+    out += `G��\n`;
 
     if (trades.length === 0) {
-      out += `│  No trades logged.\n`;
+      out += `G��  No trades logged.\n`;
     } else {
       trades.forEach((t, i) => {
-        out += `│  Trade ${i+1}  : ${t.symbol} ${t.dir.toUpperCase()} → ${t.outcome}\n`;
-        out += `│           RR: ${t.rr != null ? t.rr.toFixed(2) : '—'}  |  Pips: ${t.pips ? t.pips + 'p' : '—'}  |  Gross: ${t.gross >= 0 ? '+' : ''}$${t.gross.toFixed(2)}  |  Fee: -$${t.fee.toFixed(2)}  |  Net: ${t.net >= 0 ? '+' : ''}$${t.net.toFixed(2)}\n`;
-        out += `│           Balance: $${(t.runningBalance || acc.startBalance).toFixed(2)}\n`;
-        if (t.notes) out += `│           Notes: ${t.notes}\n`;
+        out += `G��  Trade ${i+1}  : ${t.symbol} ${t.dir.toUpperCase()} G�� ${t.outcome}\n`;
+        out += `G��           RR: ${t.rr != null ? t.rr.toFixed(2) : 'G��'}  |  Pips: ${t.pips ? t.pips + 'p' : 'G��'}  |  Gross: ${t.gross >= 0 ? '+' : ''}$${t.gross.toFixed(2)}  |  Fee: -$${t.fee.toFixed(2)}  |  Net: ${t.net >= 0 ? '+' : ''}$${t.net.toFixed(2)}\n`;
+        out += `G��           Balance: $${(t.runningBalance || acc.startBalance).toFixed(2)}\n`;
+        if (t.notes) out += `G��           Notes: ${t.notes}\n`;
       });
     }
 
-    out += `│\n`;
-    out += `│  Day P&L  : ${dayPnl >= 0 ? '+' : ''}$${dayPnl.toFixed(2)}  (${dayWins}W / ${trades.length - dayWins}L)\n`;
+    out += `G��\n`;
+    out += `G��  Day P&L  : ${dayPnl >= 0 ? '+' : ''}$${dayPnl.toFixed(2)}  (${dayWins}W / ${trades.length - dayWins}L)\n`;
 
-    if (s.postNote) out += `│  Reflect  : ${s.postNote}\n`;
-    if (s.breaches) out += `│  Breaches : ${s.breaches}\n`;
+    if (s.postNote) out += `G��  Reflect  : ${s.postNote}\n`;
+    if (s.breaches) out += `G��  Breaches : ${s.breaches}\n`;
 
     // Rules compliance for this session
     const ruleKeys = Object.keys(sessionRules);
     if (ruleKeys.length > 0) {
-      out += `│\n│  Rules Compliance:\n`;
+      out += `G��\nG��  Rules Compliance:\n`;
       RULES.forEach((rule, i) => {
         const st = sessionRules[i] || 'unchecked';
-        const mark = st === 'followed' ? '[✓]' : st === 'broken' ? '[✗]' : '[ ]';
-        out += `│    ${mark} ${rule}\n`;
+        const mark = st === 'followed' ? '[G��]' : st === 'broken' ? '[G��]' : '[ ]';
+        out += `G��    ${mark} ${rule}\n`;
       });
     }
 
-    out += `└${'─'.repeat(53)}\n\n`;
+    out += `G��${'G��'.repeat(53)}\n\n`;
   });
 
-  out += `${'═'.repeat(54)}\n`;
+  out += `${'G��'.repeat(54)}\n`;
   out += `  Exported: ${new Date().toLocaleString('en-GB')}\n`;
-  out += `${'═'.repeat(54)}\n`;
+  out += `${'G��'.repeat(54)}\n`;
 
   const blob = new Blob([out], { type: 'text/plain' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
@@ -4415,8 +3854,8 @@ function exportPDF() {
             <td><strong>${t.symbol}</strong></td>
             <td>${t.dir}</td>
             <td style="color:${t.outcome==='TP'?'#00c853':'#ff4444'};font-weight:700;">${t.outcome}</td>
-            <td style="color:${t.rr > 0 ? '#00c853' : t.rr < 0 ? '#ff4444' : '#888'};font-weight:700;">${t.rr != null ? t.rr.toFixed(2) : '—'}</td>
-            <td>${t.pips ? t.pips+'p' : '—'}</td>
+            <td style="color:${t.rr > 0 ? '#00c853' : t.rr < 0 ? '#ff4444' : '#888'};font-weight:700;">${t.rr != null ? t.rr.toFixed(2) : 'G��'}</td>
+            <td>${t.pips ? t.pips+'p' : 'G��'}</td>
             <td>${t.gross>=0?'+':''}$${t.gross.toFixed(2)}</td>
             <td>-$${t.fee.toFixed(2)}</td>
             <td style="color:${netColor};font-weight:700;">${t.net>=0?'+':''}$${t.net.toFixed(2)}</td>
@@ -4430,7 +3869,7 @@ function exportPDF() {
       rulesHTML = `<div class="rules-block"><strong>Rules Compliance:</strong><div class="rules-grid">`;
       RULES.forEach((rule, i) => {
         const st = sessionRules[i] || 'unchecked';
-        const mark   = st==='followed' ? '✓' : st==='broken' ? '✗' : '○';
+        const mark   = st==='followed' ? 'G��' : st==='broken' ? 'G��' : 'G��';
         const color  = st==='followed' ? '#00c853' : st==='broken' ? '#ff4444' : '#888';
         rulesHTML += `<span style="color:${color};">${mark} ${rule}</span>`;
       });
@@ -4442,7 +3881,7 @@ function exportPDF() {
         <div class="session-header">
           <span class="session-date">${formatDateLong(s.date)}</span>
           <span class="session-pnl" style="color:${dayPnl>=0?'#00c853':'#ff4444'};">
-            ${dayPnl>=0?'+':''}$${dayPnl.toFixed(2)} &nbsp;·&nbsp; ${dayWins}W / ${trades.length-dayWins}L
+            ${dayPnl>=0?'+':''}$${dayPnl.toFixed(2)} &nbsp;-+&nbsp; ${dayWins}W / ${trades.length-dayWins}L
           </span>
         </div>
         <div class="session-meta">
@@ -4463,7 +3902,7 @@ function exportPDF() {
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Hunter's Journal — ${acc.name}</title>
+<title>Hunter's Journal G�� ${acc.name}</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -4533,7 +3972,7 @@ function exportPDF() {
 
   ${sessionsHTML}
 
-  <div class="footer">HUNTER'S JOURNAL · ${acc.name} · GENERATED ${new Date().toLocaleDateString('en-GB').toUpperCase()}</div>
+  <div class="footer">HUNTER'S JOURNAL -+ ${acc.name} -+ GENERATED ${new Date().toLocaleDateString('en-GB').toUpperCase()}</div>
 </body>
 </html>`;
 
@@ -4542,7 +3981,7 @@ function exportPDF() {
   w.document.write(html);
   w.document.close();
   w.onload = () => { w.focus(); w.print(); };
-  showToast('PDF ready — save as PDF in print dialog');
+  showToast('PDF ready G�� save as PDF in print dialog');
 }
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach((b,i) => {
@@ -4562,7 +4001,7 @@ function switchTab(tab) {
   }
 }
 
-// ─── UTILS ────────────────────────────────────────────────────────────────────
+// G��G��G�� UTILS G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
@@ -4597,17 +4036,17 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
 
 document.getElementById('themeBtn').addEventListener('click', toggleTheme);
 
-// ─── SERVICE WORKER ───────────────────────────────────────────────────────────
+// G��G��G�� SERVICE WORKER G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    // Use relative path — works for root domain AND subdirectory repos
+    // Use relative path G�� works for root domain AND subdirectory repos
     navigator.serviceWorker.register('./sw.js?v=5')
       .then(reg => console.log('[SW] Registered:', reg.scope))
       .catch(err => console.warn('[SW] Registration failed:', err));
   });
 }
 
-// ─── PWA INSTALL PROMPT ───────────────────────────────────────────────────────
+// G��G��G�� PWA INSTALL PROMPT G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 let deferredPrompt = null;
 const installBanner = document.getElementById('installBanner');
 const installBtn = document.getElementById('installBtn');
@@ -4641,18 +4080,18 @@ window.addEventListener('appinstalled', () => {
   installBanner.style.display = 'none';
 });
 
-// Manual force sync — tap the dot in the header
+// Manual force sync G�� tap the dot in the header
 async function forcSync() {
   if (!syncOnline || !sb) {
-    showToast('Offline — sync unavailable', 'error');
+    showToast('Offline G�� sync unavailable', 'error');
     return;
   }
-  showToast('Syncing to cloud…');
+  showToast('Syncing to cloudGǪ');
   await syncToSupabase();
   showToast('Sync complete');
 }
 
-// ─── PROFILE ──────────────────────────────────────────────────────────────────
+// G��G��G�� PROFILE G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function openProfileModal() {
   document.getElementById('hunterNameInput').value = state.hunterName || '';
   const img = document.getElementById('avatarPreviewImg');
@@ -4671,7 +4110,7 @@ function openProfileModal() {
 function handleAvatarUpload(input) {
   const file = input.files[0];
   if (!file) return;
-  if (file.size > 2 * 1024 * 1024) { showToast('Image too large — max 2MB', 'error'); return; }
+  if (file.size > 2 * 1024 * 1024) { showToast('Image too large G�� max 2MB', 'error'); return; }
   const reader = new FileReader();
   reader.onload = (e) => {
     const b64 = e.target.result;
@@ -4724,11 +4163,11 @@ function updateProfileUI() {
   } else {
     thumb.style.display = 'none'; icon.style.display = 'block';
     btn.style.borderColor = state.hunterName ? 'var(--accent3)' : 'var(--border)';
-    btn.title = state.hunterName ? `${state.hunterName} — Edit Profile` : 'Set Hunter Profile';
+    btn.title = state.hunterName ? `${state.hunterName} G�� Edit Profile` : 'Set Hunter Profile';
   }
 }
 
-// ─── INLINE NAME EDIT ─────────────────────────────────────────────────────────
+// G��G��G�� INLINE NAME EDIT G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function editHunterName() {
   document.getElementById('hunterNameDisplay').style.display = 'none';
   const editWrap = document.getElementById('hunterNameEdit');
@@ -4757,7 +4196,7 @@ function cancelHunterNameEdit() {
   if (state.hunterName) { display.style.display = 'block'; }
 }
 
-// ─── HUNTER ID CARD ───────────────────────────────────────────────────────────
+// G��G��G�� HUNTER ID CARD G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 const RANK_COLORS = { E:'#888888', D:'#4fc3f7', C:'#66bb6a', B:'#ffa726', A:'#ef5350', S:'#ffd700' };
 
 function openIDCard() {
@@ -4819,7 +4258,7 @@ function closeIDCard(e) {
 
 async function exportIDCardPNG() {
   const card = document.getElementById('hunterIDCard');
-  showToast('Generating PNG…');
+  showToast('Generating PNGGǪ');
   try {
     const canvas = await html2canvas(card, { backgroundColor:null, scale:3, useCORS:true, logging:false });
     const link = document.createElement('a');
@@ -4827,10 +4266,10 @@ async function exportIDCardPNG() {
     link.href = canvas.toDataURL('image/png');
     link.click();
     showToast('ID Card saved as PNG');
-  } catch(e) { showToast('Export failed — try again', 'error'); }
+  } catch(e) { showToast('Export failed G�� try again', 'error'); }
 }
 
-// ─── INVENTORY ────────────────────────────────────────────────────────────────
+// G��G��G�� INVENTORY G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 function renderInventory(acc) {
   const container = document.getElementById('inventoryList');
   const trades = acc.trades.filter(t => t.strategy && t.strategy !== '');
@@ -4861,7 +4300,7 @@ function renderInventory(acc) {
   let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
     <div>
       <div style="font-family:'Cinzel',serif;font-size:0.9rem;font-weight:700;color:var(--text);letter-spacing:1px;">STRATEGY INVENTORY</div>
-      <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">${strategies.length} strateg${strategies.length!==1?'ies':'y'} · ${trades.length} tagged trades</div>
+      <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">${strategies.length} strateg${strategies.length!==1?'ies':'y'} -+ ${trades.length} tagged trades</div>
     </div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;">
       ${['Legendary','Epic','Rare','Uncommon','Common'].map(r => {
@@ -4903,7 +4342,7 @@ function renderInventory(acc) {
   container.innerHTML = html;
 }
 
-// ─── BOOT ─────────────────────────────────────────────────────────────────────
+// G��G��G�� BOOT G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
 load();
 </script>
 </body>
