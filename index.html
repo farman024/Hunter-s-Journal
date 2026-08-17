@@ -2260,21 +2260,27 @@ function openTradeModal(tradeId = null) {
   const sel = document.getElementById('tSession');
   sel.innerHTML = acc.sessions.map(s => `<option value="${s.date}">${formatDateShort(s.date)}</option>`).join('');
 
+  // Load last used defaults
+  const lastSymbol  = localStorage.getItem('hj_lastSymbol')  || 'XAUUSD';
+  const lastDir     = localStorage.getItem('hj_lastDir')     || 'Long';
+  const lastOutcome = localStorage.getItem('hj_lastOutcome') || 'TP';
+  const lastStrategy= localStorage.getItem('hj_lastStrategy')|| '';
+
   if (tradeId) {
     const t = acc.trades.find(t => t.id === tradeId);
     if (t) {
-      document.getElementById('tSymbol').value  = t.symbol;
-      document.getElementById('tDir').value     = t.dir;
-      document.getElementById('tOutcome').value = t.outcome;
-      document.getElementById('tEntry').value   = t.entry || '';
-      document.getElementById('tLots').value    = t.lots || '';
-      document.getElementById('tSL').value      = t.sl || '';
-      document.getElementById('tTP').value      = t.tp || '';
-      document.getElementById('tPips').value    = t.pips || '';
-      document.getElementById('tGross').value   = t.gross;
-      document.getElementById('tFee').value     = t.fee;
-      document.getElementById('tRR').value      = t.rr || '';
-      document.getElementById('tNotes').value   = t.notes || '';
+      document.getElementById('tSymbol').value   = t.symbol;
+      document.getElementById('tDir').value      = t.dir;
+      document.getElementById('tOutcome').value  = t.outcome;
+      document.getElementById('tEntry').value    = t.entry || '';
+      document.getElementById('tLots').value     = t.lots || '';
+      document.getElementById('tSL').value       = t.sl || '';
+      document.getElementById('tTP').value       = t.tp || '';
+      document.getElementById('tPips').value     = t.pips || '';
+      document.getElementById('tGross').value    = t.gross;
+      document.getElementById('tFee').value      = t.fee;
+      document.getElementById('tRR').value       = t.rr || '';
+      document.getElementById('tNotes').value    = t.notes || '';
       document.getElementById('tStrategy').value = t.strategy || '';
       document.getElementById('tScreenshotData').value = t.screenshot || '';
       if (t.screenshot) {
@@ -2289,9 +2295,9 @@ function openTradeModal(tradeId = null) {
       autoCalc();
     }
   } else {
-    document.getElementById('tSymbol').value   = 'XAUUSD';
-    document.getElementById('tDir').value      = 'Long';
-    document.getElementById('tOutcome').value  = 'TP';
+    document.getElementById('tSymbol').value   = lastSymbol;
+    document.getElementById('tDir').value      = lastDir;
+    document.getElementById('tOutcome').value  = lastOutcome;
     document.getElementById('tEntry').value    = '';
     document.getElementById('tLots').value     = '';
     document.getElementById('tSL').value       = '';
@@ -2301,10 +2307,14 @@ function openTradeModal(tradeId = null) {
     document.getElementById('tFee').value      = '';
     document.getElementById('tRR').value       = '';
     document.getElementById('tNotes').value    = '';
-    document.getElementById('tStrategy').value = '';
+    document.getElementById('tStrategy').value = lastStrategy;
     clearScreenshot();
     document.getElementById('autoCalcPreview').style.display = 'none';
-    sel.value = acc.sessions[0].date;
+
+    // Default session: today if exists, else first session
+    const today = new Date().toISOString().split('T')[0];
+    const hasToday = acc.sessions.some(s => s.date === today);
+    sel.value = hasToday ? today : acc.sessions[0].date;
   }
   openModal('tradeModal');
 }
@@ -2364,6 +2374,12 @@ function saveTrade() {
   if (!symbol || isNaN(gross)) { showToast('Enter entry price, lot size and SL/TP to calculate', 'error'); return; }
 
   const net = +(gross - fee).toFixed(2);
+
+  // Persist last used values for next trade
+  localStorage.setItem('hj_lastSymbol', symbol);
+  localStorage.setItem('hj_lastDir', dir);
+  localStorage.setItem('hj_lastOutcome', outcome);
+  localStorage.setItem('hj_lastStrategy', strategy);
 
   if (editId) {
     const idx = acc.trades.findIndex(t => t.id === parseInt(editId));
