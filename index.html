@@ -3780,18 +3780,32 @@ function parseMT5XLSX(arrayBuffer, acc) {
 }
 
 function parseMT5XLSXRows(rows, acc) {
-  // Find header row (scan first 5 rows for MT5 keywords)
+  // Find header row - scan for "Positions" section header
+  // MT5 Detailed report has: Row 5="Positions", Row 6=actual headers, Row 7+=data
   let headerRow = null;
   let dataStartIdx = 0;
-  const headerKeywords = ['ticket', 'open', 'type', 'size', 'item', 'symbol', 'price', 's/l', 't/p', 'sl', 'tp', 'time', 'profit', 'commission', 'swap', 'comment', 'volume', 'lots'];
+  const headerKeywords = ['ticket', 'open', 'type', 'size', 'item', 'symbol', 'price', 's/l', 't/p', 'sl', 'tp', 'time', 'profit', 'commission', 'swap', 'comment', 'volume', 'lots', 'position'];
   
-  for (let i = 0; i < Math.min(5, rows.length); i++) {
+  // Scan up to 15 rows for the Positions header section
+  for (let i = 0; i < Math.min(15, rows.length); i++) {
     const row = rows[i];
     if (!row || row.length < 5) continue;
     
     const cellTexts = row.map(c => String(c).trim().toLowerCase());
+    
+    // Check if this is the "Positions" section marker
+    if (cellTexts.some(t => t === 'positions' || t.includes('position'))) {
+      // Next row should be the actual header
+      if (i + 1 < rows.length) {
+        headerRow = rows[i + 1];
+        dataStartIdx = i + 2;
+        break;
+      }
+    }
+    
+    // Also check for standard header keywords
     const matches = cellTexts.filter(t => headerKeywords.some(k => t.includes(k))).length;
-    if (matches >= 3) {
+    if (matches >= 4) {  // Stricter: need 4+ matches for actual trade header
       headerRow = row;
       dataStartIdx = i + 1;
       break;
@@ -3799,29 +3813,50 @@ function parseMT5XLSXRows(rows, acc) {
   }
   
   if (!headerRow) {
-    headerRow = rows[0];
-    dataStartIdx = 1;
+    // Fallback: scan all rows
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      if (!row || row.length < 5) continue;
+      const cellTexts = row.map(c => String(c).trim().toLowerCase());
+      const matches = cellTexts.filter(t => headerKeywords.some(k => t.includes(k))).length;
+      if (matches >= 4) {
+        headerRow = row;
+        dataStartIdx = i + 1;
+        break;
+      }
+    }
+  }
+  
+  if (!headerRow) {
+    showToast('Could not find trade data header in spreadsheet', 'error');
+    return;
   }
   
   // Map header to column indices
   const headerMap = {};
   headerRow.forEach((cell, idx) => {
     const text = String(cell).trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-    if (text) headerMap[text] = idx;
+    if (text) {
+      // Handle duplicate headers (e.g., "Time" appears twice)
+      if (!headerMap[text]) headerMap[text] = idx;
+      headerMap[text + '_' + idx] = idx;  // Also store with index for disambiguation
+    }
   });
   
   const getIdx = (key) => headerMap[key] !== undefined ? headerMap[key] : -1;
   
   // MT5 column mapping (multiple possible header names)
-  const ti = getIdx('ticket') || getIdx('orderticket') || getIdx('deal') || getIdx('order');
-  const oti = getIdx('opentime') || getIdx('timeopen') || getIdx('open') || getIdx('datetime');
+  // First try standard names, then MT5-specific names with index disambiguation
+  const ti = getIdx('ticket') || getIdx('orderticket') || getIdx('deal') || getIdx('order') || getIdx('position');
+  const oti = getIdx('opentime') || getIdx('timeopen') || getIdx('open') || getIdx('datetime') || getIdx('time_0') || getIdx('time');
   const tpi = getIdx('type') || getIdx('ordertype') || getIdx('cmd') || getIdx('direction');
   const si = getIdx('size') || getIdx('volume') || getIdx('lots') || getIdx('lot');
   const itemi = getIdx('item') || getIdx('symbol') || getIdx('security') || getIdx('pair');
   const pi = getIdx('price') || getIdx('openprice') || getIdx('priceopen') || getIdx('entry');
-  const sli = getIdx('sl') || getIdx('stoploss') || getIdx('stop') || getIdx('stoplossprice');
-  const tppi = getIdx('tp') || getIdx('takeprofit') || getIdx('take') || getIdx('takeprofitprice');
-  const cti = getIdx('time') || getIdx('closetime') || getIdx('timeclose') || getIdx('close') || getIdx('exittime');
+  const sli = getIdx('sl') || getIdx('stoploss') || getIdx('stop') || getIdx('stoplossprice') || getIdx('s/l');
+  const tppi = getIdx('tp') || getIdx('takeprofit') || getIdx('take') || getIdx('takeprofitprice') || getIdx('t/p');
+  // Close time is the second "Time" column (index 8 in MT5 format)
+  const cti = getIdx('time_8') || getIdx('closetime') || getIdx('timeclose') || getIdx('close') || getIdx('exittime') || getIdx('time_1');
   const sti = getIdx('state') || getIdx('status') || getIdx('reason');
   const ci = getIdx('comment') || getIdx('comments') || getIdx('note');
   const comi = getIdx('commission') || getIdx('comm');
@@ -3829,8 +3864,14 @@ function parseMT5XLSXRows(rows, acc) {
   const swi = getIdx('swap');
   const proi = getIdx('profit') || getIdx('grossprofit') || getIdx('pnl') || getIdx('netprofit');
   
+  // Fallback: if position not found but we have time columns, infer positions
+  // MT5 format: Time(0), Position(1), Symbol(2), Type(3), Volume(4), Price(5), S/L(6), T/P(7), Time(8), Price(9), Commission(10), Swap(11), Profit(12)
+  if (ti === -1 && getIdx('position') !== -1) {
+    // Already handled above
+  }
+  
   if (ti === -1 || itemi === -1 || tpi === -1 || pi === -1) {
-    showToast('Invalid MT5 spreadsheet format. Expected columns: Ticket, Open Time, Type, Size, Item/Symbol, Price, S/L, T/P, Close Time, Profit, Commission, Swap, Comment', 'error');
+    showToast('Invalid MT5 spreadsheet format. Expected columns: Ticket/Position, Open Time, Type, Size/Volume, Item/Symbol, Price, S/L, T/P, Close Time, Profit, Commission, Swap, Comment', 'error');
     return;
   }
   
@@ -3857,7 +3898,11 @@ function parseMT5XLSXRows(rows, acc) {
     const taxes = parseFloat(getCell(taxsi)) || 0;
     const swap = parseFloat(getCell(swi)) || 0;
     const profit = parseFloat(getCell(proi)) || 0;
-    const lots = parseFloat(getCell(si)) || 0;
+    
+    // Parse lots from volume - handle "0.05" or "0.05 / 0.05" format
+    const volumeStr = getCell(si);
+    const lots = parseFloat(volumeStr.split('/')[0].trim()) || 0;
+    
     const comment = getCell(ci);
     const openTime = getCell(oti);
     const closeTime = getCell(cti);
