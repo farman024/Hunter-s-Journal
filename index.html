@@ -1124,6 +1124,8 @@ canvas { width: 100% !important; }
           <button class="btn btn-outline btn-sm" onclick="exportCSV()">CSV</button>
           <label class="btn btn-outline btn-sm" style="cursor:pointer;" onclick="document.getElementById('csvImportInput').click()">Import CSV</label>
           <input type="file" id="csvImportInput" accept=".csv" style="display:none;" onchange="importCSV(this)">
+          <label class="btn btn-outline btn-sm" style="cursor:pointer;" onclick="document.getElementById('mt5ImportInput').click()">Import MT5 CSV</label>
+          <input type="file" id="mt5ImportInput" accept=".csv" style="display:none;" onchange="importMT5CSV(this)">
         </div>
       </div>
       <div class="filter-bar" id="filterBar">
@@ -3283,6 +3285,225 @@ function importCSV(input) {
     input.value = '';
   };
   reader.readAsText(file);
+}
+
+function importMT5CSV(input) {
+  const acc = getActiveAccount();
+  if (!acc) { showToast('Select an account first', 'error'); return; }
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const text = e.target.result;
+    const lines = text.split('\n').filter(l => l.trim());
+    if (lines.length < 2) { showToast('CSV must have header + data rows', 'error'); return; }
+
+    // Parse CSV with quoted fields support
+    const parseCSV = (line) => {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          if (inQuotes && line[i+1] === '"') { current += '"'; i++; }
+          else inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      result.push(current.trim());
+      return result;
+    };
+
+    const header = parseCSV(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
+    const idx = h => header.indexOf(h);
+
+    // MT5 standard columns: ticket, opentime, type, size, item, price, sl, tp, time, state, comment, commission, taxes, swap, profit
+    const ti = idx('ticket'), oti = idx('opentime'), tpi = idx('type'), si = idx('size'),
+          itemi = idx('item'), pi = idx('price'), sli = idx('sl'), tppi = idx('tp'),
+          cti = idx('time'), sti = idx('state'), ci = idx('comment'), comi = idx('commission'),
+          taxsi = idx('taxes'), swi = idx('swap'), proi = idx('profit');
+
+    if (ti === -1 || itemi === -1 || tpi === -1 || pi === -1) {
+      showToast('Invalid MT5 CSV format. Expected: Ticket, Open Time, Type, Size, Item, Price, S/L, T/P, Time, State, Comment, Commission, Taxes, Swap, Profit', 'error');
+      return;
+    }
+
+    let imported = 0;
+    const preview = [];
+
+    for (let r = 1; r < lines.length; r++) {
+      const cols = parseCSV(lines[r]);
+      if (cols.length < 5) continue;
+
+      const get = i => i !== -1 && cols[i] ? cols[i].replace(/^"|"$/g, '') : '';
+      const symbol = get(itemi).toUpperCase();
+      const type = get(tpi).toLowerCase();
+      const openPrice = parseFloat(get(pi)) || 0;
+      const sl = parseFloat(get(sli)) || 0;
+      const tp = parseFloat(get(tppi)) || 0;
+      const closePrice = parseFloat(get(cti)) || 0;
+      const commission = parseFloat(get(comi)) || 0;
+      const taxes = parseFloat(get(taxsi)) || 0;
+      const swap = parseFloat(get(swi)) || 0;
+      const profit = parseFloat(get(proi)) || 0;
+      const lots = parseFloat(get(si)) || 0;
+      const comment = get(ci);
+      const openTime = get(oti);
+      const closeTime = get(cti);
+
+      if (!symbol || lots === 0) continue;
+
+      // Determine direction
+      const dir = type.includes('buy') ? 'Long' : type.includes('sell') ? 'Short' : 'Long';
+
+      // Calculate pips (approximate)
+      let pips = 0;
+      if (dir === 'Long' && closePrice && openPrice) pips = Math.round((closePrice - openPrice) * (symbol.includes('JPY') ? 100 : 10000));
+      else if (dir === 'Short' && closePrice && openPrice) pips = Math.round((openPrice - closePrice) * (symbol.includes('JPY') ? 100 : 10000));
+
+      // Determine outcome from profit and SL/TP
+      let outcome = 'Manual';
+      if (profit > 0) {
+        if (tp > 0 && dir === 'Long' && closePrice >= tp * 0.999) outcome = 'TP';
+        else if (tp > 0 && dir === 'Short' && closePrice <= tp * 1.001) outcome = 'TP';
+        else outcome = 'TP';
+      } else if (profit < 0) {
+        if (sl > 0 && dir === 'Long' && closePrice <= sl * 1.001) outcome = 'SL';
+        else if (sl > 0 && dir === 'Short' && closePrice >= sl * 0.999) outcome = 'SL';
+        else outcome = 'SL';
+      } else {
+        outcome = 'BE';
+      }
+
+      // Calculate RR
+      let rr = 0;
+      if (sl > 0 && tp > 0 && openPrice > 0) {
+        const risk = Math.abs(openPrice - sl);
+        const reward = Math.abs(tp - openPrice);
+        if (risk > 0) rr = Math.round((reward / risk) * 100) / 100;
+      }
+
+      const fee = commission + taxes + Math.abs(swap);
+      const gross = profit + fee;
+      const net = profit;
+
+      // Parse date for sessionDate
+      let sessionDate = '';
+      if (closeTime) {
+        const d = new Date(closeTime.replace(/[.]/g, '-').replace(',', ' '));
+        if (!isNaN(d.getTime())) sessionDate = d.toISOString().split('T')[0];
+      } else if (openTime) {
+        const d = new Date(openTime.replace(/[.]/g, '-').replace(',', ' '));
+        if (!isNaN(d.getTime())) sessionDate = d.toISOString().split('T')[0];
+      }
+
+      const trade = {
+        id: Date.now() + r,
+        symbol,
+        dir,
+        outcome,
+        entry: openPrice,
+        lots,
+        sl,
+        tp,
+        pips,
+        gross,
+        fee,
+        net,
+        rr,
+        strategy: 'MT5 Import',
+        notes: comment || 'Imported from MT5',
+        sessionDate,
+        timestamp: Date.now() + r
+      };
+
+      preview.push(trade);
+    }
+
+    if (preview.length === 0) {
+      showToast('No valid trades found in MT5 CSV', 'error');
+      input.value = '';
+      return;
+    }
+
+    // Show preview modal
+    showMT5ImportPreview(preview, acc);
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function showMT5ImportPreview(trades, acc) {
+  const html = `
+    <div style="max-height:60vh;overflow-y:auto;">
+      <div style="margin-bottom:12px;padding:10px;background:rgba(108,99,255,0.1);border:1px solid var(--accent);border-radius:6px;font-size:0.85rem;">
+        <strong>${trades.length} trades parsed</strong> — Review before importing to <strong>${acc.name}</strong>
+      </div>
+      <table class="trade-table" style="font-size:0.75rem;">
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Dir</th>
+            <th>Outcome</th>
+            <th>Entry</th>
+            <th>Lots</th>
+            <th>SL</th>
+            <th>TP</th>
+            <th>Pips</th>
+            <th>Net P&L</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${trades.map(t => `
+            <tr>
+              <td><span class="symbol-badge">${t.symbol}</span></td>
+              <td class="${t.dir === 'Long' ? 'dir-long' : 'dir-short'}">${t.dir}</td>
+              <td class="outcome-${t.outcome.toLowerCase()}">${t.outcome}</td>
+              <td>${t.entry}</td>
+              <td>${t.lots}</td>
+              <td>${t.sl || '-'}</td>
+              <td>${t.tp || '-'}</td>
+              <td>${t.pips}</td>
+              <td class="${t.net >= 0 ? 'pnl-pos' : 'pnl-neg'}">${t.net >= 0 ? '+' : ''}${t.net.toFixed(2)}</td>
+              <td>${t.sessionDate || '-'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalTitle').textContent = 'MT5 Import Preview';
+  document.getElementById('modalFooter').innerHTML = `
+    <button class="btn btn-danger" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="confirmMT5Import()">Import ${trades.length} Trades</button>
+  `;
+
+  // Store trades temporarily
+  window._mt5ImportTrades = trades;
+  window._mt5ImportAccount = acc;
+  openModal('tradeModal');
+}
+
+function confirmMT5Import() {
+  const trades = window._mt5ImportTrades;
+  const acc = window._mt5ImportAccount;
+  if (!trades || !acc) return;
+
+  trades.forEach(t => acc.trades.push(t));
+  save();
+  renderAll();
+  closeModal();
+  showToast(`Imported ${trades.length} trades from MT5`);
+  delete window._mt5ImportTrades;
+  delete window._mt5ImportAccount;
 }
 
 // ─── CHECKLIST ───────────────────────────────────────────────────────────────
