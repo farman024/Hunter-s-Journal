@@ -3405,6 +3405,182 @@ function importCSV(input) {
   reader.readAsText(file);
 }
 
+function parseMT5XML(xmlText, acc) {
+  try {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+    
+    const parseError = xmlDoc.querySelector('parsererror');
+    if (parseError) throw new Error('Invalid XML format');
+    
+    let rows = xmlDoc.querySelectorAll('Row');
+    if (!rows.length) rows = xmlDoc.getElementsByTagName('Row');
+    if (!rows.length) throw new Error('No data rows found in XML');
+    
+    return parseMT5XMLRows(Array.from(rows), acc);
+    
+  } catch (e) {
+    showToast('XML parse error: ' + e.message, 'error');
+  }
+}
+
+function parseMT5XMLRows(rows, acc) {
+  let headerRow = null;
+  let dataStartIdx = 0;
+  
+  for (let i = 0; i < rows.length; i++) {
+    const cells = rows[i].querySelectorAll('Cell');
+    if (!cells.length) continue;
+    
+    const cellTexts = Array.from(cells).map(c => {
+      const data = c.querySelector('Data');
+      return data ? data.textContent.trim().toLowerCase() : '';
+    });
+    const headerKeywords = ['ticket', 'open', 'type', 'size', 'item', 'symbol', 'price', 's/l', 't/p', 'time', 'profit', 'commission', 'swap', 'comment'];
+    const matches = cellTexts.filter(t => headerKeywords.some(k => t.includes(k))).length;
+    if (matches >= 3) {
+      headerRow = cells;
+      dataStartIdx = i + 1;
+      break;
+    }
+  }
+  
+  if (!headerRow) {
+    headerRow = rows[0].querySelectorAll('Cell');
+    dataStartIdx = 1;
+  }
+  
+  const headerMap = {};
+  Array.from(headerRow).forEach((cell, idx) => {
+    const data = cell.querySelector('Data');
+    const text = data ? data.textContent.trim().toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+    if (text) headerMap[text] = idx;
+  });
+  
+  const getIdx = (key) => headerMap[key] !== undefined ? headerMap[key] : -1;
+  
+  const ti = getIdx('ticket') || getIdx('orderticket') || getIdx('deal');
+  const oti = getIdx('opentime') || getIdx('timeopen') || getIdx('open');
+  const tpi = getIdx('type') || getIdx('ordertype') || getIdx('cmd');
+  const si = getIdx('size') || getIdx('volume') || getIdx('lots');
+  const itemi = getIdx('item') || getIdx('symbol') || getIdx('security');
+  const pi = getIdx('price') || getIdx('openprice') || getIdx('priceopen');
+  const sli = getIdx('sl') || getIdx('stoploss') || getIdx('sl');
+  const tppi = getIdx('tp') || getIdx('takeprofit') || getIdx('tp');
+  const cti = getIdx('time') || getIdx('closetime') || getIdx('timeclose') || getIdx('close');
+  const sti = getIdx('state') || getIdx('status') || getIdx('reason');
+  const ci = getIdx('comment');
+  const comi = getIdx('commission');
+  const taxsi = getIdx('taxes') || getIdx('tax');
+  const swi = getIdx('swap');
+  const proi = getIdx('profit') || getIdx('grossprofit');
+  
+  if (ti === -1 || itemi === -1 || tpi === -1 || pi === -1) {
+    showToast('Invalid MT5 XML format. Expected: Ticket, Open Time, Type, Size, Item/Symbol, Price, S/L, T/P, Close Time, Profit, Commission, Swap, Comment', 'error');
+    return;
+  }
+  
+  const preview = [];
+  let rowIdx = 0;
+  
+  for (let i = dataStartIdx; i < rows.length; i++) {
+    const cells = rows[i].querySelectorAll('Cell');
+    if (!cells.length) continue;
+    
+    const getCellText = (cellIdx) => {
+      if (cellIdx === -1 || cellIdx >= cells.length) return '';
+      const cell = cells[cellIdx];
+      const data = cell.querySelector('Data');
+      return data ? data.textContent.trim() : '';
+    };
+    
+    const symbol = getCellText(itemi).toUpperCase();
+    const type = getCellText(tpi).toLowerCase();
+    const openPrice = parseFloat(getCellText(pi)) || 0;
+    const sl = parseFloat(getCellText(sli)) || 0;
+    const tp = parseFloat(getCellText(tppi)) || 0;
+    const closePrice = parseFloat(getCellText(cti)) || 0;
+    const commission = parseFloat(getCellText(comi)) || 0;
+    const taxes = parseFloat(getCellText(taxsi)) || 0;
+    const swap = parseFloat(getCellText(swi)) || 0;
+    const profit = parseFloat(getCellText(proi)) || 0;
+    const lots = parseFloat(getCellText(si)) || 0;
+    const comment = getCellText(ci);
+    const openTime = getCellText(oti);
+    const closeTime = getCellText(cti);
+    
+    if (!symbol || lots === 0) continue;
+    
+    const dir = type.includes('buy') ? 'Long' : type.includes('sell') ? 'Short' : 'Long';
+    
+    let pips = 0;
+    if (dir === 'Long' && closePrice && openPrice) pips = Math.round((closePrice - openPrice) * (symbol.includes('JPY') ? 100 : 10000));
+    else if (dir === 'Short' && closePrice && openPrice) pips = Math.round((openPrice - closePrice) * (symbol.includes('JPY') ? 100 : 10000));
+    
+    let outcome = 'Manual';
+    if (profit > 0) {
+      if (tp > 0 && dir === 'Long' && closePrice >= tp * 0.999) outcome = 'TP';
+      else if (tp > 0 && dir === 'Short' && closePrice <= tp * 1.001) outcome = 'TP';
+      else outcome = 'TP';
+    } else if (profit < 0) {
+      if (sl > 0 && dir === 'Long' && closePrice <= sl * 1.001) outcome = 'SL';
+      else if (sl > 0 && dir === 'Short' && closePrice >= sl * 0.999) outcome = 'SL';
+      else outcome = 'SL';
+    } else {
+      outcome = 'BE';
+    }
+    
+    let rr = 0;
+    if (sl > 0 && tp > 0 && openPrice > 0) {
+      const risk = Math.abs(openPrice - sl);
+      const reward = Math.abs(tp - openPrice);
+      if (risk > 0) rr = Math.round((reward / risk) * 100) / 100;
+    }
+    
+    const fee = commission + taxes + Math.abs(swap);
+    const gross = profit + fee;
+    const net = profit;
+    
+    let sessionDate = '';
+    if (closeTime) {
+      const d = new Date(closeTime.replace(/[.]/g, '-').replace(',', ' '));
+      if (!isNaN(d.getTime())) sessionDate = d.toISOString().split('T')[0];
+    } else if (openTime) {
+      const d = new Date(openTime.replace(/[.]/g, '-').replace(',', ' '));
+      if (!isNaN(d.getTime())) sessionDate = d.toISOString().split('T')[0];
+    }
+    
+    const trade = {
+      id: Date.now() + rowIdx++,
+      symbol,
+      dir,
+      outcome,
+      entry: openPrice,
+      lots,
+      sl,
+      tp,
+      pips,
+      gross,
+      fee,
+      net,
+      rr,
+      strategy: 'MT5 Import',
+      notes: comment || 'Imported from MT5',
+      sessionDate,
+      timestamp: Date.now() + rowIdx
+    };
+    
+    preview.push(trade);
+  }
+  
+  if (preview.length === 0) {
+    showToast('No valid trades found in MT5 XML', 'error');
+    return;
+  }
+  
+  showMT5ImportPreview(preview, acc);
+}
+
 function importMT5CSV(input) {
   const acc = getActiveAccount();
   if (!acc) { showToast('Select an account first', 'error'); return; }
@@ -3412,9 +3588,19 @@ function importMT5CSV(input) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = (e) => {
-    const text = e.target.result;
+    const text = e.target.result.trim();
+    
+    // Detect XML (MT5 Excel 2003/2007 format)
+    if (text.startsWith('<?xml') || text.startsWith('<Workbook') || text.startsWith('<worksheet')) {
+      parseMT5XML(text, acc);
+      input.value = '';
+      return;
+    }
+    
+    // Existing CSV parsing
     const lines = text.split('\n').filter(l => l.trim());
     if (lines.length < 2) { showToast('CSV must have header + data rows', 'error'); return; }
+    // ... rest of CSV parsing
 
     // Parse CSV with quoted fields support
     const parseCSV = (line) => {
