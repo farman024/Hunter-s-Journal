@@ -1125,8 +1125,8 @@ canvas { width: 100% !important; }
           <button class="btn btn-outline btn-sm" onclick="exportCSV()">CSV</button>
           <label class="btn btn-outline btn-sm" style="cursor:pointer;" onclick="document.getElementById('csvImportInput').click()">Import CSV</label>
           <input type="file" id="csvImportInput" accept=".csv" style="display:none;" onchange="importCSV(this)">
-          <label class="btn btn-outline btn-sm" style="cursor:pointer;" onclick="document.getElementById('mt5ImportInput').click()">Import MT5 CSV</label>
-          <input type="file" id="mt5ImportInput" accept=".csv,.xlsx,.xls,.xml,.html" style="display:none;" onchange="importMT5CSV(this)">
+          <label class="btn btn-outline btn-sm" style="cursor:pointer;" onclick="document.getElementById('mt5ImportInput').click()">Import MT5 HTML</label>
+          <input type="file" id="mt5ImportInput" accept=".html" style="display:none;" onchange="importMT5HTML(this)">
         </div>
       </div>
       <div class="filter-bar" id="filterBar">
@@ -3582,51 +3582,21 @@ function parseMT5XMLRows(rows, acc) {
   showMT5ImportPreview(preview, acc);
 }
 
-function importMT5CSV(input) {
+function importMT5HTML(input) {
   const acc = getActiveAccount();
   if (!acc) { showToast('Select an account first', 'error'); return; }
   const file = input.files[0];
   if (!file) return;
 
-  const isXLSX = file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls');
-  
   const reader = new FileReader();
-  if (isXLSX) {
-    reader.readAsArrayBuffer(file);
-  } else {
-    reader.readAsText(file);
-  }
+  reader.readAsText(file);
   
   reader.onload = (e) => {
-    if (isXLSX) {
-      parseMT5XLSX(e.target.result, acc);
-      input.value = '';
-      return;
-    }
-    
     const text = e.target.result.trim();
-    
-    // Detect XML (MT5 Excel 2003/2007 format)
-    if (text.startsWith('<?xml') || text.startsWith('<Workbook') || text.startsWith('<worksheet')) {
-      parseMT5XML(text, acc);
-      input.value = '';
-      return;
-    }
-    
-    // Detect HTML (MT5 web report format)
-    if (text.startsWith('<!DOCTYPE') || text.startsWith('<html') || text.includes('<table')) {
-      parseMT5HTML(text, acc);
-      input.value = '';
-      return;
-    }
-    
-    // Existing CSV parsing
-    const lines = text.split('\n').filter(l => l.trim());
-    if (lines.length < 2) { showToast('CSV must have header + data rows', 'error'); return; }
-    // ... rest of CSV parsing
-
-    // Parse CSV with quoted fields support
-    const parseCSV = (line) => {
+    parseMT5HTML(text, acc);
+    input.value = '';
+  };
+}
       const result = [];
       let current = '';
       let inQuotes = false;
