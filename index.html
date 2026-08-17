@@ -1129,7 +1129,7 @@ canvas { width: 100% !important; }
         </div>
       </div>
       <div class="filter-bar" id="filterBar">
-        <input type="text" id="filterSearch" placeholder="Search field notes..." class="filter-input" oninput="renderTradeTable()">
+        <input type="text" id="filterSearch" placeholder="Search field notes..." class="filter-input" oninput="debouncedRenderTradeTable()">
         <select id="filterStrategy" class="filter-select" onchange="renderTradeTable()"><option value="">All Strategies</option></select>
         <input type="date" id="filterDateFrom" class="filter-input" onchange="renderTradeTable()" style="width:140px;">
         <span style="color:var(--text3);font-size:0.75rem;">to</span>
@@ -1768,6 +1768,12 @@ let journalView = 'cards';
 let calMonth = new Date();
 calMonth.setDate(1);
 
+// ─── PERFORMANCE TRACKING ──────────────────────────────────────────────────────
+let lastTradeCount = 0;
+let lastTradeHash = '';
+let deepAnalyticsCache = null;
+let renderScheduled = false;
+
 // ─── SUPABASE ─────────────────────────────────────────────────────────────────
 const SUPABASE_URL  = 'https://rlatlwyksxakqgwmarvf.supabase.co';
 const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJsYXRsd3lrc3hha3Fnd21hcnZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMDQyNDcsImV4cCI6MjA5MDU4MDI0N30.CbjYYe1Y9TIt6WEiAVfIBjxgf49fv5a8DpFu9L7Hz8o';
@@ -1801,6 +1807,55 @@ function setSyncStatus(status) {
 function save() {
   localStorage.setItem(LS_KEY, JSON.stringify(state));
   if (syncOnline && sb) syncToSupabase();
+  scheduleRender();
+}
+
+function getTradeHash(acc) {
+  if (!acc || !acc.trades) return '';
+  return acc.trades.length + '|' + acc.trades.map(t => t.id + ':' + t.net).join(',');
+}
+
+function scheduleRender() {
+  if (renderScheduled) return;
+  renderScheduled = true;
+  requestAnimationFrame(() => {
+    renderScheduled = false;
+    performRender();
+  });
+}
+
+function performRender() {
+  const acc = getActiveAccount();
+  const currentHash = getTradeHash(acc);
+  const tradesChanged = currentHash !== lastTradeHash;
+  
+  // Always render UI structure
+  renderAccounts();
+  if (state.activeAccount !== null && acc) {
+    renderRank(acc);
+    checkRankUp(acc);
+    renderStats(acc);
+    renderJournal(acc);
+    renderStreak(acc);
+    renderRules(acc);
+    renderChecklist('pre');
+    renderChecklist('post');
+    renderAccountOverview();
+    
+    // Only re-render heavy components when trades actually change
+    if (tradesChanged) {
+      lastTradeHash = currentHash;
+      lastTradeCount = acc.trades.length;
+      renderChart(acc);
+      renderDeepAnalytics(acc);
+      renderTradeTable();
+    } else {
+      // Just update trade table for filter changes
+      renderTradeTable();
+    }
+  } else {
+    clearUI();
+  }
 }
 
 async function syncToSupabase() {
@@ -1878,7 +1933,7 @@ async function load() {
   if (!state.hunterAvatar) state.hunterAvatar = '';
   document.documentElement.setAttribute('data-theme', state.theme);
   updateThemeBtn();
-  renderAll();
+  performRender();
   updateProfileUI();
 }
 
@@ -2107,7 +2162,6 @@ function saveAccountName(id) {
       btn.style.display = '';
       if (editIcon) editIcon.style.display = '';
       btn.textContent = name;
-      renderAll();
       showToast('Account renamed');
     }
   }
@@ -2131,7 +2185,8 @@ function switchAccount(id) {
   state.activeAccount = id;
   save();
   if (equityChartInstance) { equityChartInstance.destroy(); equityChartInstance = null; }
-  renderAll();
+  lastTradeHash = ''; // Force re-render on account switch
+  performRender();
 }
 
 function openAccountModal() {
@@ -2164,7 +2219,8 @@ function saveAccount() {
   save();
   closeModal('accountModal');
   showToast('Account created: ' + name);
-  renderAll();
+  lastTradeHash = '';
+  performRender();
 }
 
 // ─── SESSIONS ─────────────────────────────────────────────────────────────────
@@ -2187,7 +2243,6 @@ function saveSession() {
   save();
   closeModal('sessionModal');
   showToast('Session started: ' + date);
-  renderAll();
 }
 
 // ─── TRADES ───────────────────────────────────────────────────────────────────
@@ -2334,7 +2389,6 @@ function saveTrade() {
   recalcBalances(acc);
   save();
   closeModal('tradeModal');
-  renderAll();
 }
 
 // ─── AUTO CALCULATION ENGINE ──────────────────────────────────────────────────
@@ -2545,7 +2599,8 @@ function confirmDelete() {
   }
   save();
   closeModal('deleteModal');
-  renderAll();
+  lastTradeHash = '';
+  performRender();
 }
 
 // ─── RANK ─────────────────────────────────────────────────────────────────────
@@ -2953,12 +3008,25 @@ function calNav(dir) {
 function renderChart(acc) {
   const canvas = document.getElementById('equityChart');
   if (!canvas) return;
-  if (equityChartInstance) { equityChartInstance.destroy(); equityChartInstance = null; }
-
+  
   const sorted = [...acc.trades].sort((a,b) => a.timestamp - b.timestamp);
   const labels = ['Start', ...sorted.map((t,i) => `T${i+1}`)];
   const data = [acc.startBalance, ...sorted.map(t => t.runningBalance || acc.startBalance)];
   const isDark = state.theme === 'dark';
+  const pointColors = data.map((v,i) => i === 0 ? '#6c63ff' : v >= data[i-1] ? '#00e676' : '#ff4444');
+
+  if (equityChartInstance) {
+    // Update existing chart instead of destroying/recreating
+    equityChartInstance.data.labels = labels;
+    equityChartInstance.data.datasets[0].data = data;
+    equityChartInstance.data.datasets[0].pointBackgroundColor = pointColors;
+    equityChartInstance.options.scales.x.ticks.color = isDark ? '#5555aa' : '#8888cc';
+    equityChartInstance.options.scales.x.grid.color = isDark ? '#1a1a4a' : '#dcdcff';
+    equityChartInstance.options.scales.y.ticks.color = isDark ? '#5555aa' : '#8888cc';
+    equityChartInstance.options.scales.y.grid.color = isDark ? '#1a1a4a' : '#dcdcff';
+    equityChartInstance.update('none'); // No animation for performance
+    return;
+  }
 
   equityChartInstance = new Chart(canvas, {
     type: 'line',
@@ -2970,7 +3038,7 @@ function renderChart(acc) {
         backgroundColor: 'rgba(108,99,255,0.1)',
         borderWidth: 2,
         pointRadius: 3,
-        pointBackgroundColor: data.map((v,i) => i === 0 ? '#6c63ff' : v >= data[i-1] ? '#00e676' : '#ff4444'),
+        pointBackgroundColor: pointColors,
         fill: true,
         tension: 0.3
       }]
@@ -3054,6 +3122,12 @@ function renderDeepAnalytics(acc) {
   if (!acc.trades.length) { el.style.display = 'none'; return; }
   el.style.display = 'block';
 
+  const tradeHash = getTradeHash(acc);
+  if (deepAnalyticsCache && deepAnalyticsCache.hash === tradeHash) {
+    // Use cached DOM - just ensure it's visible
+    return;
+  }
+
   const trades = acc.trades;
   const sorted = [...trades].sort((a,b) => a.timestamp - b.timestamp);
 
@@ -3134,6 +3208,9 @@ function renderDeepAnalytics(acc) {
   monthTable.innerHTML = `<thead><tr><th>Month</th><th>Hunts</th><th>Clear Rate</th><th>XP</th></tr></thead><tbody>${Object.entries(byMonth).sort().map(([m, d]) =>
     `<tr><td>${m}</td><td>${d.trades}</td><td>${(d.wins / d.trades * 100).toFixed(0)}%</td><td style="color:${d.gross >= 0 ? 'var(--green)' : 'var(--red)'}">${d.gross >= 0 ? '+' : ''}$${d.gross.toFixed(2)}</td></tr>`
   ).join('')}</tbody>`;
+
+  // Cache the computed analytics
+  deepAnalyticsCache = { hash: tradeHash, timestamp: Date.now() };
 }
 
 // ─── FILTERS ─────────────────────────────────────────────────────────────────
@@ -3162,6 +3239,12 @@ function populateStrategyFilter() {
   const strategies = [...new Set(acc.trades.map(t => t.strategy).filter(Boolean))].sort();
   sel.innerHTML = '<option value="">All Strategies</option>' + strategies.map(s => `<option value="${s}">${s}</option>`).join('');
   sel.value = current;
+}
+
+let renderTradeDebounce = null;
+function debouncedRenderTradeTable() {
+  if (renderTradeDebounce) clearTimeout(renderTradeDebounce);
+  renderTradeDebounce = setTimeout(renderTradeTable, 150);
 }
 
 // ─── TRADE TABLE ─────────────────────────────────────────────────────────────
@@ -3197,22 +3280,40 @@ function renderTradeTable() {
   empty.style.display = 'none';
 
   const sorted = [...filtered].sort((a,b) => b.timestamp - a.timestamp);
+  
+  // Use documentFragment for batch DOM insertion
+  const fragment = document.createDocumentFragment();
+  const longSVG = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>';
+  const shortSVG = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+  const screenshotSVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+  
   sorted.forEach((t, i) => {
     const tr = document.createElement('tr');
+    const dirClass = t.dir === 'Long' ? 'dir-long' : 'dir-short';
+    const dirSVG = t.dir === 'Long' ? longSVG : shortSVG;
+    const rrColor = t.rr > 0 ? 'var(--green)' : t.rr < 0 ? 'var(--red)' : 'var(--text2)';
+    const rrVal = t.rr != null ? (t.rr > 0 ? '' : '') + t.rr.toFixed(2) : '—';
+    const pipsVal = t.pips ? t.pips + 'p' : '—';
+    const grossClass = t.gross >= 0 ? 'pnl-pos' : 'pnl-neg';
+    const grossVal = t.gross >= 0 ? '+' : '' + t.gross.toFixed(2);
+    const feeVal = t.fee.toFixed(2);
+    const netClass = t.net >= 0 ? 'pnl-pos' : 'pnl-neg';
+    const netVal = t.net >= 0 ? '+' : '' + t.net.toFixed(2);
+    const balanceVal = (t.runningBalance || acc.startBalance).toFixed(2);
+    const screenshotBtn = t.screenshot ? `<span style="cursor:pointer;color:var(--accent2);display:inline-flex;" onclick="openScreenshotViewer('${t.screenshot.replace(/'/g, "\\'")}')" title="View screenshot">${screenshotSVG}</span>` : '';
+    
     tr.innerHTML = `
       <td style="color:var(--text3);font-family:'Share Tech Mono',monospace;font-size:0.75rem;">#${sorted.length - i}</td>
       <td><span class="symbol-badge">${t.symbol}</span></td>
-      <td><span class="${t.dir === 'Long' ? 'dir-long' : 'dir-short'}" style="display:inline-flex;align-items:center;gap:3px;">${t.dir === 'Long' ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg> LONG' : '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg> SHORT'}</span></td>
+      <td><span class="${dirClass}" style="display:inline-flex;align-items:center;gap:3px;">${dirSVG} ${t.dir}</span></td>
       <td><span class="${t.outcome === 'TP' ? 'outcome-tp' : t.outcome === 'SL' ? 'outcome-sl' : ''}">${t.outcome}</span></td>
-      <td style="font-family:'Share Tech Mono',monospace;font-size:0.8rem;font-weight:700;color:${t.rr > 0 ? 'var(--green)' : t.rr < 0 ? 'var(--red)' : 'var(--text2)'};">${t.rr != null ? (t.rr > 0 ? '' : '') + t.rr.toFixed(2) : '—'}</td>
-      <td style="font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:var(--text2);">${t.pips ? t.pips + 'p' : '—'}</td>
-      <td class="${t.gross >= 0 ? 'pnl-pos' : 'pnl-neg'}">${t.gross >= 0 ? '+' : ''}$${t.gross.toFixed(2)}</td>
-      <td style="color:var(--text3);font-family:'Share Tech Mono',monospace;font-size:0.78rem;">-$${t.fee.toFixed(2)}</td>
-      <td class="${t.net >= 0 ? 'pnl-pos' : 'pnl-neg'}" style="font-weight:700;">${t.net >= 0 ? '+' : ''}$${t.net.toFixed(2)}</td>
-      <td style="font-family:'Share Tech Mono',monospace;font-size:0.78rem;color:var(--text2);">$${(t.runningBalance||acc.startBalance).toFixed(2)}</td>
-      <td style="text-align:center;">
-        ${t.screenshot ? `<span style="cursor:pointer;color:var(--accent2);display:inline-flex;" onclick="openScreenshotViewer('${t.screenshot.replace(/'/g, "\\'")}')" title="View screenshot"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>` : ''}
-      </td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:0.8rem;font-weight:700;color:${rrColor};">${rrVal}</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:var(--text2);">${pipsVal}</td>
+      <td class="${grossClass}">${grossVal}</td>
+      <td style="color:var(--text3);font-family:'Share Tech Mono',monospace;font-size:0.78rem;">-$${feeVal}</td>
+      <td class="${netClass}" style="font-weight:700;">${netVal}</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:0.78rem;color:var(--text2);">$${balanceVal}</td>
+      <td style="text-align:center;">${screenshotBtn}</td>
       <td>
         <div class="trade-actions">
           <button class="btn btn-outline btn-sm" onclick="openTradeModal(${t.id})">Edit</button>
@@ -3220,8 +3321,9 @@ function renderTradeTable() {
         </div>
       </td>
     `;
-    tbody.appendChild(tr);
+    fragment.appendChild(tr);
   });
+  tbody.appendChild(fragment);
 }
 
 // ─── CSV EXPORT ──────────────────────────────────────────────────────────────
@@ -3280,7 +3382,7 @@ function importCSV(input) {
       acc.trades.push(trade);
       imported++;
     }
-    save(); renderAll();
+    save();
     showToast(`Imported ${imported} trades`);
     input.value = '';
   };
@@ -3499,7 +3601,6 @@ function confirmMT5Import() {
 
   trades.forEach(t => acc.trades.push(t));
   save();
-  renderAll();
   closeModal();
   showToast(`Imported ${trades.length} trades from MT5`);
   delete window._mt5ImportTrades;
