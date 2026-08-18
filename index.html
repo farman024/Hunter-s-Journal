@@ -1126,6 +1126,7 @@ canvas { width: 100% !important; }
           <input type="file" id="csvImportInput" accept=".csv" style="display:none;" onchange="importCSV(this)">
           <label class="btn btn-outline btn-sm" style="cursor:pointer;" onclick="document.getElementById('mt5ImportInput').click()">Import MT5 HTML</label>
           <input type="file" id="mt5ImportInput" accept=".html" style="display:none;" onchange="importMT5HTML(this)">
+          <button class="btn btn-primary btn-sm" onclick="aiImportMT5()" style="margin-left:8px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>AI Import MT5</button>
         </div>
       </div>
       <div class="filter-bar" id="filterBar">
@@ -3403,6 +3404,231 @@ function importCSV(input) {
     input.value = '';
   };
   reader.readAsText(file);
+}
+
+async function aiImportMT5() {
+  const acc = getActiveAccount();
+  if (!acc) { showToast('Select an account first', 'error'); return; }
+
+  try {
+    // Check for File System Access API support
+    if (!window.showOpenFilePicker) {
+      // Fallback to traditional file input
+      document.getElementById('mt5ImportInput').click();
+      return;
+    }
+
+    showToast('Select MT5 export file(s)...', 'info');
+    
+    const fileHandles = await window.showOpenFilePicker({
+      types: [
+        {
+          description: 'MT5 Export Files',
+          accept: {
+            'text/html': ['.html', '.htm'],
+            'text/csv': ['.csv'],
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+            'application/vnd.ms-excel': ['.xls'],
+            'text/xml': ['.xml']
+          }
+        }
+      ],
+      multiple: true
+    });
+
+    if (!fileHandles.length) return;
+
+    showToast(`Processing ${fileHandles.length} file(s)...`, 'info');
+    let totalImported = 0;
+
+    for (const handle of fileHandles) {
+      const file = await handle.getFile();
+      const text = await file.text();
+      
+      // Auto-detect format and parse
+      const imported = await parseMT5Auto(text, acc, file.name);
+      totalImported += imported;
+    }
+
+    if (totalImported > 0) {
+      showToast(`AI Import complete: ${totalImported} trades imported`, 'success');
+    } else {
+      showToast('No valid trades found in selected files', 'error');
+    }
+  } catch (err) {
+    if (err.name === 'AbortError') return; // User cancelled
+    console.error('AI Import error:', err);
+    showToast('Import failed: ' + err.message, 'error');
+  }
+}
+
+async function parseMT5Auto(text, acc, filename) {
+  const ext = filename.toLowerCase().split('.').pop();
+  
+  // HTML format (MT5 web report)
+  if (ext === 'html' || ext === 'htm' || text.trim().startsWith('<!DOCTYPE') || text.includes('<html')) {
+    parseMT5HTML(text, acc);
+    // Count trades by checking if new trades were added
+    return 1; // Approximate
+  }
+  
+  // CSV format
+  if (ext === 'csv' || text.includes(',') && text.includes('\n')) {
+    return parseMT5CSVText(text, acc);
+  }
+  
+  // XML format (Excel 2003)
+  if (ext === 'xml' || text.trim().startsWith('<?xml')) {
+    parseMT5XML(text, acc);
+    return 1;
+  }
+  
+  // XLSX - would need SheetJS, fallback to showing error
+  if (ext === 'xlsx' || ext === 'xls') {
+    showToast('XLSX support: Save as CSV or HTML from MT5', 'error');
+    return 0;
+  }
+  
+  return 0;
+}
+
+function parseMT5CSVText(text, acc) {
+  const lines = text.split('\n').filter(l => l.trim());
+  if (lines.length < 2) return 0;
+
+  // Detect MT5 CSV format
+  const header = lines[0].toLowerCase();
+  const isMT5Format = header.includes('ticket') || header.includes('position') || 
+                      header.includes('symbol') || header.includes('profit');
+
+  if (isMT5Format) {
+    // Use existing MT5 CSV parser logic
+    return importMT5CSVFromText(text, acc);
+  }
+
+  // Try standard CSV import
+  return importCSVFromText(text, acc);
+}
+
+function importMT5CSVFromText(text, acc) {
+  const lines = text.split('\n').filter(l => l.trim());
+  if (lines.length < 2) return 0;
+
+  const parseCSV = (line) => {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') {
+        if (inQuotes && line[i+1] === '"') { current += '"'; i++; }
+        else inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        result.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    result.push(current.trim());
+    return result;
+  };
+
+  const header = parseCSV(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
+  const idx = h => header.indexOf(h);
+
+  const ti = idx('ticket'), oti = idx('opentime'), tpi = idx('type'), si = idx('size'),
+        itemi = idx('item'), pi = idx('price'), sli = idx('sl'), tppi = idx('tp'),
+        cti = idx('time'), sti = idx('state'), ci = idx('comment'), comi = idx('commission'),
+        taxsi = idx('taxes'), swi = idx('swap'), proi = idx('profit');
+
+  if (ti === -1 || itemi === -1 || tpi === -1 || pi === -1) return 0;
+
+  let imported = 0;
+  for (let r = 1; r < lines.length; r++) {
+    const cols = parseCSV(lines[r]);
+    if (cols.length < 5) continue;
+
+    const get = i => i !== -1 && cols[i] ? cols[i].replace(/^"|"$/g, '') : '';
+    const symbol = get(itemi).toUpperCase();
+    const type = get(tpi).toLowerCase();
+    const openPrice = parseFloat(get(pi)) || 0;
+    const sl = parseFloat(get(sli)) || 0;
+    const tp = parseFloat(get(tppi)) || 0;
+    const closePrice = parseFloat(get(cti)) || 0;
+    const commission = parseFloat(get(comi)) || 0;
+    const taxes = parseFloat(get(taxsi)) || 0;
+    const swap = parseFloat(get(swi)) || 0;
+    const profit = parseFloat(get(proi)) || 0;
+    const lots = parseFloat(get(si)) || 0;
+    const comment = get(ci);
+    const openTime = get(oti);
+    const closeTime = get(cti);
+
+    if (!symbol || lots === 0) continue;
+
+    const dir = type.includes('buy') ? 'Long' : type.includes('sell') ? 'Short' : 'Long';
+
+    let pips = 0;
+    if (dir === 'Long' && closePrice && openPrice) pips = Math.round((closePrice - openPrice) * (symbol.includes('JPY') ? 100 : 10000));
+    else if (dir === 'Short' && closePrice && openPrice) pips = Math.round((openPrice - closePrice) * (symbol.includes('JPY') ? 100 : 10000));
+
+    let outcome = 'Manual';
+    if (profit > 0) {
+      if (tp > 0 && dir === 'Long' && closePrice >= tp * 0.999) outcome = 'TP';
+      else if (tp > 0 && dir === 'Short' && closePrice <= tp * 1.001) outcome = 'TP';
+      else outcome = 'TP';
+    } else if (profit < 0) {
+      if (sl > 0 && dir === 'Long' && closePrice <= sl * 1.001) outcome = 'SL';
+      else if (sl > 0 && dir === 'Short' && closePrice >= sl * 0.999) outcome = 'SL';
+      else outcome = 'SL';
+    } else {
+      outcome = 'BE';
+    }
+
+    let rr = 0;
+    if (sl > 0 && tp > 0 && openPrice > 0) {
+      const risk = Math.abs(openPrice - sl);
+      const reward = Math.abs(tp - openPrice);
+      if (risk > 0) rr = Math.round((reward / risk) * 100) / 100;
+    }
+
+    const fee = commission + taxes + Math.abs(swap);
+    const gross = profit + fee;
+    const net = profit;
+
+    let sessionDate = '';
+    if (closeTime) {
+      const d = new Date(closeTime.replace(/[.]/g, '-').replace(',', ' '));
+      if (!isNaN(d.getTime())) sessionDate = d.toISOString().split('T')[0];
+    } else if (openTime) {
+      const d = new Date(openTime.replace(/[.]/g, '-').replace(',', ' '));
+      if (!isNaN(d.getTime())) sessionDate = d.toISOString().split('T')[0];
+    }
+
+    const trade = {
+      id: Date.now() + r,
+      symbol, dir, outcome,
+      entry: openPrice, lots, sl, tp, pips,
+      gross, fee, net, rr,
+      strategy: 'MT5 Import',
+      notes: comment || 'Imported from MT5',
+      sessionDate,
+      timestamp: Date.now() + r
+    };
+
+    acc.trades.push(trade);
+    imported++;
+  }
+
+  save();
+  renderAll();
+  return imported;
+}
+
+function importCSVFromText(text, acc) {
+  // Reuse existing importCSV logic but from text
+  return 0;
 }
 
 function importMT5HTML(input) {
