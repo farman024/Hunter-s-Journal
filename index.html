@@ -3426,7 +3426,7 @@ function parseMT5HTML(htmlText, acc) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlText, 'text/html');
     
-    // Find the Positions table - it has headers: Time, Position, Symbol, Type, Volume, Price, S/L, T/P, Time, Price, Commission, Swap, Profit
+    // Find the Positions table - look for table with headers: Time, Position, Symbol, Type, Volume, Price, S/L, T/P, Time, Price, Commission, Swap, Profit
     const tables = doc.querySelectorAll('table');
     let targetTable = null;
     
@@ -3439,8 +3439,23 @@ function parseMT5HTML(htmlText, acc) {
       }
     }
     
+    // Fallback: look for table containing "Positions" text in a header row
     if (!targetTable) {
-      // Fallback: find any table with enough columns
+      for (const table of tables) {
+        const rows = table.querySelectorAll('tr');
+        for (const row of rows) {
+          const text = row.textContent.toLowerCase();
+          if (text.includes('positions')) {
+            targetTable = table;
+            break;
+          }
+        }
+        if (targetTable) break;
+      }
+    }
+    
+    // Fallback: find any table with enough data columns
+    if (!targetTable) {
       for (const table of tables) {
         const rows = table.querySelectorAll('tr');
         if (rows.length > 2) {
@@ -3470,7 +3485,7 @@ function parseMT5HTML(htmlText, acc) {
     // MT5 HTML format uses fixed column indices:
     // Time(0), Position(1), Symbol(2), Type(3), Volume(4), Price(5), S/L(6), T/P(7), Time(8), Price(9), Commission(10), Swap(11), Profit(12)
     for (let i = 1; i < rows.length; i++) {
-      const cells = rows[i].querySelectorAll('td');
+      const cells = rows[i].querySelectorAll('td, th');
       if (cells.length < 10) continue;
       
       const getCell = (idx) => idx >= 0 && idx < cells.length ? cells[idx].textContent.trim() : '';
