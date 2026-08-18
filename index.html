@@ -3565,6 +3565,16 @@ async function parseMT5Auto(text, acc, filename, apiKey, aiProvider, customEndpo
     return 0;
   }
   
+  // TSV/Tab-delimited (MT5 export format) - try local parser first
+  if (ext === 'tsv' || ext === 'txt' || (ext === 'md' && text.includes('\t'))) {
+    const imported = parseMT5TSV(text, acc);
+    if (imported > 0) return imported;
+    // If TSV parsing failed, try AI
+    if (state.apiKey) {
+      return await aiParseMT5(text, acc, filename, state.apiKey, state.aiProvider, state.customEndpoint, state.aiDebug);
+    }
+  }
+  
   // XLSX - try AI if API key available
   if (ext === 'xlsx' || ext === 'xls') {
     if (state.apiKey) {
