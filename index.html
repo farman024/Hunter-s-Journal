@@ -3706,6 +3706,178 @@ function importMT5CSVFromText(text, acc) {
   return imported;
 }
 
+// ─── AI PARSER ─────────────────────────────────────────────────────────────────
+async function aiParseMT5(text, acc, filename, apiKey, aiProvider, customEndpoint, aiDebug) {
+  if (!apiKey) return 0;
+  
+  try {
+    showToast('AI parsing MT5 file...', 'info');
+    
+    const maxLen = 50000;
+    const promptText = text.length > maxLen ? text.substring(0, maxLen) + '\n... [truncated]' : text;
+    
+    const prompt = `Parse this MT5 trade export into JSON trades array. Return ONLY valid JSON array.
+
+File: ${filename}
+Content:
+${promptText}
+
+Return format (array of objects):
+[
+  {
+    "symbol": "XAUUSD",
+    "dir": "Long",
+    "outcome": "TP",
+    "entry": 2345.50,
+    "lots": 0.01,
+    "sl": 2340.00,
+    "tp": 2355.00,
+    "pips": 100,
+    "gross": 10.00,
+    "fee": 0.25,
+    "net": 9.75,
+    "rr": 2.0,
+    "strategy": "AI Import",
+    "notes": "Parsed by AI from MT5 export",
+    "sessionDate": "2026-08-18",
+    "timestamp": ${Date.now()}
+  }
+]
+
+Rules:
+- Only include CLOSED trades (skip pending orders)
+- Map direction: buy=Long, sell=Short
+- Map outcome: profit>0=TP, profit<0=SL, profit=0=BE
+- Calculate pips from entry/exit price
+- Calculate RR from SL/TP if available
+- Use sessionDate from close time or open time
+- Include ALL trades found`;
+
+    const endpoint = aiProvider === 'custom' && customEndpoint 
+      ? customEndpoint 
+      : getAIEndpoint(aiProvider);
+    
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    };
+
+    const body = {
+      model: getAIModel(aiProvider),
+      messages: [
+        { role: 'system', content: 'You are a precise MT5 trade data parser. Output ONLY valid JSON array, no explanations.' },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.1,
+      max_tokens: 4000
+    };
+
+    if (aiDebug) console.log('[AI Import] Request:', body);
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(`AI API error: ${response.status} ${err}`);
+    }
+
+    const data = await response.json();
+    const content = extractAIResponse(data, aiProvider);
+    
+    if (aiDebug) console.log('[AI Import] Response:', content);
+
+    let trades;
+    try {
+      trades = JSON.parse(content);
+    } catch (e) {
+      const match = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (match) {
+        trades = JSON.parse(match[1]);
+      } else {
+        throw e;
+      }
+    }
+
+    if (!Array.isArray(trades) || trades.length === 0) {
+      showToast('AI returned no valid trades', 'error');
+      return 0;
+    }
+
+    let imported = 0;
+    for (const t of trades) {
+      if (!t.symbol || !t.lots) continue;
+      
+      const trade = {
+        id: Date.now() + imported++,
+        symbol: t.symbol.toUpperCase(),
+        dir: t.dir || (t.type === 'buy' ? 'Long' : 'Short'),
+        outcome: t.outcome || 'Manual',
+        entry: parseFloat(t.entry) || 0,
+        lots: parseFloat(t.lots) || 0,
+        sl: parseFloat(t.sl) || 0,
+        tp: parseFloat(t.tp) || 0,
+        pips: parseFloat(t.pips) || 0,
+        gross: parseFloat(t.gross) || 0,
+        fee: parseFloat(t.fee) || 0,
+        net: parseFloat(t.net) || 0,
+        rr: parseFloat(t.rr) || 0,
+        strategy: 'AI Import',
+        notes: t.notes || 'Parsed by AI from MT5 export',
+        sessionDate: t.sessionDate || '',
+        timestamp: Date.now() + imported
+      };
+      
+      acc.trades.push(trade);
+    }
+
+    if (imported > 0) {
+      save();
+      renderAll();
+      showToast(`AI Imported ${imported} trades from ${filename}`, 'success');
+      return imported;
+    }
+
+    return 0;
+
+  } catch (e) {
+    console.error('[AI Parse] Error:', e);
+    showToast('AI Parse failed: ' + e.message, 'error');
+    return 0;
+  }
+}
+
+function getAIEndpoint(provider) {
+  switch (provider) {
+    case 'anthropic': return 'https://api.anthropic.com/v1/messages';
+    case 'google': return 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+    case 'custom': return state.customEndpoint;
+    default: return 'https://api.openai.com/v1/chat/completions';
+  }
+}
+
+function getAIModel(provider) {
+  switch (provider) {
+    case 'anthropic': return 'claude-3-haiku-20240307';
+    case 'google': return 'gemini-pro';
+    default: return 'gpt-3.5-turbo';
+  }
+}
+
+function extractAIResponse(data, provider) {
+  switch (provider) {
+    case 'anthropic':
+      return data.content?.[0]?.text || '';
+    case 'google':
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    default:
+      return data.choices?.[0]?.message?.content || '';
+  }
+}
+
 function importCSVFromText(text, acc) {
   // Reuse existing importCSV logic but from text
   return 0;
