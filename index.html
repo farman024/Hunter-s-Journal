@@ -3500,7 +3500,8 @@ async function aiImportMT5() {
             'text/csv': ['.csv'],
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
             'application/vnd.ms-excel': ['.xls'],
-            'text/xml': ['.xml']
+            'text/xml': ['.xml'],
+            'text/markdown': ['.md', '.markdown']
           }
         }
       ],
@@ -3553,6 +3554,15 @@ async function parseMT5Auto(text, acc, filename, apiKey, aiProvider, customEndpo
   if (ext === 'xml' || text.trim().startsWith('<?xml')) {
     parseMT5XML(text, acc);
     return 1;
+  }
+  
+  // Markdown - send directly to AI (structured text, AI reads well)
+  if (ext === 'md' || ext === 'markdown') {
+    if (state.apiKey) {
+      return await aiParseMT5(text, acc, filename, state.apiKey, state.aiProvider, state.customEndpoint, state.aiDebug);
+    }
+    showToast('Markdown: Configure API Key in Settings for AI parsing', 'error');
+    return 0;
   }
   
   // XLSX - try AI if API key available
