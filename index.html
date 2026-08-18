@@ -999,6 +999,9 @@ canvas { width: 100% !important; }
       <button onclick="openIDCard()" style="width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--card2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;" title="Hunter ID Card" onmouseover="this.style.borderColor='var(--accent)';this.style.boxShadow='var(--glow)'" onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text2);"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
       </button>
+      <button onclick="openSettingsModal()" style="width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--card2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;" title="Settings" onmouseover="this.style.borderColor='var(--accent)';this.style.boxShadow='var(--glow)'" onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text2);"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
       <button onclick="openProfileModal()" id="profileBtn" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border);background:var(--card2);cursor:pointer;overflow:hidden;padding:0;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s;flex-shrink:0;" title="Hunter Profile">
         <img id="profileAvatarThumb" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;border-radius:50%;">
         <svg id="profileAvatarIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -1344,6 +1347,58 @@ canvas { width: 100% !important; }
       <div class="form-actions">
         <button class="btn btn-outline" onclick="closeModal('profileModal')">Cancel</button>
         <button class="btn btn-primary" onclick="saveProfile()">Save Profile</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <span class="modal-title"><span class="icon" style="margin-right:6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>Settings</span>
+      <button class="modal-close" onclick="closeModal('settingsModal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="system-message">[ SYSTEM ] Configure AI Import & API Access</div>
+      
+      <div class="form-group">
+        <label>AI Import API Key</label>
+        <input type="password" id="apiKeyInput" placeholder="Enter your API key (OpenAI, Anthropic, etc.)" style="font-family: 'Share Tech Mono', monospace; font-size: 0.82rem;">
+        <p style="font-size:0.68rem;color:var(--text3);margin-top:4px;">Used for AI-powered MT5 file parsing. Stored locally in browser.</p>
+      </div>
+      
+      <div class="form-group">
+        <label>AI Provider</label>
+        <select id="aiProviderInput">
+          <option value="openai">OpenAI (GPT-4, GPT-3.5)</option>
+          <option value="anthropic">Anthropic (Claude)</option>
+          <option value="google">Google (Gemini)</option>
+          <option value="custom">Custom Endpoint</option>
+        </select>
+      </div>
+      
+      <div class="form-group" id="customEndpointGroup" style="display:none;">
+        <label>Custom API Endpoint</label>
+        <input type="text" id="customEndpointInput" placeholder="https://api.example.com/v1/chat/completions">
+      </div>
+      
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="aiAutoParseInput"> Enable AI auto-parse on import
+        </label>
+        <p style="font-size:0.68rem;color:var(--text3);margin-top:4px;">Automatically use AI to parse MT5 files when no standard parser matches.</        </p>
+      </div>
+      
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="aiDebugInput"> Debug mode (log AI requests)
+        </label>
+      </div>
+      
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="closeModal('settingsModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
       </div>
     </div>
   </div>
@@ -1932,6 +1987,7 @@ async function load() {
   if (!state.theme) state.theme = 'dark';
   if (!state.hunterName) state.hunterName = '';
   if (!state.hunterAvatar) state.hunterAvatar = '';
+  loadSettings();
   document.documentElement.setAttribute('data-theme', state.theme);
   updateThemeBtn();
   performRender();
@@ -3410,6 +3466,16 @@ async function aiImportMT5() {
   const acc = getActiveAccount();
   if (!acc) { showToast('Select an account first', 'error'); return; }
 
+  const apiKey = state.apiKey || '';
+  const aiProvider = state.aiProvider || 'openai';
+  const customEndpoint = state.customEndpoint || '';
+  const aiDebug = state.aiDebug || false;
+
+  if (!apiKey && !window.showOpenFilePicker) {
+    showToast('Configure API Key in Settings for AI Import', 'error');
+    return;
+  }
+
   try {
     // Check for File System Access API support
     if (!window.showOpenFilePicker) {
@@ -3446,7 +3512,7 @@ async function aiImportMT5() {
       const text = await file.text();
       
       // Auto-detect format and parse
-      const imported = await parseMT5Auto(text, acc, file.name);
+      const imported = await parseMT5Auto(text, acc, file.name, apiKey, aiProvider, customEndpoint, aiDebug);
       totalImported += imported;
     }
 
@@ -3462,19 +3528,20 @@ async function aiImportMT5() {
   }
 }
 
-async function parseMT5Auto(text, acc, filename) {
+async function parseMT5Auto(text, acc, filename, apiKey, aiProvider, customEndpoint, aiDebug) {
   const ext = filename.toLowerCase().split('.').pop();
   
   // HTML format (MT5 web report)
   if (ext === 'html' || ext === 'htm' || text.trim().startsWith('<!DOCTYPE') || text.includes('<html')) {
     parseMT5HTML(text, acc);
-    // Count trades by checking if new trades were added
     return 1; // Approximate
   }
   
   // CSV format
   if (ext === 'csv' || text.includes(',') && text.includes('\n')) {
-    return parseMT5CSVText(text, acc);
+    const imported = parseMT5CSVText(text, acc);
+    if (imported > 0) return imported;
+    // If CSV parsing failed, try AI
   }
   
   // XML format (Excel 2003)
@@ -3483,10 +3550,18 @@ async function parseMT5Auto(text, acc, filename) {
     return 1;
   }
   
-  // XLSX - would need SheetJS, fallback to showing error
+  // XLSX - try AI if API key available
   if (ext === 'xlsx' || ext === 'xls') {
-    showToast('XLSX support: Save as CSV or HTML from MT5', 'error');
+    if (state.apiKey) {
+      return await aiParseMT5(text, acc, filename, state.apiKey, state.aiProvider, state.customEndpoint, state.aiDebug);
+    }
+    showToast('XLSX: Configure API Key in Settings for AI parsing', 'error');
     return 0;
+  }
+  
+  // If all standard parsers failed, try AI as last resort
+  if (state.apiKey && state.aiAutoParse) {
+    return await aiParseMT5(text, acc, filename, state.apiKey, state.aiProvider, state.customEndpoint, state.aiDebug);
   }
   
   return 0;
@@ -4435,6 +4510,42 @@ function cancelHunterNameEdit() {
   document.getElementById('hunterNameEdit').style.display = 'none';
   const display = document.getElementById('hunterNameDisplay');
   if (state.hunterName) { display.style.display = 'block'; }
+}
+
+// ─── SETTINGS ─────────────────────────────────────────────────────────────────
+function openSettingsModal() {
+  document.getElementById('apiKeyInput').value = state.apiKey || '';
+  document.getElementById('aiProviderInput').value = state.aiProvider || 'openai';
+  document.getElementById('customEndpointInput').value = state.customEndpoint || '';
+  document.getElementById('aiAutoParseInput').checked = state.aiAutoParse !== false;
+  document.getElementById('aiDebugInput').checked = state.aiDebug === true;
+  toggleCustomEndpoint();
+  openModal('settingsModal');
+}
+
+function toggleCustomEndpoint() {
+  const provider = document.getElementById('aiProviderInput').value;
+  document.getElementById('customEndpointGroup').style.display = provider === 'custom' ? 'block' : 'none';
+}
+
+function saveSettings() {
+  state.apiKey = document.getElementById('apiKeyInput').value.trim();
+  state.aiProvider = document.getElementById('aiProviderInput').value;
+  state.customEndpoint = document.getElementById('customEndpointInput').value.trim();
+  state.aiAutoParse = document.getElementById('aiAutoParseInput').checked;
+  state.aiDebug = document.getElementById('aiDebugInput').checked;
+  save();
+  closeModal('settingsModal');
+  showToast('Settings saved');
+}
+
+// Load settings on init
+function loadSettings() {
+  if (state.apiKey === undefined) state.apiKey = '';
+  if (state.aiProvider === undefined) state.aiProvider = 'openai';
+  if (state.customEndpoint === undefined) state.customEndpoint = '';
+  if (state.aiAutoParse === undefined) state.aiAutoParse = true;
+  if (state.aiDebug === undefined) state.aiDebug = false;
 }
 
 // G��G��G�� HUNTER ID CARD G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��G��
