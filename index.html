@@ -3813,6 +3813,12 @@ Rules:
     }
 
     if (!Array.isArray(trades) || trades.length === 0) {
+      // Try local markdown table parsing as fallback
+      const localTrades = parseMarkdownTables(text, acc);
+      if (localTrades > 0) {
+        showToast(`Parsed ${localTrades} trades from markdown tables (AI failed)`, 'info');
+        return localTrades;
+      }
       showToast('AI returned no valid trades', 'error');
       return 0;
     }
@@ -3855,6 +3861,12 @@ Rules:
 
   } catch (e) {
     console.error('[AI Parse] Error:', e);
+    // Try local markdown parsing as fallback
+    const localTrades = parseMarkdownTables(text, acc);
+    if (localTrades > 0) {
+      showToast(`Parsed ${localTrades} trades from markdown tables (AI error: ${e.message})`, 'info');
+      return localTrades;
+    }
     showToast('AI Parse failed: ' + e.message, 'error');
     return 0;
   }
@@ -3868,6 +3880,101 @@ function getAIEndpoint(provider) {
     default: return 'https://api.openai.com/v1/chat/completions';
   }
 }
+
+// ─── MARKDOWN TABLE PARSER (fallback) ──────────────────────────────────────────
+function parseMarkdownTables(text, acc) {
+  try {
+    // Find markdown tables: | header | header | | --- | --- | | data | data |
+    const tableRegex = /\|(.+?)\|\n\|[\s\-\|:]+\|\n((?:\|.+?\|\n?)+)/g;
+    let totalImported = 0;
+    let match;
+    
+    while ((match = tableRegex.exec(text)) !== null) {
+      const headerRow = match[1].split('|').map(h => h.trim()).filter(h => h);
+      const dataRows = match[2].trim().split('\n');
+      
+      if (headerRow.length < 3) continue;
+      
+      // Map common column names
+      const colMap = {};
+      headerRow.forEach((h, i) => {
+        const key = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (key.includes('symbol') || key.includes('pair')) colMap.symbol = i;
+        else if (key.includes('dir') || key.includes('type') || key.includes('side')) colMap.dir = i;
+        else if (key.includes('outcome') || key.includes('result')) colMap.outcome = i;
+        else if (key.includes('entry') || key.includes('open') || key.includes('price')) colMap.entry = i;
+        else if (key.includes('lot') || key.includes('vol') || key.includes('size')) colMap.lots = i;
+        else if (key.includes('sl') || key.includes('stop') || key.includes('loss')) colMap.sl = i;
+        else if (key.includes('tp') || key.includes('take') || key.includes('profit') || key.includes('target')) colMap.tp = i;
+        else if (key.includes('pip') || key.includes('points')) colMap.pips = i;
+        else if (key.includes('gross') || key.includes('pnl') || key.includes('pl')) colMap.gross = i;
+        else if (key.includes('fee') || key.includes('comm') || key.includes('swap')) colMap.fee = i;
+        else if (key.includes('net') || key.includes('profit') || key.includes('pl')) colMap.net = i;
+        else if (key.includes('rr') || key.includes('r:r') || key.includes('ratio')) colMap.rr = i;
+        else if (key.includes('date') || key.includes('time') || key.includes('session')) colMap.sessionDate = i;
+      });
+      
+      let imported = 0;
+      for (const row of dataRows) {
+        const cells = row.split('|').map(c => c.trim()).filter(c => c);
+        if (cells.length < headerRow.length) continue;
+        
+        const symbol = cells[colMap.symbol]?.toUpperCase();
+        const dirRaw = cells[colMap.dir]?.toLowerCase();
+        const dir = dirRaw?.includes('buy') || dirRaw?.includes('long') ? 'Long' : 'Short';
+        const outcome = cells[colMap.outcome] || 'Manual';
+        const entry = parseFloat(cells[colMap.entry]) || 0;
+        const lots = parseFloat(cells[colMap.lots]) || 0;
+        const sl = parseFloat(cells[colMap.sl]) || 0;
+        const tp = parseFloat(cells[colMap.tp]) || 0;
+        const pips = parseFloat(cells[colMap.pips]) || 0;
+        const gross = parseFloat(cells[colMap.gross]) || 0;
+        const fee = parseFloat(cells[colMap.fee]) || 0;
+        const net = parseFloat(cells[colMap.net]) || (gross - fee);
+        const rr = parseFloat(cells[colMap.rr]) || 0;
+        const sessionDate = cells[colMap.sessionDate] || '';
+        
+        if (!symbol || lots === 0) continue;
+        
+        const trade = {
+          id: Date.now() + totalImported++,
+          symbol,
+          dir,
+          outcome,
+          entry,
+          lots,
+          sl,
+          tp,
+          pips: pips || 0,
+          gross: gross || 0,
+          fee: fee || 0,
+          net: net || 0,
+          rr: parseFloat(cells[colMap.rr]) || 0,
+          strategy: 'MD Import',
+          notes: 'Parsed from markdown table',
+          sessionDate,
+          timestamp: Date.now() + totalImported
+        };
+        
+        acc.trades.push(trade);
+        totalImported++;
+      }
+    }
+    
+    if (totalImported > 0) {
+      save();
+      renderAll();
+      return totalImported;
+    }
+    
+    return 0;
+  } catch (e) {
+    console.error('[Markdown Parse] Error:', e);
+    return 0;
+  }
+}
+
+function getAIEndpoint(provider) {
 
 function getAIModel(provider) {
   switch (provider) {
