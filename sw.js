@@ -1,5 +1,5 @@
-// Hunter's Journal — Service Worker v6 (relative paths, network-first navigations)
-const CACHE = 'hunters-journal-v6';
+// Hunter's Journal — Service Worker v7 (relative paths, network-first navigations)
+const CACHE = 'hunters-journal-v7';
 
 const PRECACHE = [
   './',
