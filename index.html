@@ -1829,6 +1829,46 @@ const LS_KEY        = 'hunterJournal_v2';
 let sb = null;
 let syncOnline = false;
 
+function isSyncSuppressed() {
+  return !!(window.__suppressSync || window.__HJ_TEST_MODE__);
+}
+
+function backupLocalState(label) {
+  try {
+    const prior = localStorage.getItem(LS_KEY);
+    if (!prior) return;
+    const wrap = { label: label || 'auto', savedAt: new Date().toISOString(), state: prior };
+    localStorage.setItem(LS_KEY + '_recovery', JSON.stringify(wrap));
+  } catch(e) { console.warn('[Backup] localStorage unavailable:', e.message); }
+}
+
+async function backupRemoteState() {
+  if (!syncOnline || !sb) return null;
+  try {
+    const { data, error } = await sb
+      .from('journal_sync')
+      .select('data, updated_at')
+      .eq('key', DB_KEY)
+      .single();
+    if (error && error.code !== 'PGRST116') { console.warn('[Backup] remote read failed:', error.message); return null; }
+    if (data && data.data) {
+      await sb.from('journal_sync').upsert({
+        key: DB_KEY + '_bak',
+        data: data.data,
+        updated_at: data.updated_at || new Date().toISOString()
+      }, { onConflict: 'key' });
+      try { return { state: JSON.parse(data.data), updated_at: data.updated_at }; }
+      catch(e) { return null; }
+    }
+    return null;
+  } catch(e) { console.warn('[Backup] remote snapshot failed:', e.message); return null; }
+}
+
+function totalTrades(st) {
+  if (!st || !Array.isArray(st.accounts)) return 0;
+  return st.accounts.reduce((s, a) => s + ((a && a.trades) ? a.trades.length : 0), 0);
+}
+
 function initSupabase() {
   try {
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -1852,7 +1892,7 @@ function setSyncStatus(status) {
 // G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜ SAVE G∩┐╜∩┐╜ localStorage immediately, Supabase async G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜
 function save() {
   try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e) { console.warn('[Save] localStorage unavailable:', e.message); }
-  if (syncOnline && sb) syncToSupabase();
+  if (syncOnline && sb && !isSyncSuppressed()) syncToSupabase();
   scheduleRender();
 }
 
@@ -1904,6 +1944,25 @@ function performRender() {
 }
 
 async function syncToSupabase() {
+  if (isSyncSuppressed()) { console.log('[Supabase] Sync suppressed (test/offline mode)'); return; }
+  const remote = await backupRemoteState();
+  if (remote && remote.state && !Array.isArray(remote.state.accounts)) {
+    console.warn('[Supabase] Remote backup has no accounts; treating as invalid, skipping safe comparison');
+  }
+  if (remote && remote.state && Array.isArray(remote.state.accounts)) {
+    const remoteTrades = totalTrades(remote.state);
+    const localTrades = totalTrades(state);
+    if (remoteTrades > 0 && localTrades === 0) {
+      console.warn('[Supabase] Refusing to overwrite remote data with empty local state.');
+      setSyncStatus('error');
+      return;
+    }
+    if (localTrades > 0 && remoteTrades > localTrades * 10) {
+      console.warn('[Supabase] Remote has far more data than local; refusing destructive overwrite.');
+      setSyncStatus('error');
+      return;
+    }
+  }
   setSyncStatus('syncing');
   try {
     const payload = {
@@ -1956,6 +2015,7 @@ async function load() {
         const remoteState = JSON.parse(data.data);
         // Use remote if it exists and is a valid shape (accounts array present)
         if (remoteState && typeof remoteState === 'object' && Array.isArray(remoteState.accounts)) {
+          backupLocalState('before-remote-load');
           state = remoteState;
           // Also update localStorage to stay in sync
           localStorage.setItem(LS_KEY, JSON.stringify(state));
