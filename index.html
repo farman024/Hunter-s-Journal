@@ -188,12 +188,12 @@ body::after {
   margin-bottom: 20px;
   flex-wrap: wrap;
 }
-.account-tab {
+.account-select {
   font-family: 'Rajdhani', sans-serif;
   font-size: 0.82rem;
   font-weight: 600;
   letter-spacing: 1px;
-  padding: 8px 16px;
+  padding: 8px 12px;
   border-radius: 6px;
   border: 1px solid var(--border);
   background: var(--card);
@@ -201,15 +201,26 @@ body::after {
   cursor: pointer;
   transition: all 0.2s;
   text-transform: uppercase;
-  position: relative;
+  min-width: 180px;
+  max-width: 280px;
 }
-.account-tab.active {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: rgba(108,99,255,0.1);
-  box-shadow: var(--glow);
+.account-select:focus { outline: none; border-color: var(--accent); box-shadow: var(--glow); }
+.btn-account-action {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text3);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.account-tab:hover:not(.active) { border-color: var(--border2); color: var(--text); }
+.btn-account-action:hover { border-color: var(--accent); color: var(--accent); box-shadow: var(--glow); }
 .add-account-btn {
   font-family: 'Rajdhani', sans-serif;
   font-size: 0.82rem;
@@ -821,9 +832,6 @@ canvas { width: 100% !important; }
   .analytics-table-wrap { max-height:200px; }
   #deepAnalytics .section-body > div[style*="grid-template-columns"] { grid-template-columns:1fr !important; }
   .checklist-list li { font-size:0.82rem; }
-  #accountOverview .section-body > div[style*="grid-template-columns"] { grid-template-columns:1fr 1fr !important; }
-  .ov-card { padding:10px; }
-  .ov-name { font-size:0.7rem; }
   .tab-btn { padding:8px 10px; font-size:0.72rem; }
   #journalViewCards,#journalViewTable,#journalViewCal { font-size:0.68rem; padding:4px 8px; }
   .day-chevron { display:none; }
@@ -949,15 +957,6 @@ canvas { width: 100% !important; }
 .card-footer { text-align:center;font-size:0.52rem;letter-spacing:2px;color:rgba(255,255,255,0.15);text-transform:uppercase;margin-top:14px; }
 .card-actions { display:flex;gap:8px;justify-content:center;margin-top:16px;position:relative;z-index:10; }
 .calendar-cell:hover { border-color:var(--accent2) !important; }
-.ov-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 14px; transition:all 0.2s; cursor:pointer; }
-.ov-card:hover { border-color:var(--accent); box-shadow:var(--glow); transform:translateY(-2px); }
-.ov-card.active { border-color:var(--accent); background:rgba(108,99,255,0.05); }
-.ov-name { font-family:'Cinzel',serif; font-size:0.78rem; font-weight:700; color:var(--text); letter-spacing:1px; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.ov-rank { font-family:'Cinzel',serif; font-size:1.3rem; font-weight:900; }
-.ov-stat { display:flex; justify-content:space-between; font-size:0.72rem; padding:3px 0; border-bottom:1px solid rgba(26,26,74,0.2); }
-.ov-stat:last-child { border-bottom:none; }
-.ov-stat-label { color:var(--text3); }
-.ov-stat-value { font-family:'Share Tech Mono',monospace; font-weight:700; }
 
 /* FILTER BAR */
 .filter-bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--bg2); }
@@ -1014,6 +1013,9 @@ canvas { width: 100% !important; }
 
   <!-- ACCOUNTS BAR -->
   <div class="accounts-bar" id="accountsBar">
+    <select id="accountSelect" class="account-select" onchange="onAccountSelect(this)" title="Select account"></select>
+    <button class="btn-account-action" id="renameAccountBtn" onclick="editAccountName()" title="Rename account" style="display:none;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+    <button class="btn-account-action" id="deleteAccountBtn" onclick="askDeleteAccount(state.activeAccount, getActiveAccount()?.name || '')" title="Delete account" style="display:none;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
     <button class="add-account-btn" onclick="openAccountModal()">+ Add Account</button>
   </div>
 
@@ -1060,17 +1062,6 @@ canvas { width: 100% !important; }
       <div class="progress-track">
         <div class="progress-fill" id="progressFill" style="width:0%"></div>
       </div>
-    </div>
-  </div>
-
-  <!-- ACCOUNT OVERVIEW -->
-  <div class="section-card" id="accountOverview" style="margin-bottom:20px;display:none;">
-    <div class="section-header" onclick="toggleOverview()" style="cursor:pointer;user-select:none;">
-      <span class="section-title"><span class="icon" style="margin-right:6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>Hunter Overview</span>
-      <span id="overviewChevron" style="color:var(--text3);transition:transform 0.2s;display:inline-block;line-height:1;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
-    </div>
-    <div class="section-body" id="overviewBody">
-      <div id="overviewGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;"></div>
     </div>
   </div>
 
@@ -1895,7 +1886,6 @@ function performRender() {
     renderRules(acc);
     renderChecklist('pre');
     renderChecklist('post');
-    renderAccountOverview();
     
     // Only re-render heavy components when trades actually change
     if (tradesChanged) {
@@ -2044,7 +2034,6 @@ function renderAll() {
       renderDeepAnalytics(acc);
       renderChecklist('pre');
       renderChecklist('post');
-      renderAccountOverview();
     }
   } else {
     clearUI();
@@ -2052,55 +2041,6 @@ function renderAll() {
 }
 
 // G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜ ACCOUNT OVERVIEW G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜
-let _overviewOpen = true;
-
-function toggleOverview() {
-  _overviewOpen = !_overviewOpen;
-  document.getElementById('overviewBody').style.display = _overviewOpen ? 'block' : 'none';
-  document.getElementById('overviewChevron').style.transform = _overviewOpen ? 'rotate(0deg)' : 'rotate(-90deg)';
-}
-
-function renderAccountOverview() {
-  const el = document.getElementById('accountOverview');
-  const grid = document.getElementById('overviewGrid');
-  if (state.accounts.length < 2) { el.style.display = 'none'; return; }
-  el.style.display = 'block';
-
-  const activeId = state.activeAccount;
-  const withStats = state.accounts.map(a => {
-    const totalPNL = a.trades.reduce((s,t) => s + t.net, 0);
-    const wins = a.trades.filter(t => t.net > 0).length;
-    const total = a.trades.length;
-    return { ...a, totalPNL, winRate: total ? (wins / total) * 100 : 0, tradesCount: total };
-  });
-
-  const best = withStats.reduce((a,b) => a.totalPNL > b.totalPNL ? a : b);
-  const worst = withStats.reduce((a,b) => a.totalPNL < b.totalPNL ? a : b);
-
-  const RANK_LABELS = ['E','D','C','B','A','S'];
-  const getRank = (pct) => pct >= 100 ? 'S' : pct >= 80 ? 'A' : pct >= 60 ? 'B' : pct >= 40 ? 'C' : pct >= 20 ? 'D' : 'E';
-
-  grid.innerHTML = withStats.map(a => {
-    const pct = a.target ? Math.min(100, (a.totalPNL / a.target) * 100) : 0;
-    const rank = getRank(pct);
-    const isActive = a.id === activeId;
-    const isBest = a.id === best.id;
-    const isWorst = a.id === worst.id && worst.id !== best.id;
-    return `<div class="ov-card${isActive ? ' active' : ''}" onclick="switchAccount(${a.id})" title="Click to switch">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <div class="ov-name">${a.name}</div>
-        <div class="ov-rank rank-${rank}">${rank}</div>
-      </div>
-      <div class="ov-stat"><span class="ov-stat-label">XP</span><span class="ov-stat-value" style="color:${a.totalPNL >= 0 ? 'var(--green)' : 'var(--red)'}">${a.totalPNL >= 0 ? '+' : ''}$${a.totalPNL.toFixed(2)}</span></div>
-      <div class="ov-stat"><span class="ov-stat-label">Balance</span><span class="ov-stat-value">$${(a.startBalance + a.totalPNL).toFixed(2)}</span></div>
-      <div class="ov-stat"><span class="ov-stat-label">Hunts</span><span class="ov-stat-value">${a.tradesCount}</span></div>
-      <div class="ov-stat"><span class="ov-stat-label">Clear Rate</span><span class="ov-stat-value">${a.winRate.toFixed(1)}%</span></div>
-      ${isBest ? '<div style="margin-top:6px;font-size:0.65rem;color:var(--green);text-align:center;display:flex;align-items:center;justify-content:center;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Strongest Hunter</div>' : ''}
-      ${isWorst ? '<div style="margin-top:6px;font-size:0.65rem;color:var(--red);text-align:center;display:flex;align-items:center;justify-content:center;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>Needs Training</div>' : ''}
-    </div>`;
-  }).join('');
-}
-
 function getActiveAccount() {
   return state.accounts.find(a => a.id === state.activeAccount) || null;
 }
@@ -2133,137 +2073,47 @@ function updateThemeBtn() {
 // G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜ ACCOUNTS G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜
 function renderAccounts() {
   const bar = document.getElementById('accountsBar');
-  bar.innerHTML = '';
+  const sel = document.getElementById('accountSelect');
+  if (!sel) return;
+  sel.innerHTML = '';
   state.accounts.forEach(acc => {
-    const wrap = document.createElement('div');
-    wrap.style.cssText = 'display:flex;align-items:center;gap:0;';
-
-    const btn = document.createElement('button');
-    btn.className = 'account-tab' + (acc.id === state.activeAccount ? ' active' : '');
-    btn.style.borderRadius = '6px 0 0 6px';
-    btn.textContent = acc.name;
-    btn.onclick = () => switchAccount(acc.id);
-
-    const del = document.createElement('button');
-    del.style.cssText = `
-      font-size:0.7rem; padding:0 8px; height:36px;
-      border-radius:0 6px 6px 0;
-      border:1px solid var(--border); border-left:none;
-      background:var(--card); color:var(--text3);
-      cursor:pointer; transition:all 0.2s;
-      display:flex; align-items:center; justify-content:center;
-    `;
-    del.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
-    del.title = 'Delete account';
-    del.onmouseover = () => { del.style.background = 'var(--red)'; del.style.color = '#fff'; del.style.borderColor = 'var(--red)'; };
-    del.onmouseout  = () => { del.style.background = 'var(--card)'; del.style.color = 'var(--text3)'; del.style.borderColor = 'var(--border)'; };
-    del.onclick = (e) => { e.stopPropagation(); askDeleteAccount(acc.id, acc.name); };
-
-    if (acc.id === state.activeAccount) {
-      del.style.borderColor = 'var(--accent)';
-    }
-
-    const editBtn = document.createElement('button');
-    editBtn.style.cssText = `
-      font-size:0.7rem; padding:0 6px; height:36px;
-      border:1px solid var(--border); border-left:none;
-      background:var(--card); color:var(--text3);
-      cursor:pointer; transition:all 0.2s;
-      display:flex; align-items:center; justify-content:center;
-    `;
-    editBtn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
-    editBtn.title = 'Rename account';
-    editBtn.onmouseover = () => { editBtn.style.background = 'var(--accent)'; editBtn.style.color = '#fff'; editBtn.style.borderColor = 'var(--accent)'; };
-    editBtn.onmouseout  = () => { editBtn.style.background = 'var(--card)'; editBtn.style.color = 'var(--text3)'; editBtn.style.borderColor = 'var(--border)'; };
-    editBtn.onclick = (e) => { e.stopPropagation(); editAccountName(acc.id); };
-
-    const editInput = document.createElement('input');
-    editInput.type = 'text';
-    editInput.maxLength = 30;
-    editInput.style.cssText = `
-      display:none; width:140px; height:36px; padding:0 10px;
-      background:var(--bg3); border:1px solid var(--accent); color:var(--text);
-      font-family:'Rajdhani',sans-serif; font-size:0.82rem; font-weight:600;
-      letter-spacing:1px; text-transform:uppercase;
-      border-radius:6px 0 0 6px; outline:none;
-    `;
-    editInput.dataset.accountId = acc.id;
-
-    if (acc.id === state.activeAccount) {
-      editBtn.style.borderColor = 'var(--accent)';
-    }
-
-    wrap.appendChild(btn);
-    wrap.appendChild(editBtn);
-    wrap.appendChild(editInput);
-    wrap.appendChild(del);
-    bar.appendChild(wrap);
+    const opt = document.createElement('option');
+    opt.value = acc.id;
+    opt.textContent = acc.name;
+    opt.selected = acc.id === state.activeAccount;
+    sel.appendChild(opt);
   });
-
-  const addBtn = document.createElement('button');
-  addBtn.className = 'add-account-btn';
-  addBtn.textContent = '+ Add Account';
-  addBtn.onclick = openAccountModal;
-  bar.appendChild(addBtn);
+  if (state.accounts.length === 0) {
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = 'No account selected';
+    sel.appendChild(opt);
+  }
+  const hasActive = state.accounts.some(a => a.id === state.activeAccount);
+  const renameBtn = document.getElementById('renameAccountBtn');
+  const delBtn = document.getElementById('deleteAccountBtn');
+  if (renameBtn) renameBtn.style.display = hasActive ? '' : 'none';
+  if (delBtn) delBtn.style.display = hasActive ? '' : 'none';
 }
 
-function editAccountName(id) {
-  const acc = state.accounts.find(a => a.id === id);
-  if (!acc) return;
-  const wraps = document.getElementById('accountsBar').children;
-  for (let w of wraps) {
-    const input = w.querySelector('input[data-account-id]');
-    const btn = w.querySelector('.account-tab');
-    const editIcon = w.querySelector('button:nth-child(2)');
-    if (input && parseInt(input.dataset.accountId) === id) {
-      btn.style.display = 'none';
-      if (editIcon) editIcon.style.display = 'none';
-      input.value = acc.name;
-      input.style.display = 'block';
-      input.focus();
-      input.select();
-      input.onkeydown = (e) => {
-        if (e.key === 'Enter') saveAccountName(id);
-        if (e.key === 'Escape') cancelAccountNameEdit(id);
-      };
-      input.onblur = () => saveAccountName(id);
-    }
+function onAccountSelect(sel) {
+  const id = parseInt(sel.value);
+  if (!isNaN(id) && state.accounts.some(a => a.id === id)) {
+    switchAccount(id);
   }
 }
 
-function saveAccountName(id) {
-  const wraps = document.getElementById('accountsBar').children;
-  for (let w of wraps) {
-    const input = w.querySelector('input[data-account-id]');
-    const btn = w.querySelector('.account-tab');
-    const editIcon = w.querySelector('button:nth-child(2)');
-    if (input && parseInt(input.dataset.accountId) === id) {
-      const name = input.value.trim();
-      if (!name) { showToast('Account name cannot be empty', 'error'); input.focus(); return; }
-      const acc = state.accounts.find(a => a.id === id);
-      if (acc) acc.name = name;
-      save();
-      input.style.display = 'none';
-      btn.style.display = '';
-      if (editIcon) editIcon.style.display = '';
-      btn.textContent = name;
-      showToast('Account renamed');
-    }
-  }
-}
-
-function cancelAccountNameEdit(id) {
-  const wraps = document.getElementById('accountsBar').children;
-  for (let w of wraps) {
-    const input = w.querySelector('input[data-account-id]');
-    const btn = w.querySelector('.account-tab');
-    const editIcon = w.querySelector('button:nth-child(2)');
-    if (input && parseInt(input.dataset.accountId) === id) {
-      input.style.display = 'none';
-      btn.style.display = '';
-      if (editIcon) editIcon.style.display = '';
-    }
-  }
+function editAccountName() {
+  const acc = getActiveAccount();
+  if (!acc) { showToast('Select an account first', 'error'); return; }
+  const name = prompt('Rename account:', acc.name);
+  if (name === null) return;
+  const trimmed = name.trim();
+  if (!trimmed) { showToast('Account name cannot be empty', 'error'); return; }
+  acc.name = trimmed;
+  save();
+  performRender();
+  showToast('Account renamed');
 }
 
 function switchAccount(id) {
@@ -4644,7 +4494,6 @@ function formatDateLong(dateStr) {
 }
 
 function clearUI() {
-  document.getElementById('accountOverview').style.display = 'none';
   document.getElementById('tradeTableBody').innerHTML = '';
   document.getElementById('tradeEmpty').style.display = 'block';
   document.getElementById('journalList').innerHTML = '<div class="empty-state"><div class="empty-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.4;color:var(--accent);"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><p>Select or create an account to begin.</p></div>';
