@@ -1349,44 +1349,8 @@ canvas { width: 100% !important; }
       <span class="modal-title"><span class="icon" style="margin-right:6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>Settings</span>
       <button class="modal-close" onclick="closeModal('settingsModal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
-    <div class="modal-body">
-      <div class="system-message">[ SYSTEM ] Configure AI Import & API Access</div>
-      
-      <div class="form-group">
-        <label>AI Import API Key</label>
-        <input type="password" id="apiKeyInput" placeholder="Enter your API key (OpenAI, Anthropic, etc.)" style="font-family: 'Share Tech Mono', monospace; font-size: 0.82rem;">
-        <p style="font-size:0.68rem;color:var(--text3);margin-top:4px;">Used for AI-powered MT5 file parsing. Stored locally in browser.</p>
-      </div>
-      
-      <div class="form-group">
-        <label>AI Provider</label>
-        <select id="aiProviderInput">
-          <option value="openai">OpenAI (GPT-4, GPT-3.5)</option>
-          <option value="anthropic">Anthropic (Claude)</option>
-          <option value="google">Google (Gemini)</option>
-          <option value="custom">Custom Endpoint</option>
-        </select>
-      </div>
-      
-      <div class="form-group" id="customEndpointGroup" style="display:none;">
-        <label>Custom API Endpoint</label>
-        <input type="text" id="customEndpointInput" placeholder="https://api.example.com/v1/chat/completions">
-      </div>
-      
-      <div class="form-group">
-        <label>
-          <input type="checkbox" id="aiAutoParseInput"> Enable AI auto-parse on import
-        </label>
-        <p style="font-size:0.68rem;color:var(--text3);margin-top:4px;">Automatically use AI to parse MT5 files when no standard parser matches.</        </p>
-      </div>
-      
-      <div class="form-group">
-        <label>
-          <input type="checkbox" id="aiDebugInput"> Debug mode (log AI requests)
-        </label>
-      </div>
-      
-      <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px;">
+<div class="modal-body">
+      <div style="border-top:1px solid var(--border);margin-top:0;padding-top:0;">
         <h4 style="font-family:'Cinzel',serif;font-size:0.85rem;color:var(--accent3);letter-spacing:1px;margin-bottom:12px;">EXPORT / IMPORT</h4>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
           <button class="btn btn-outline btn-sm" onclick="exportText()">Text</button>
@@ -1397,7 +1361,8 @@ canvas { width: 100% !important; }
         <div style="display:flex;flex-wrap:wrap;gap:8px;">
           <label class="btn btn-outline btn-sm" style="cursor:pointer;" onclick="document.getElementById('csvImportInput').click()">Import CSV</label>
           <input type="file" id="csvImportInput" accept=".csv" style="display:none;" onchange="importCSV(this)">
-          <button class="btn btn-primary btn-sm" onclick="aiImportMT5()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>AI Import MT5</button>
+          <button class="btn btn-primary btn-sm" onclick="importMT5()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>Import MT5</button>
+          <input type="file" id="mt5ImportInput" accept=".tsv,.txt,.csv,.html,.htm,.xml,.md,.markdown" style="display:none;" onchange="handleMT5File(this)">
         </div>
       </div>
       
@@ -1406,6 +1371,18 @@ canvas { width: 100% !important; }
         <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- MT5 Import Preview Modal -->
+<div class="modal-overlay" id="importPreviewModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">MT5 Import Preview</span>
+      <button class="modal-close" onclick="closeModal('importPreviewModal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
   </div>
 </div>
 
@@ -3513,19 +3490,9 @@ function importCSV(input) {
   reader.readAsText(file);
 }
 
-async function aiImportMT5() {
+async function importMT5() {
   const acc = getActiveAccount();
   if (!acc) { showToast('Select an account first', 'error'); return; }
-
-  const apiKey = state.apiKey || '';
-  const aiProvider = state.aiProvider || 'openai';
-  const customEndpoint = state.customEndpoint || '';
-  const aiDebug = state.aiDebug || false;
-
-  if (!apiKey && !window.showOpenFilePicker) {
-    showToast('Configure API Key in Settings for AI Import', 'error');
-    return;
-  }
 
   try {
     // Check for File System Access API support
@@ -3542,13 +3509,13 @@ async function aiImportMT5() {
         {
           description: 'MT5 Export Files',
           accept: {
-            'text/html': ['.html', '.htm'],
-            'text/csv': ['.csv'],
             'text/tab-separated-values': ['.tsv', '.txt'],
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-            'application/vnd.ms-excel': ['.xls'],
+            'text/csv': ['.csv'],
+            'text/html': ['.html', '.htm'],
             'text/xml': ['.xml'],
-            'text/markdown': ['.md', '.markdown']
+            'text/markdown': ['.md', '.markdown'],
+            'application/vnd.ms-excel': ['.xls'],
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']
           }
         }
       ],
@@ -3564,20 +3531,47 @@ async function aiImportMT5() {
       const file = await handle.getFile();
       const text = await file.text();
       
-      // Auto-detect format and parse
-      const imported = await parseMT5Auto(text, acc, file.name, apiKey, aiProvider, customEndpoint, aiDebug);
+      // Auto-detect format and parse locally (no AI)
+      const imported = await parseMT5Auto(text, acc, file.name);
       totalImported += imported;
     }
 
     if (totalImported > 0) {
-      showToast(`AI Import complete: ${totalImported} trades imported`, 'success');
-    } else {
+      showToast(`Import complete: ${totalImported} trades imported`, 'success');
+    } else if (!window._mt5ImportTrades) {
       showToast('No valid trades found in selected files', 'error');
     }
   } catch (err) {
     if (err.name === 'AbortError') return; // User cancelled
-    console.error('AI Import error:', err);
+    console.error('MT5 Import error:', err);
     showToast('Import failed: ' + err.message, 'error');
+  }
+}
+
+function handleMT5File(input) {
+  const files = Array.from(input.files || []);
+  if (!files.length) return;
+  input.value = '';
+  processMT5Files(files);
+}
+
+async function processMT5Files(files) {
+  const acc = getActiveAccount();
+  if (!acc) { showToast('Select an account first', 'error'); return; }
+
+  showToast(`Processing ${files.length} file(s)...`, 'info');
+  let totalImported = 0;
+
+  for (const file of files) {
+    const text = await file.text();
+    const imported = await parseMT5Auto(text, acc, file.name);
+    totalImported += imported;
+  }
+
+  if (totalImported > 0) {
+    showToast(`Import complete: ${totalImported} trades imported`, 'success');
+  } else if (!window._mt5ImportTrades) {
+    showToast('No valid trades found in selected files', 'error');
   }
 }
 
@@ -3587,7 +3581,7 @@ function firstLineHasTab(text) {
   return lines[0].includes('\t');
 }
 
-async function parseMT5Auto(text, acc, filename, apiKey, aiProvider, customEndpoint, aiDebug) {
+async function parseMT5Auto(text, acc, filename) {
   const ext = filename.toLowerCase().split('.').pop();
   
   // HTML format (MT5 web report)
@@ -3615,27 +3609,18 @@ async function parseMT5Auto(text, acc, filename, apiKey, aiProvider, customEndpo
     return 1;
   }
   
-  // Markdown - send directly to AI (structured text, AI reads well)
+  // Markdown tables - local parser
   if (ext === 'md' || ext === 'markdown') {
-    if (state.apiKey) {
-      return await aiParseMT5(text, acc, filename, state.apiKey, state.aiProvider, state.customEndpoint, state.aiDebug);
-    }
-    showToast('Markdown: Configure API Key in Settings for AI parsing', 'error');
+    const imported = parseMarkdownTables(text, acc);
+    if (imported > 0) return imported;
+    showToast('No valid trades found in Markdown file', 'error');
     return 0;
   }
   
-  // XLSX - try AI if API key available
+  // XLSX/XLS not supported locally (would require AI)
   if (ext === 'xlsx' || ext === 'xls') {
-    if (state.apiKey) {
-      return await aiParseMT5(text, acc, filename, state.apiKey, state.aiProvider, state.customEndpoint, state.aiDebug);
-    }
-    showToast('XLSX: Configure API Key in Settings for AI parsing', 'error');
+    showToast('Excel files: export as CSV/TSV from MT5 instead', 'error');
     return 0;
-  }
-  
-  // If all standard parsers failed, try AI as last resort
-  if (state.apiKey && state.aiAutoParse) {
-    return await aiParseMT5(text, acc, filename, state.apiKey, state.aiProvider, state.customEndpoint, state.aiDebug);
   }
   
   return 0;
@@ -3773,162 +3758,6 @@ function importMT5CSVFromText(text, acc) {
   save();
   renderAll();
   return imported;
-}
-
-// ΓöÇΓöÇΓöÇ AI PARSER ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
-async function aiParseMT5(text, acc, filename, apiKey, aiProvider, customEndpoint, aiDebug) {
-  if (!apiKey) return 0;
-  
-  try {
-    showToast('AI parsing MT5 file...', 'info');
-    
-    const maxLen = 50000;
-    const promptText = text.length > maxLen ? text.substring(0, maxLen) + '\n... [truncated]' : text;
-    
-    const prompt = `Parse this MT5 trade export into JSON trades array. Return ONLY valid JSON array.
-
-File: ${filename}
-Content:
-${promptText}
-
-Return format (array of objects):
-[
-  {
-    "symbol": "XAUUSD",
-    "dir": "Long",
-    "outcome": "TP",
-    "entry": 2345.50,
-    "lots": 0.01,
-    "sl": 2340.00,
-    "tp": 2355.00,
-    "pips": 100,
-    "gross": 10.00,
-    "fee": 0.25,
-    "net": 9.75,
-    "rr": 2.0,
-    "strategy": "AI Import",
-    "notes": "Parsed by AI from MT5 export",
-    "sessionDate": "2026-08-18",
-    "timestamp": ${Date.now()}
-  }
-]
-
-Rules:
-- Only include CLOSED trades (skip pending orders)
-- Map direction: buy=Long, sell=Short
-- Map outcome: profit>0=TP, profit<0=SL, profit=0=BE
-- Calculate pips from entry/exit price
-- Calculate RR from SL/TP if available
-- Use sessionDate from close time or open time
-- Include ALL trades found`;
-
-    const endpoint = aiProvider === 'custom' && customEndpoint 
-      ? customEndpoint 
-      : getAIEndpoint(aiProvider);
-    
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    };
-
-    const body = {
-      model: getAIModel(aiProvider),
-      messages: [
-        { role: 'system', content: 'You are a precise MT5 trade data parser. Output ONLY valid JSON array, no explanations.' },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.1,
-      max_tokens: 4000
-    };
-
-    if (aiDebug) console.log('[AI Import] Request:', body);
-
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify(body)
-    });
-
-    if (!response.ok) {
-      const err = await response.text();
-      throw new Error(`AI API error: ${response.status} ${err}`);
-    }
-
-    const data = await response.json();
-    const content = extractAIResponse(data, aiProvider);
-    
-    if (aiDebug) console.log('[AI Import] Response:', content);
-
-    let trades;
-    try {
-      trades = JSON.parse(content);
-    } catch (e) {
-      const match = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-      if (match) {
-        trades = JSON.parse(match[1]);
-      } else {
-        throw e;
-      }
-    }
-
-    if (!Array.isArray(trades) || trades.length === 0) {
-      // Try local markdown table parsing as fallback
-      const localTrades = parseMarkdownTables(text, acc);
-      if (localTrades > 0) {
-        showToast(`Parsed ${localTrades} trades from markdown tables (AI failed)`, 'info');
-        return localTrades;
-      }
-      showToast('AI returned no valid trades', 'error');
-      return 0;
-    }
-
-    let imported = 0;
-    for (const t of trades) {
-      if (!t.symbol || !t.lots) continue;
-      
-      const trade = {
-        id: Date.now() + imported++,
-        symbol: t.symbol.toUpperCase(),
-        dir: t.dir || (t.type === 'buy' ? 'Long' : 'Short'),
-        outcome: t.outcome || 'Manual',
-        entry: parseFloat(t.entry) || 0,
-        lots: parseFloat(t.lots) || 0,
-        sl: parseFloat(t.sl) || 0,
-        tp: parseFloat(t.tp) || 0,
-        pips: parseFloat(t.pips) || 0,
-        gross: parseFloat(t.gross) || 0,
-        fee: parseFloat(t.fee) || 0,
-        net: parseFloat(t.net) || 0,
-        rr: parseFloat(t.rr) || 0,
-        strategy: 'AI Import',
-        notes: t.notes || 'Parsed by AI from MT5 export',
-        sessionDate: t.sessionDate || '',
-        timestamp: Date.now() + imported
-      };
-      
-      acc.trades.push(trade);
-    }
-
-    if (imported > 0) {
-      save();
-      renderAll();
-      showToast(`AI Imported ${imported} trades from ${filename}`, 'success');
-      return imported;
-    }
-
-    return 0;
-
-  } catch (e) {
-    console.error('[AI Parse] Error:', e);
-    // Try local markdown parsing as fallback
-    const localTrades = parseMarkdownTables(text, acc);
-    if (localTrades > 0) {
-      showToast(`Parsed ${localTrades} trades from markdown tables (AI error: ${e.message})`, 'info');
-      return localTrades;
-    }
-    showToast('AI Parse failed: ' + e.message, 'error');
-    return 0;
-  }
 }
 
 
@@ -4084,15 +3913,6 @@ function parseTSV(text, acc) {
   }
 }
 
-function getAIEndpoint(provider) {
-  switch (provider) {
-    case 'anthropic': return 'https://api.anthropic.com/v1/messages';
-    case 'google': return 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
-    case 'custom': return state.customEndpoint;
-    default: return 'https://api.openai.com/v1/chat/completions';
-  }
-}
-
 // ΓöÇΓöÇΓöÇ MARKDOWN TABLE PARSER (fallback) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 function parseMarkdownTables(text, acc) {
   try {
@@ -4183,25 +4003,6 @@ function parseMarkdownTables(text, acc) {
   } catch (e) {
     console.error('[Markdown Parse] Error:', e);
     return 0;
-  }
-}
-
-function getAIModel(provider) {
-  switch (provider) {
-    case 'anthropic': return 'claude-3-haiku-20240307';
-    case 'google': return 'gemini-pro';
-    default: return 'gpt-3.5-turbo';
-  }
-}
-
-function extractAIResponse(data, provider) {
-  switch (provider) {
-    case 'anthropic':
-      return data.content?.[0]?.text || '';
-    case 'google':
-      return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    default:
-      return data.choices?.[0]?.message?.content || '';
   }
 }
 
@@ -4430,14 +4231,14 @@ function showMT5ImportPreview(trades, acc) {
   document.getElementById('modalBody').innerHTML = html;
   document.getElementById('modalTitle').textContent = 'MT5 Import Preview';
   document.getElementById('modalFooter').innerHTML = `
-    <button class="btn btn-danger" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-danger" onclick="closeModal('importPreviewModal')">Cancel</button>
     <button class="btn btn-primary" onclick="confirmMT5Import()">Import ${trades.length} Trades</button>
   `;
 
   // Store trades temporarily
   window._mt5ImportTrades = trades;
   window._mt5ImportAccount = acc;
-  openModal('tradeModal');
+  openModal('importPreviewModal');
 }
 
 function confirmMT5Import() {
@@ -4447,7 +4248,7 @@ function confirmMT5Import() {
 
   trades.forEach(t => acc.trades.push(t));
   save();
-  closeModal();
+  closeModal('importPreviewModal');
   showToast(`Imported ${trades.length} trades from MT5`);
   delete window._mt5ImportTrades;
   delete window._mt5ImportAccount;
@@ -5018,26 +4819,10 @@ function cancelHunterNameEdit() {
 
 // ΓöÇΓöÇΓöÇ SETTINGS ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 function openSettingsModal() {
-  document.getElementById('apiKeyInput').value = state.apiKey || '';
-  document.getElementById('aiProviderInput').value = state.aiProvider || 'openai';
-  document.getElementById('customEndpointInput').value = state.customEndpoint || '';
-  document.getElementById('aiAutoParseInput').checked = state.aiAutoParse !== false;
-  document.getElementById('aiDebugInput').checked = state.aiDebug === true;
-  toggleCustomEndpoint();
   openModal('settingsModal');
 }
 
-function toggleCustomEndpoint() {
-  const provider = document.getElementById('aiProviderInput').value;
-  document.getElementById('customEndpointGroup').style.display = provider === 'custom' ? 'block' : 'none';
-}
-
 function saveSettings() {
-  state.apiKey = document.getElementById('apiKeyInput').value.trim();
-  state.aiProvider = document.getElementById('aiProviderInput').value;
-  state.customEndpoint = document.getElementById('customEndpointInput').value.trim();
-  state.aiAutoParse = document.getElementById('aiAutoParseInput').checked;
-  state.aiDebug = document.getElementById('aiDebugInput').checked;
   save();
   closeModal('settingsModal');
   showToast('Settings saved');
@@ -5045,11 +4830,6 @@ function saveSettings() {
 
 // Load settings on init
 function loadSettings() {
-  if (state.apiKey === undefined) state.apiKey = '';
-  if (state.aiProvider === undefined) state.aiProvider = 'openai';
-  if (state.customEndpoint === undefined) state.customEndpoint = '';
-  if (state.aiAutoParse === undefined) state.aiAutoParse = true;
-  if (state.aiDebug === undefined) state.aiDebug = false;
 }
 
 // G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜ HUNTER ID CARD G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜
