@@ -1,159 +1,43 @@
-# ⚔️ Hunter's Trading Journal
+# Hunter's Trading Journal
 
-> *"Arise."* — From E-Rank to S-Rank. One trade at a time.
+A Solo Leveling-themed trading journal for recording trades, sessions, goals, and account progress. This owner-private release uses Google sign-in and authenticated, owner-scoped cloud sync; it is not the earlier phone/synthetic test build.
 
-<p align="center">
-  <img src="./logo.png" alt="Hunter's Journal" width="420">
-</p>
+## Release status
 
-A Solo Leveling-themed PWA trading journal built for disciplined prop firm traders. Log trades, track sessions, monitor your rank progression, import/export data, and sync across devices — all offline-first.
+Production application: `https://farman024.github.io/Hunter-s-Journal/index.html`. The coordinated owner-private backend migration preserves the original current and backup versions, including both trading profiles, under the verified legacy owner's Auth UUID. The original legacy records remain restricted and unchanged. This repository supplies the matching authenticated client; publication and device acceptance are verified separately.
 
----
+## Privacy and data behavior
 
-## Live
-
-**GitHub Pages:** `https://farman024.github.io/Hunter-s-Journal/`
-
----
+- Google sign-in is required before the journal UI is opened. A verified session and successful owner-scoped cloud read are required; the app does not show a new empty journal after a failed read.
+- Journal data is associated with the authenticated Supabase user UUID. Reads rely on row-level security; application writes use owner-only database functions. The browser uses the project's public **anon** key, never a service-role key. Server-side policies, functions, migration, and Auth configuration are separate release requirements and are not changed by this repository branch.
+- The reserved legacy owner UUID is configured for the separately controlled migration. Other authenticated accounts are intended to receive separate private journals; legacy records must not be claimed or exposed to them.
+- Saves preserve a separate rolling backup and detect revision conflicts instead of silently overwriting newer data. When sync fails, an unsynced recovery draft is kept in this tab's session storage and can be exported. Export before closing the tab after a failed save; unsynced recovery is not durable across tab closure.
+- Browser storage and Auth tokens are not end-to-end encrypted. Database administrators with privileged access can read stored journal data. Old unscoped browser keys are not imported, rendered, or uploaded by this app.
 
 ## Features
 
-### Multi-Account Support
-Add unlimited trading accounts — each fully isolated with its own balance, trades, sessions, equity curve, and rank progression. Switch between accounts instantly. **Account Overview** shows all accounts side-by-side with XP, balance, hunts, and clear rate — highlights your strongest hunter and who needs training.
+- Multiple in-app trading profiles, trade and session logging, filters, analytics, and rank progression.
+- JSON, CSV, text, and print/PDF export; CSV import.
+- Owner-private authenticated sync with separate current and backup records.
+- Installable PWA shell. The shell and allowlisted local assets are cached; Supabase/Auth, API, OAuth callback, and third-party CDN responses are not. Offline shell availability does not mean offline journal editing or fully offline third-party libraries.
+- Context-aware safe rendering for journal text and restricted raster image handling.
 
-### Rank System (E → S)
-Profit target progress maps to Solo Leveling hunter rank. Hit 15% and awaken to D-Rank. Cross 90% and become S-Rank. Animated rank-up notification with system popup.
+## Runtime files
 
-| Rank | Progress |
-|------|----------|
-| E | 0 – 15% |
-| D | 15 – 30% |
-| C | 30 – 50% |
-| B | 50 – 70% |
-| A | 70 – 90% |
-| S | 90 – 100% |
+`index.html` contains the original app UI. `config.js` holds the enabled production endpoint, redirect URL, public anon key, and reserved legacy owner UUID. `app-auth.js`, `private-sync.js`, and `render-safe.js` implement the authentication gate, owner-scoped sync controller, and safe display helpers. `sw.js` is the v9-private scoped-cache worker. The original manifest, icons, and other repository assets are preserved.
 
-### Trade Logging
-- 60+ symbols across Forex, Metals, Indices, Crypto, and Commodities
-- Direction, Outcome (TP / SL / BE / Manual), Pips, Gross P&L, Fee, Net P&L
-- Risk/Reward Ratio auto-calculated
-- Trade screenshots — upload from device, stored as base64, thumbnail in table, full-size lightbox viewer
-- Running balance auto-calculated
-- Edit/delete any entry
+## Release checks and remaining limits
 
-### Session Journal
-- Pre-session intent, post-session reflection
-- Emotion tagging (Calm / Focused / Disciplined / FOMO / Revenge)
-- Per-day journal cards (click-to-expand), table view (daily P&L), and calendar view (monthly grid with navigation)
+The source implements client-side protections, but this is not a complete security certification. Production access requires the coordinated server-side rollout and verification of RLS/RPC ownership, legacy migration, Google provider settings and the exact redirect allowlist. Installed-PWA upgrade, real OAuth callback, offline behavior, real legacy-payload compatibility, and actual device acceptance remain distinct checks. The worker cannot remotely erase caches on devices that never receive its update. Third-party scripts/fonts are not pinned or cached; dependency hardening is outside this reviewed change.
 
-### Hunt Log Filters & Search
-- Search field notes in real-time
-- Filter by strategy (auto-populated from your trades)
-- Date range filter (from/to)
-- Clear all filters with one click
+The dependency-free JavaScript test suite and database checks are retained in the private release workspace, not published as app assets. Runtime syntax checks:
 
-### Deep Analytics — Gate Analysis
-- **Mana Drain** (max drawdown %)
-- **Hunt Streak** / **Fallen Hunts** (max consecutive wins/losses)
-- **Shadow Ratio** (profit factor)
-- **XP by Gate** — P&L breakdown per symbol
-- **XP by Day** — best/worst trading day of the week
-- **Monthly Report** — P&L per month with clear rate
-
-### Pre-Hunt / Post-Hunt Discipline
-Custom checklist system. Add discipline items for pre-hunt ritual and post-hunt review. Check off items, track your discipline alongside your trades. Persisted per account.
-
-### Hunter ID Card
-Personalised hunter profile with avatar, hunter name, guild, rank badge, total XP, clear rate, and play style. Exportable as PNG.
-
-### Inventory System
-Collect and track items with rarity levels (Common → Legendary). Each item has stats (power, defense, speed, luck) and value.
-
-### Cross-Device Sync (Supabase)
-All data syncs to Supabase automatically. Save on one device, load on another. Sync indicator dot in the header shows status (syncing/synced/error/offline).
-
-### Export
-- **Text** — clean logbook with box-drawing format, rules compliance
-- **JSON** — full structured data with account summary, trades, sessions
-- **PDF** — print-ready dark-themed report with rank badge, equity progress, trade table, reflections
-- **CSV** — clean comma-separated format for Excel/Google Sheets
-
-### Import
-- **CSV Import** — upload a CSV file with headers (symbol, direction, outcome, entry, lots, sl, tp, pips, gross, fee, net, rr, strategy, notes, sessionDate). Column auto-mapping.
-
-### PWA — Install on Any Device
-- Android Chrome → install banner
-- iOS Safari → Share → Add to Home Screen
-- macOS/Windows Chrome → install icon in address bar
-- Full offline support via Service Worker
-
----
-
-## Tech Stack
-
-| Layer | Choice |
-|-------|--------|
-| Frontend | Vanilla HTML, CSS, JavaScript |
-| Storage | localStorage + Supabase sync |
-| Charts | Chart.js 4.4 (CDN) |
-| Icons | Inline SVG (Lucide-style, terminal theme) |
-| Fonts | Cinzel · Share Tech Mono · Rajdhani |
-| PWA | Service Worker + Web App Manifest |
-| Deploy | GitHub Pages / Netlify |
-
-Zero build step. Single HTML file + support files.
-
----
-
-## File Structure
-
-```
-hunters-journal/
-├── index.html       ← Full app (single HTML + CSS + JS)
-├── sw.js            ← Service Worker (offline cache)
-├── manifest.json    ← PWA manifest
-├── logo.png         ← Brand logo (1254x1254)
-├── icon-192.png     ← App icon (Igris Spartan helmet)
-├── icon-512.png     ← App icon large
-└── README.md        ← This file
+```sh
+node --check app-auth.js
+node --check private-sync.js
+node --check render-safe.js
+node --check sw.js
+node --check config.js
 ```
 
----
-
-## Deploy
-
-**GitHub Pages**
-1. Push all files to your repo root
-2. Settings → Pages → main branch / root
-3. Done — install prompt appears on visit
-
-**Netlify**
-1. Drag the folder into netlify.com/drop
-2. Live in seconds
-
----
-
-## Data & Privacy
-
-Primary storage is **localStorage** — nothing leaves your device unless you enable Supabase sync (optional, configured via keys in the source). No analytics, no tracking.
-
----
-
-## Roadmap
-
-- [ ] AI Trade Analyst (Claude API backend proxy)
-- [ ] ForgeTrader integration
-- [ ] Screenshot-to-trade OCR logging
-- [ ] Strategy performance comparison (which strategy earns most XP)
-
----
-
-## Built By
-
-**Farman J · AI Generalist**
-
-GitHub: farman024
-
----
-
-*Once a Hunter, Always a Hunter.*
+Never place a service-role key in browser code.
