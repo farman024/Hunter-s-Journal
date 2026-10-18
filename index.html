@@ -17,8 +17,8 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="./ui-assets/fonts.css" rel="stylesheet">
+<script src="./vendor/supabase-js.umd.js"></script>
 <style>
 :root {
   --bg: #04040f;
@@ -1056,6 +1056,14 @@ canvas { width: 100% !important; }
 @media(prefers-reduced-motion:reduce) { #privateGate *,#privateGate *::before,#privateGate *::after { animation:none!important; transition:none!important; } }
 
 </style>
+<style>
+#privateGate #offlineShellNotice { background:#b7a6ff0e; border:1px solid #8b77c75c; border-radius:12px; padding:14px 16px; margin:0 0 18px; }
+#privateGate #offlineShellNotice strong { color:#c8baff; font-size:15px; }
+#privateGate #offlineShellNotice p { margin:5px 0 7px; color:#eeeafa; font-size:16px; line-height:1.35; }
+#privateGate #offlineShellNotice small { display:block; color:#aaa4bf; font-size:12px; line-height:1.35; }
+#privateGate #offlineShellNotice button { margin-top:12px; border:1px solid #8b77c75c; border-radius:7px; background:#8b77c71c; color:#eeeafa; padding:8px 13px; font:600 14px 'HJ Login Rajdhani',sans-serif; cursor:pointer; }
+#privateGate #googleSignIn:disabled { opacity:.45; cursor:not-allowed; }
+</style>
 </head>
 <body>
 <section id="privateGate" aria-labelledby="loginTitle">
@@ -1075,6 +1083,12 @@ canvas { width: 100% !important; }
     <p class="auth-card-label">Your journey continues</p>
     <h2 id="loginTitle">Welcome back,<br>Hunter.</h2>
     <p class="auth-card-intro">A clear mind. A sharper edge.<br>Sign in to your private journal.</p>
+    <section id="offlineShellNotice" hidden role="status" aria-live="polite">
+      <strong>Offline mode</strong>
+      <p id="offlineShellMessage">You’re offline. Connect to open your private journal.</p>
+      <small>Only this app shell is available offline. Your private journal stays locked.</small>
+      <button type="button" onclick="retryPrivateShell()">Retry connection</button>
+    </section>
     <button id="googleSignIn" onclick="signInPrivateJournal()" type="button" aria-describedby="authPrivacy privateStatus">
       <span class="auth-google-mark" aria-hidden="true"><img src="./login-assets/google-icon.svg" alt="" width="40" height="40"></span>
       <span>Continue with Google</span>
@@ -1878,8 +1892,9 @@ canvas { width: 100% !important; }
 <script src="./config.js"></script>
 <script src="./private-sync.js"></script>
 <script src="./app-auth.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="./offline-shell.js"></script>
+<script src="./vendor/chart.umd.min.js"></script>
+<script src="./vendor/html2canvas.min.js"></script>
 <script>
 // G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜ STATE G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜
 let state = {
@@ -4350,7 +4365,7 @@ function exportPDF() {
 <meta charset="UTF-8">
 <title>Hunter's Journal - ${HJRender.text(acc.name)}</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
+  @import url('${new URL('./ui-assets/fonts.css', location.href).href}');
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'Rajdhani',sans-serif; background:#04040f; color:#e8e8ff; padding:32px; font-size:13px; }
   .cover { text-align:center; padding:40px 0 32px; border-bottom:1px solid #1a1a4a; margin-bottom:32px; }
@@ -4487,7 +4502,7 @@ document.getElementById('themeBtn').addEventListener('click', toggleTheme);
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     // Use relative path G∩┐╜∩┐╜ works for root domain AND subdirectory repos
-    navigator.serviceWorker.register('./sw.js?v=9-private', { updateViaCache: 'none' })
+    navigator.serviceWorker.register('./sw.js?v=10-offline-shell-review', { updateViaCache: 'none' })
       .then(reg => console.log('[SW] Registered:', reg.scope))
       .catch(err => console.warn('[SW] Registration failed:', err));
   });
