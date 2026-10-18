@@ -1,0 +1,42 @@
+@font-face {
+  font-family: 'HJ Login Cinzel';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(./brand-font-0.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'HJ Login Cinzel';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(./brand-font-1.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'HJ Login Rajdhani';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(./brand-font-2.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'HJ Login Rajdhani';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(./brand-font-3.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'HJ Login Rajdhani';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(./brand-font-4.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'HJ Login Rajdhani';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(./brand-font-5.ttf) format('truetype');
+}
