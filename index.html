@@ -1064,6 +1064,45 @@ canvas { width: 100% !important; }
 #privateGate #offlineShellNotice button { margin-top:12px; border:1px solid #8b77c75c; border-radius:7px; background:#8b77c71c; color:#eeeafa; padding:8px 13px; font:600 14px 'HJ Login Rajdhani',sans-serif; cursor:pointer; }
 #privateGate #googleSignIn:disabled { opacity:.45; cursor:not-allowed; }
 </style>
+
+<style id="mobile-ui-styles">
+@media(max-width:600px) {
+  #journalApp .header { padding:0 12px; }
+  #journalApp .header-inner { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) 44px 44px 44px; gap:8px; align-items:center; height:auto; padding:8px 0; }
+  #journalApp .header-inner>.logo { grid-column:1/4; grid-row:1; min-width:0; font-size:.78rem; letter-spacing:.5px; white-space:nowrap; }
+  #journalApp .header-inner>.logo span { display:inline; }
+  #journalApp .header-inner>.logo>.icon { display:inline-flex; }
+  #journalApp .header-controls { display:contents; }
+  #journalApp #syncDot { grid-column:4; grid-row:1; justify-self:center; width:44px!important; height:44px!important; padding:17px!important; background-clip:content-box!important; border:1px solid var(--border)!important; border-radius:50%!important; }
+  #journalApp #profileBtn { grid-column:5; grid-row:1; }
+  #journalApp #themeBtn { grid-column:3; grid-row:2; width:44px; height:44px; }
+  #journalApp #headerIDBtn { grid-column:4; grid-row:2; }
+  #journalApp #headerSettingsBtn { grid-column:5; grid-row:2; }
+  #journalApp #headerIDBtn, #journalApp #headerSettingsBtn, #journalApp #profileBtn { width:44px!important; height:44px!important; min-width:44px; min-height:44px; }
+  #journalApp .header-controls>.btn-primary { grid-column:1; grid-row:2; }
+  #journalApp .header-controls>.btn-outline { grid-column:2; grid-row:2; }
+  #journalApp .header-controls>.btn { min-height:44px; padding:6px 4px; font-size:.72rem; letter-spacing:.5px; display:flex!important; align-items:center; justify-content:center; }
+  #journalApp .accounts-bar { display:grid; grid-template-columns:minmax(44px,1fr) minmax(44px,1fr) minmax(92px,auto); gap:8px; width:100%; align-items:stretch; }
+  #journalApp .accounts-bar .account-select { grid-column:1/-1; width:100%; min-width:0; max-width:none; min-height:44px; font-size:.86rem; }
+  #journalApp .accounts-bar .btn-account-action, #journalApp .accounts-bar .add-account-btn { min-height:44px; padding:8px; justify-self:stretch; }
+  #journalApp .accounts-bar .btn-account-action { gap:6px; }
+  #journalApp .accounts-bar .btn-account-action svg { width:14px; height:14px; }
+  #journalApp #renameAccountBtn::after { content:'Rename'; font-size:.76rem; }
+  #journalApp #deleteAccountBtn::after { content:'Delete'; font-size:.76rem; }
+  #journalApp .accounts-bar .add-account-btn { white-space:nowrap; font-size:.76rem; }
+  #journalApp .tab-nav { overflow-x:auto; max-width:100%; }
+  #journalApp .tab-btn { flex:1 0 auto; padding:10px; min-height:44px; letter-spacing:1px; }
+  #journalApp .account-actions-sheet { position:fixed; inset:auto 0 0; box-sizing:border-box; margin:0; width:100%; max-width:none; max-height:85vh; max-height:85dvh; overflow:auto; padding:20px 16px max(20px,env(safe-area-inset-bottom)); border:1px solid var(--border2); border-bottom:0; border-radius:18px 18px 0 0; background:var(--bg2); color:var(--text); box-shadow:0 -12px 40px rgba(0,0,0,.45); }
+  #journalApp .account-actions-sheet::backdrop { background:rgba(0,0,0,.62); backdrop-filter:blur(3px); }
+  #journalApp .account-actions-sheet__heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+  #journalApp .account-actions-sheet__heading h2 { font-family:'Cinzel',serif; font-size:1rem; }
+  #journalApp .account-actions-sheet__close { width:44px; height:44px; border:1px solid var(--border); border-radius:8px; background:var(--card); color:var(--text); font-size:1.5rem; cursor:pointer; }
+  #journalApp .account-actions-sheet__edit { width:100%; min-height:44px; margin-bottom:10px; }
+  #journalApp #privateAccountActions { display:grid!important; grid-template-columns:minmax(0,1fr); gap:8px!important; width:100%; padding:0!important; }
+  #journalApp #privateAccountActions>#signedInEmail { min-width:0; overflow-wrap:anywhere; font-size:.9rem; padding:8px 0; }
+  #journalApp #privateAccountActions>button { min-height:44px; padding:10px 12px; text-align:left; }
+}
+</style>
 </head>
 <body>
 <section id="privateGate" aria-labelledby="loginTitle">
@@ -1108,29 +1147,34 @@ canvas { width: 100% !important; }
   <footer class="auth-footer"><strong>Built for focus. Kept personal.</strong><span>Account-restricted storage. Not end-to-end encrypted.</span></footer>
 </section>
 <div id="journalApp" hidden inert>
-<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 20px">
+<div id="privateAccountActions" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 20px">
   <span id="signedInEmail"></span>
   <button class="btn btn-outline btn-sm" onclick="restorePrivateBackup()">Restore private backup</button>
   <button class="btn btn-outline btn-sm" onclick="exportPrivateDraft()">Export unsynced draft</button>
   <button class="btn btn-outline btn-sm" onclick="signOutPrivateJournal()">Sign out</button>
 </div>
+<dialog id="accountActionsSheet" class="account-actions-sheet" aria-labelledby="accountActionsTitle">
+  <div class="account-actions-sheet__heading"><h2 id="accountActionsTitle">Account actions</h2><button type="button" class="account-actions-sheet__close" aria-label="Close account actions" data-close-account-sheet>×</button></div>
+  <button type="button" class="btn btn-outline account-actions-sheet__edit" id="editHunterProfileAction" onclick="openProfileModal()">Edit hunter profile</button>
+  <div id="accountActionsSheetSlot"></div>
+</dialog>
 
 <!-- HEADER -->
 <header class="header">
   <div class="header-inner">
     <div class="logo"><span class="icon" style="margin-right:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6-6"/><path d="m2 22 6-6"/><path d="M17.5 14.5 19 13l2 2-1.5 1.5"/></svg></span>HUNTER'S <span>JOURNAL</span></div>
     <div class="header-controls">
-      <div id="syncDot" title="Offline" style="width:8px;height:8px;border-radius:50%;background:#5555aa;flex-shrink:0;transition:background 0.4s;cursor:pointer;" onclick="forcSync()" ></div>
+      <div id="syncDot" role="button" tabindex="0" aria-label="Sync journal" title="Offline" style="width:8px;height:8px;border-radius:50%;background:#5555aa;flex-shrink:0;transition:background 0.4s;cursor:pointer;" onclick="forcSync()" ></div>
       <button class="theme-btn" id="themeBtn" title="Switch to light mode" aria-label="Switch to light mode"></button>
       <button class="btn btn-primary" onclick="openTradeModal()">+ Trade</button>
       <button class="btn btn-outline btn-sm mobile-hide" onclick="openSessionModal()">+ Session</button>
-      <button onclick="openIDCard()" style="width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--card2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;" title="Hunter ID Card" onmouseover="this.style.borderColor='var(--accent)';this.style.boxShadow='var(--glow)'" onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+      <button id="headerIDBtn" aria-label="Hunter ID Card" onclick="openIDCard()" style="width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--card2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;" title="Hunter ID Card" onmouseover="this.style.borderColor='var(--accent)';this.style.boxShadow='var(--glow)'" onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text2);"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
       </button>
-      <button onclick="openSettingsModal()" style="width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--card2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;" title="Settings" onmouseover="this.style.borderColor='var(--accent)';this.style.boxShadow='var(--glow)'" onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+      <button id="headerSettingsBtn" aria-label="Settings" onclick="openSettingsModal()" style="width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--card2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;" title="Settings" onmouseover="this.style.borderColor='var(--accent)';this.style.boxShadow='var(--glow)'" onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text2);"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
-      <button onclick="openProfileModal()" id="profileBtn" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border);background:var(--card2);cursor:pointer;overflow:hidden;padding:0;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s;flex-shrink:0;" title="Hunter Profile">
+      <button onclick="openProfileModal()" id="profileBtn" aria-label="Hunter profile and account actions" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border);background:var(--card2);cursor:pointer;overflow:hidden;padding:0;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s;flex-shrink:0;" title="Hunter Profile">
         <img id="profileAvatarThumb" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;border-radius:50%;">
         <svg id="profileAvatarIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </button>
@@ -1143,8 +1187,8 @@ canvas { width: 100% !important; }
   <!-- ACCOUNTS BAR -->
   <div class="accounts-bar" id="accountsBar">
     <select id="accountSelect" class="account-select" onchange="onAccountSelect(this)" title="Select account"></select>
-    <button class="btn-account-action" id="renameAccountBtn" onclick="editAccountName()" title="Rename account" style="display:none;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-    <button class="btn-account-action" id="deleteAccountBtn" onclick="askDeleteAccount(state.activeAccount, getActiveAccount()?.name || '')" title="Delete account" style="display:none;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
+    <button class="btn-account-action" id="renameAccountBtn" onclick="editAccountName()" title="Rename account" aria-label="Rename account" style="display:none;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+    <button class="btn-account-action" id="deleteAccountBtn" onclick="askDeleteAccount(state.activeAccount, getActiveAccount()?.name || '')" title="Delete account" aria-label="Delete account" style="display:none;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
     <button class="add-account-btn" onclick="openAccountModal()">+ Add Account</button>
   </div>
 
@@ -4838,6 +4882,10 @@ function renderInventory(acc) {
 
 // G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜ BOOT G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜G∩┐╜∩┐╜
 load();
+</script>
+
+<script id="mobile-ui-presentation">
+(()=>{const j=document.getElementById('journalApp'),b=document.getElementById('privateAccountActions'),d=document.getElementById('accountActionsSheet'),slot=document.getElementById('accountActionsSheetSlot'),p=document.getElementById('profileBtn'),sync=document.getElementById('syncDot'),m=matchMedia('(max-width:600px)');if(!j||!b||!d||!slot||!p||!sync||typeof d.showModal!=='function')return;const parent=b.parentNode,next=b.nextSibling,available=()=>!j.hidden&&!j.inert,restore=()=>{if(b.parentNode!==parent)parent.insertBefore(b,next&&next.parentNode===parent?next:null)},close=()=>{if(d.open)d.close()},place=()=>{if(m.matches)slot.appendChild(b);else{close();restore()}},open=()=>{if(!m.matches||!available()||d.open)return;place();if(!available())return;d.showModal();d.querySelector('[data-close-account-sheet]').focus({preventScroll:true})};m.addEventListener('change',place);place();p.addEventListener('click',e=>{if(!m.matches)return;e.preventDefault();e.stopImmediatePropagation();open()},true);d.addEventListener('click',e=>{if(e.target===d){close();return}const x=e.target.closest&&e.target.closest('button');if(x&&(b.contains(x)||x.id==='editHunterProfileAction'))close()});d.querySelector('[data-close-account-sheet]').addEventListener('click',close);d.addEventListener('close',()=>{if(p.isConnected&&m.matches&&available())requestAnimationFrame(()=>{if(!d.open&&!document.querySelector('.modal-overlay.open,.modal.open,.modal.active,.modal[aria-modal="true"]'))p.focus({preventScroll:true})})});new MutationObserver(()=>{if(!available())close()}).observe(j,{attributes:true,attributeFilter:['hidden','inert']});sync.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();sync.click()}})})();
 </script>
 </body>
 </html>
