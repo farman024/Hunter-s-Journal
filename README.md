@@ -1,43 +1,129 @@
-# Hunter's Trading Journal
+<p align="center">
+  <img src="./logo.png" width="100" alt="Hunter's Journal emblem">
+</p>
 
-A Solo Leveling-themed trading journal for recording trades, sessions, goals, and account progress. This owner-private release uses Google sign-in and authenticated, owner-scoped cloud sync; it is not the earlier phone/synthetic test build.
+# Hunter's Journal
 
-## Release status
+**Plan the trade. Record the result. Review the process.**
 
-Production application: `https://farman024.github.io/Hunter-s-Journal/index.html`. The coordinated owner-private backend migration preserves the original current and backup versions, including both trading profiles, under the verified legacy owner's Auth UUID. The original legacy records remain restricted and unchanged. This repository supplies the matching authenticated client; publication and device acceptance are verified separately.
+## Overview
 
-## Privacy and data behavior
+A Solo Leveling-inspired trading journal that brings trade records, session reflections and daily discipline into one responsive web app. Google sign-in opens a private journal for each signed-in account, with multiple trading accounts inside it.
 
-- Google sign-in is required before the journal UI is opened. A verified session and successful owner-scoped cloud read are required; the app does not show a new empty journal after a failed read.
-- Journal data is associated with the authenticated Supabase user UUID. Reads rely on row-level security; application writes use owner-only database functions. The browser uses the project's public **anon** key, never a service-role key. Server-side policies, functions, migration, and Auth configuration are separate release requirements and are not changed by this repository branch.
-- The reserved legacy owner UUID is configured for the separately controlled migration. Other authenticated accounts are intended to receive separate private journals; legacy records must not be claimed or exposed to them.
-- Saves preserve a separate rolling backup and detect revision conflicts instead of silently overwriting newer data. When sync fails, an unsynced recovery draft is kept in this tab's session storage and can be exported. Export before closing the tab after a failed save; unsynced recovery is not durable across tab closure.
-- Browser storage and Auth tokens are not end-to-end encrypted. Database administrators with privileged access can read stored journal data. Old unscoped browser keys are not imported, rendered, or uploaded by this app.
+[Open Hunter's Journal](https://farman024.github.io/Hunter-s-Journal/index.html) · [Get started locally](#getting-started--development) · [Understand privacy](#privacy--security-model)
 
-## Features
+> **Offline shell, not offline journal access.** After a successful online cache installation, the public app shell can open without a connection. Authentication and private journal data still require the internet; the journal stays locked offline.
 
-- Multiple in-app trading profiles, trade and session logging, filters, analytics, and rank progression.
-- JSON, CSV, text, and print/PDF export; CSV import.
-- Owner-private authenticated sync with separate current and backup records.
-- Installable PWA shell. The shell and allowlisted local assets are cached; Supabase/Auth, API, OAuth callback, and third-party CDN responses are not. Offline shell availability does not mean offline journal editing or fully offline third-party libraries.
-- Context-aware safe rendering for journal text and restricted raster image handling.
+## Highlights
 
-## Runtime files
+| Feature | What it offers |
+| --- | --- |
+| Private workspace | Google sign-in and a separate journal for each authenticated user. New users start empty, not with someone else's records. |
+| Multiple trading accounts | Keep trades, sessions, targets and account progress organized within one journal. |
+| Reflective journaling | Record trade details and notes, session intentions, emotions, rule compliance and post-session reflections. |
+| Discipline and progress | Custom pre-hunt rituals, post-hunt reviews, analytics and profit-target-based E-to-S rank progression. |
+| Responsive interface | A dedicated login screen, compact mobile account actions, a wider account selector and stacked discipline controls on small screens. Desktop keeps its own layout. |
+| Import and export | CSV and MT5 trade imports; CSV, JSON and text exports; and a print view for printing or browser PDF output. Export formats are not all interchangeable backups. |
 
-`index.html` contains the original app UI. `config.js` holds the enabled production endpoint, redirect URL, public anon key, and reserved legacy owner UUID. `app-auth.js`, `private-sync.js`, and `render-safe.js` implement the authentication gate, owner-scoped sync controller, and safe display helpers. `sw.js` is the v9-private scoped-cache worker. The original manifest, icons, and other repository assets are preserved.
+## Privacy & security model
 
-## Release checks and remaining limits
+Google sign-in is handled by Supabase Auth. Before showing the journal, the client verifies the signed-in user with the server and loads that user's cloud state. A failed read is not treated as permission to create or upload an empty replacement.
 
-The source implements client-side protections, but this is not a complete security certification. Production access requires the coordinated server-side rollout and verification of RLS/RPC ownership, legacy migration, Google provider settings and the exact redirect allowlist. Installed-PWA upgrade, real OAuth callback, offline behavior, real legacy-payload compatibility, and actual device acceptance remain distinct checks. The worker cannot remotely erase caches on devices that never receive its update. Third-party scripts/fonts are not pinned or cached; dependency hardening is outside this reviewed change.
+Access isolation depends on **server-side Row Level Security and owner-checking database functions**, not just hidden UI. The browser uses a public Supabase `anon` key; that key is not a user identity or a substitute for access policies. Privileged keys and Google client secrets must never be placed in client files. See [Supabase's API key guidance](https://supabase.com/docs/guides/api/api-keys).
 
-The dependency-free JavaScript test suite and database checks are retained in the private release workspace, not published as app assets. Runtime syntax checks:
+This is account-restricted storage, **not end-to-end encryption**. Administrators with sufficient backend privileges can read stored data. Authentication sessions persist in browser storage; unsynced recovery drafts use tab-scoped session storage. Downloaded exports contain private information and need to be handled accordingly.
+
+### Current, backup and recovery are different
+
+**Current** is the working cloud journal. Successful updates preserve the preceding current state as a separate **rolling backup**. Restore backup swaps those versions after revision checks, so the former current state becomes the backup. This is one backup slot, not an unlimited version history.
+
+**Recovery drafts** protect unsynced edits in the current tab. If a save fails or another revision exists, the app stops further writes rather than silently replacing newer cloud data. Use **Export draft** before discarding changes, signing out or closing the tab. A session-storage draft is not a durable offline backup, and its presence does not unlock the journal offline.
+
+Regular account exports are readable reports of the selected trading account; they should not be mistaken for a complete, restorable journal snapshot.
+
+## Getting started & development
+
+To use the hosted app, open the link above while online and choose **Continue with Google**. Account actions include backup restore, recovery-draft export and sign-out; on mobile they are available through the profile control.
+
+The frontend is plain HTML, CSS and JavaScript. Browser dependencies and fonts are checked into the repository; there is no package-install or frontend-build step.
 
 ```sh
+git clone https://github.com/farman024/Hunter-s-Journal.git
+cd Hunter-s-Journal
+```
+
+**Before opening a local copy, disable its shipped production configuration.** For a shell-only review, replace that copy's `config.js` with:
+
+```js
+window.HJ_CONFIG = Object.freeze({ enabled: false });
+```
+
+Then serve the folder over HTTP, rather than opening `index.html` as a file:
+
+```sh
+python3 -m http.server 8000 --bind 127.0.0.1
+```
+
+Open `http://127.0.0.1:8000/index.html`. This disabled configuration shows the public shell with sign-in disabled; it is not a synthetic signed-in demo. Real sign-in and journal testing require a separately prepared development backend and redirect configuration.
+
+Node.js can check the standalone runtime scripts without installing packages:
+
+```sh
+node --check config.js
 node --check app-auth.js
 node --check private-sync.js
 node --check render-safe.js
+node --check offline-shell.js
 node --check sw.js
-node --check config.js
 ```
 
-Never place a service-role key in browser code.
+These are syntax checks, not a full regression or security test suite. The public repository does not include the private release-verification harness.
+
+## Configuration & deployment
+
+The existing site is served by GitHub Pages. The frontend can be served as static files, but a working private deployment also needs its matching Supabase backend. **This repository is not a turnkey database installer:** the server-side schema, ownership policies, migration safeguards and RPC provisioning are separate requirements.
+
+The client expects a `journal_states` table with `current` and `backup` slots, plus the `save_journal_state` and `restore_journal_backup` functions. Their ownership checks, revision checks and grants must be configured before enabling cloud access. Do not use a production backend for experiments.
+
+`config.js` supplies the runtime settings:
+
+| Setting | Purpose |
+| --- | --- |
+| `enabled` | Enables cloud startup; leave false for a shell-only local review. |
+| `supabaseUrl` | The prepared project's HTTPS endpoint. |
+| `supabaseAnonKey` | The public browser key expected by this client. Never substitute a privileged server key. |
+| `redirectTo` | The exact app return URL, on the same origin as the page and without a query string or fragment. |
+| `legacyOwnerId` | Migration-safety setting required by the current client. Coordinate it with the prepared backend; it does not grant access. |
+
+Enable Google's provider in the development project's Supabase Auth settings. Configure Google's authorized redirect URI with the **Supabase callback URL**, and Supabase's redirect allowlist with the **app return URL**. These are different destinations; follow the [official Google sign-in setup guide](https://supabase.com/docs/guides/auth/social-login/auth-google).
+
+For deployment, retain relative asset paths and publish the frontend files, including `vendor/`, font assets, icons, manifest and service worker, over HTTPS. Test redirects against the actual deployed path, including any repository subdirectory.
+
+`sw.js` uses an integrity-pinned public-asset manifest and a versioned cache. Changing a cached file requires updating its integrity entry and the cache identity together. Failed precaching must not replace the working version. A README-only edit does not require a worker update because the README is not in that manifest.
+
+### Runtime map
+
+| File | Responsibility |
+| --- | --- |
+| `index.html` | Journal UI, forms, analytics and account interactions. |
+| `app-auth.js` | Sign-in gate, authenticated startup and account actions. |
+| `private-sync.js` | Owner-scoped reads, revision-aware writes, restore and recovery drafts. |
+| `render-safe.js` | Context-aware rendering helpers. |
+| `offline-shell.js` | Offline messaging and locked-shell startup. |
+| `sw.js` / `manifest.json` | Public-shell caching and PWA metadata. |
+
+## Limitations
+
+Internet access is required to authenticate, open or edit the private journal. The service worker caches only allowlisted public UI assets—not Auth tokens, Supabase API responses or journal contents. Browser-stored sessions and recovery drafts are separate from that public cache.
+
+A first visit needs a connection, and offline availability depends on a successfully installed cache. Installation options and standalone behavior vary by browser and device; a home-screen shortcut is not proof of a standalone PWA installation. Worker updates follow the browser's normal lifecycle and may wait for older app windows to close.
+
+Imports depend on supported trade-file formats; XLS/XLSX spreadsheets are not accepted by the local MT5 parser. The rolling backup is not archival storage, sync conflicts need explicit reconciliation, and exports are not a promised round-trip restore format. This repository is a trading journal, not a broker connection or order-execution service. Its metrics and ranks are review aids, not investment advice or performance guarantees.
+
+## Attribution
+
+The visual theme draws inspiration from **Solo Leveling**; that reference does not imply affiliation or endorsement.
+
+Bundled libraries include Supabase JS, Chart.js and html2canvas. Their license notices are in [`vendor/licenses/`](./vendor/licenses/). Cinzel, Rajdhani and Share Tech Mono font notices are in [`ui-assets/licenses/`](./ui-assets/licenses/). Preserve the applicable notices when redistributing those assets.
+
+The repository currently has no top-level project license file. Third-party license notices do not, by themselves, establish a license for the application, branding or artwork.
