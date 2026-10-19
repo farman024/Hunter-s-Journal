@@ -1103,6 +1103,22 @@ canvas { width: 100% !important; }
   #journalApp #privateAccountActions>button { min-height:44px; padding:10px 12px; text-align:left; }
 }
 </style>
+<style id="discipline-mobile-styles">
+@media (max-width:600px) {
+  #disciplinePanel { min-width:0; max-width:100%; }
+  #disciplinePanel .section-header { min-width:0; }
+  #disciplinePanel .section-title { min-width:0; white-space:normal; overflow-wrap:anywhere; line-height:1.5; }
+  #disciplinePanel .discipline-grid { grid-template-columns:minmax(0,1fr)!important; gap:20px!important; }
+  #disciplinePanel .discipline-ritual, #disciplinePanel .checklist-list { min-width:0; max-width:100%; }
+  #disciplinePanel .checklist-list li { min-width:0; align-items:flex-start; gap:8px; }
+  #disciplinePanel .checklist-text { min-width:0; overflow-wrap:anywhere; white-space:normal; line-height:1.5; }
+  #disciplinePanel .checklist-check { margin-top:2px; }
+  #disciplinePanel .checklist-del { flex:0 0 32px; min-width:32px; min-height:32px; padding:6px; opacity:.8; }
+  #disciplinePanel .discipline-add { min-width:0; align-items:stretch; }
+  #disciplinePanel .discipline-add input { flex:1 1 0!important; width:0; min-width:0; max-width:100%; min-height:44px; }
+  #disciplinePanel .discipline-add button { flex:0 0 auto; min-width:52px; min-height:44px; }
+}
+</style>
 </head>
 <body>
 <section id="privateGate" aria-labelledby="loginTitle">
@@ -1392,23 +1408,23 @@ canvas { width: 100% !important; }
   </div>
 
   <!-- PRE/POST TRADE CHECKLIST -->
-  <div class="section-card" style="margin-bottom:20px;">
+  <div class="section-card" id="disciplinePanel" style="margin-bottom:20px;">
     <div class="section-header"><span class="section-title"><span class="icon" style="margin-right:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Pre-Hunt / Post-Hunt Discipline</span></div>
     <div class="section-body">
       <div style="font-size:0.8rem;color:var(--text3);margin-bottom:12px;">A Hunter's discipline determines their rank. Mark what you followed today.</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-        <div>
-          <div style="font-size:0.78rem;color:var(--accent2);margin-bottom:8px;">G∩┐╜∩┐╜ PRE-HUNT RITUAL</div>
+      <div class="discipline-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="discipline-ritual">
+          <div style="font-size:0.78rem;color:var(--accent2);margin-bottom:8px;">PRE-HUNT RITUAL</div>
           <ul class="rules-list checklist-list" id="preChecklist"></ul>
-          <div style="display:flex;gap:6px;margin-top:8px;">
+          <div class="discipline-add" style="display:flex;gap:6px;margin-top:8px;">
             <input type="text" id="preChecklistInput" placeholder="Add discipline..." style="flex:1;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:0.78rem;">
             <button class="btn btn-outline btn-sm" onclick="addChecklistItem('pre')">Add</button>
           </div>
         </div>
-        <div>
-          <div style="font-size:0.78rem;color:var(--green);margin-bottom:8px;">G∩┐╜∩┐╜ POST-HUNT REVIEW</div>
+        <div class="discipline-ritual">
+          <div style="font-size:0.78rem;color:var(--green);margin-bottom:8px;">POST-HUNT REVIEW</div>
           <ul class="rules-list checklist-list" id="postChecklist"></ul>
-          <div style="display:flex;gap:6px;margin-top:8px;">
+          <div class="discipline-add" style="display:flex;gap:6px;margin-top:8px;">
             <input type="text" id="postChecklistInput" placeholder="Add discipline..." style="flex:1;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:0.78rem;">
             <button class="btn btn-outline btn-sm" onclick="addChecklistItem('post')">Add</button>
           </div>
